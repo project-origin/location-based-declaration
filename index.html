@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Miljødeklaration</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+</head>
+
+<body>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="script.js"></script>
+
+
+  <div class="container">
+    <div class="bg-light p-5 rounded-lg m-3">
+      <h1 class="display-4">Miljødeklaration <spand id="title_year"><spand></h1>
+      <p class="lead">Udregn din virksomheds årlige miljødeklaration på timebasis.</p>
+      <hr class="my-4">
+
+      <div class="input-group mb-3">
+        <input type="text" class="form-control" id="input-token" placeholder="Token">
+        <button class="btn btn-primary" type="button" onclick="computeDeclaration(this)">Beregn</button>
+      </div>
+
+      <div class="pt-3 pb-3">
+        <h4 id="label-master-data"></h4>
+      </div>
+
+      <table class="table table-striped" id="table-master-data" hidden>
+        <thead>
+          <tr>
+            <th>Målepunkt ID</th>
+            <th>Addresse</th>
+            <th>Postnummer</th>
+            <th>By</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+
+      <div class="pt-3 pb-3">
+        <h4 id="label-emission-data"></h4>
+      </div>
+
+      <table class="table table-striped" id="table-emission-data" hidden>
+        <thead>
+          <tr>
+            <th>Ved forbrug af 1 kWh fremkommer</th>
+            <th>Individuel deklaration</th>
+            <th>Generel 2020</th>
+          </tr>
+        </thead>
+        <tbody class="text-center">
+          <tr>
+            <td class="text-start text-success"><strong>Emissioner til luften</strong></td>
+            <td colspan="2"><strong>g/kWh</strong></td>
+          </tr>
+          <tr>
+            <td class="text-start">CO<sub>2</sub> (Kuldioxid - drivhusgas)</td>
+            <td><span id='Co2_value'></span></td>
+            <td>364.29</td>
+          </tr>
+          <tr>
+            <td class="text-start">CH<sub>4</sub> (Metan - drivhusgas)</td>
+            <td><span id='CH4_value'></span></td>
+            <td>0.27</td>
+          </tr>
+          <tr>
+            <td class="text-start">N<sub>2</sub>O (Lattergas - drivhusgas)</td>
+            <td><span id='N2O_value'></span></td>
+            <td>0.004</td>
+          </tr>
+          <tr>
+            <td class="text-start">Drivhusgasser (CO<sub>2</sub> ækv.)</td>
+            <td><span id='Co2_eqv_value'></span></td>
+            <td>373.05</td>
+          </tr>
+          <tr>
+            <td class="text-start">SO<sub>2</sub> (Svovldioxid)</td>
+            <td><span id='So2_value'></span></td>
+            <td>0.07</td>
+          </tr>
+          <tr>
+            <td class="text-start">NO<sub>x</sub> (Kvælstofilte)</td>
+            <td><span id='NOx_value'></span></td>
+            <td>0.29</td>
+          </tr>
+          <tr>
+            <td class="text-start">CO (Kulilte)</td>
+            <td><span id='CO_value'></span></td>
+            <td>0.10</td>
+          </tr>
+          <tr>
+            <td class="text-start">NM<sub>VOC</sub> (Uforbrændt kulbrinter)</td>
+            <td><span id='NMvoc_value'></span></td>
+            <td>0.05</td>
+          </tr>
+          <tr>
+            <td class="text-start">Partikler</td>
+            <td><span id='Partikler_value'></span></td>
+            <td>0.01</td>
+          </tr>
+          <tr>
+            <td class="text-start text-success"><strong>Restprodukter</strong></td>
+            <td colspan="2" align="center"><strong>g/kWh</strong></td>
+          </tr>
+          <tr>
+            <td class="text-start">Kulflyveaske</td>
+            <td><span id='flyveaske_value'></span></td>
+            <td>11.50</td>
+          </tr>
+          <tr>
+            <td class="text-start">Kulslagge</td>
+            <td><span id='kulslagge_value'></span></td>
+            <td>0.20</td>
+          </tr>
+          <tr>
+            <td class="text-start">Afsvovlingsprodukter (Gips)</td>
+            <td><span id='afsvovling_value'></span></td>
+            <td>4.20</td>
+          </tr>
+          <tr>
+            <td class="text-start">Slagge (affaldsforbrænding)</td>
+            <td><span id='slagge_value'></span></td>
+            <td>4.30</td>
+          </tr>
+          <tr>
+            <td class="text-start">RGA (røggasaffald)</td>
+            <td><span id='rga_value'></span></td>
+            <td>0.60</td>
+          </tr>
+          <tr>
+            <td class="text-start">Bioaske</td>
+            <td><span id='bioaske_value'></span></td>
+            <td>0.003</td>
+          </tr>
+          <tr>
+            <td class="text-start">Radioaktivt affald (mg)</td>
+            <td><span id='radioactive_value'></span></td>
+            <td>0.80</td>
+          </tr>
+        </tbody>
+      </table>
+
+    </div>
+</body>
+
+</html>
