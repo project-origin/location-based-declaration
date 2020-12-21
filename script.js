@@ -263,6 +263,10 @@ function computeDeclaration(obj) {
                 generateEmissionTable(emissionStats);
                 buildBarChart(fuelStats);
                 buildGaugeChart(fuelStats);
+                buildTechnologyTable(fuelStats);
+                
+                $('#co2Total').text((emissionStats['Co2'] / 1000).toFixed(2) + ' kg.');
+                $('#co2Relative').text((emissionStats['Co2'] / emissionStats['Total_kWh']).toFixed(2) + ' g/kWh');
 
             }).catch(function() {
                 $('#label-emission-data').text('Noget gik galt. Kunne ikke beregne miljødeklarationen. Prøv igen eller kontakt administratoren.');
@@ -303,8 +307,9 @@ function buildBarChart(fuelStats) {
         },
         options: {
             legend: {
+                display: true,
                 align: 'center',
-                position: 'right'
+                position: 'left '
             },
             animation: {
                 duration: 200
@@ -327,8 +332,6 @@ function buildBarChart(fuelStats) {
 function buildGaugeChart(fuelStats) {
     let element = document.querySelector('#gaugeArea')
     let greenPercentage = greenEnergyPercentage(fuelStats)
-    
-    console.log('greenPercentage', greenPercentage);
 
     // Properties of the gauge
     let gaugeOptions = {
@@ -339,9 +342,22 @@ function buildGaugeChart(fuelStats) {
         arcDelimiters: [greenPercentage],
         rangeLabel: ['0%', '100%'],
         needleStartValue: greenEnergyPercentage(fuelStats),
+        centralLabel: greenPercentage + '% grøn',
     };
 
     GaugeChart.gaugeChart(element, 300, gaugeOptions).updateNeedle(greenPercentage)
+}
+
+
+function buildTechnologyTable(fuelStats) {
+    var table = $('#technologiesTable');
+    table.empty();
+    
+    for(var technology in fuelStats) {
+        if(technology != 'Total_kWh') {
+            table.append('<tr><td>'+technology+'</td><td>'+formatAmount(fuelStats[technology] * 1000)+'</td></tr>');
+        }
+    }
 }
 
 
