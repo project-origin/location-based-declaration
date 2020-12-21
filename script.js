@@ -22,6 +22,8 @@ let COLORS = {
   'Fuelolie': '#ff6600',
   'Gasolie': '#ff6600',
   'Atomkraft': '#8064a2',
+  'Halm': '#fcba03',
+  'Træ_mm': '#fcba03'
 };
 
 
@@ -276,18 +278,25 @@ function computeDeclaration(obj) {
 
 function buildChart(fuelStats) {
     var ctx = document.getElementById('barChart').getContext('2d');
+    var labels = [];
+    var values = [];
     var colors = [];
+
     for(var technology in fuelStats) {
-        colors.push(COLORS[technology]);
+        if(technology != 'Total_kWh') {
+            labels.push(technology);
+            values.push(fuelStats[technology] * 1000);  // kWh to Wh
+            colors.push(COLORS[technology]);
+        }
     }
-    console.log('colors', colors);
+    
     var chart = new Chart(ctx, {
         type: 'pie',
         data: {
-            labels: Object.keys(fuelStats),
+            labels: labels,
             datasets: [{
                 label: 'My First dataset',
-                data: Object.values(fuelStats),
+                data: values,
                 backgroundColor: colors
             }]
         },
@@ -303,13 +312,9 @@ function buildChart(fuelStats) {
                 enabled: true,
                 callbacks: {
                     label: function(tooltipItem, data) {
-                    if(data.labels[tooltipItem.index].toString() !== 'No data') {
                         return data.labels[tooltipItem.index].toString() 
                             + ': ' 
                             + formatAmount(data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index]);
-                    } else {
-                        return 'No data';
-                    }
                     }
                 }
             }
@@ -324,13 +329,13 @@ function formatAmount(amount) {
     
     if(amount >= Math.pow(10, 9)) {
         unit = 'GWh';
-        actualAmount = amount / Math.pow(10, 9).toFixed(2);
+        actualAmount = (amount / Math.pow(10, 9)).toFixed(2);
     } else if(amount >= Math.pow(10, 6)) {
         unit = 'MWh';
-        actualAmount = amount / Math.pow(10, 6).toFixed(2);
+        actualAmount = (amount / Math.pow(10, 6)).toFixed(2);
     } else if(amount >= Math.pow(10, 3)) {
         unit = 'kWh';
-        actualAmount = amount / Math.pow(10, 3).toFixed(2);
+        actualAmount = (amount / Math.pow(10, 3)).toFixed(2);
     } else {
         unit = 'Wh';
         actualAmount = amount.toFixed(2);
