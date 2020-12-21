@@ -8,6 +8,19 @@
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
 
+  <style type="text/css">
+    @media print {
+
+      body * {
+        -webkit-print-color-adjust: exact;
+      }
+
+      #section-not-to-print * {
+        display: none;
+      }
+    }
+  </style>
+
 </head>
 
 <body>
@@ -27,30 +40,33 @@
     </div>
   </div>
 
-
   <div class="container">
     <div class="bg-light p-5 rounded-lg m-3">
+
       <h1 class="display-4">Miljødeklaration <span id="title_year"><span></h1>
-      <p class="lead">Udregn din virksomheds årlige miljødeklaration på timebasis.</p>
-      <hr class="my-4">
 
-      <div class="input-group mb-3">
-        <input type="text" class="form-control" id="input-token" placeholder="Token">
-        <button class="btn btn-primary" type="button" onclick="computeDeclaration(this)" style="background: #4d8a8b; border: none;">Beregn</button>
+      <div id="section-not-to-print">
+        <p class="lead">Udregn din virksomheds årlige miljødeklaration på timebasis.</p>
+        <hr class="my-4">
+
+        <div class="input-group mb-3">
+          <input type="text" class="form-control" id="input-token" placeholder="Token">
+          <button class="btn btn-primary" type="button" onclick="computeDeclaration(this)" style="background: #4d8a8b; border: none;">Beregn</button>
+        </div>
+
+        <div class="pt-3">
+          <h4 id="label-status"></h4>
+        </div>
       </div>
 
-      <div class="pt-3 pb-3">
-        <h4 id="label-status"></h4>
-      </div>
 
       <div id="data-sector" hidden>
 
-
-        <div class="pt-3 pb-3">
-          <h4 id="label-master-data"></h4>
+        <div class="pt-3">
+          <h3>Forbrugsstamdata</h3>
         </div>
 
-        <div class="pt-3 pb-3">
+        <div class="pt-3">
           <table class="table table-striped" id="table-master-data">
             <thead>
               <tr>
@@ -65,13 +81,13 @@
         </div>
 
         <div class="pt-3">
-          <h4>Din grønne profil</h4>
+          <h3>Din grønne profil</h3>
 
           <div class="pt-3">
-            <table class="table text-center align-middle">
+            <table class="table table-borderless text-center align-middle">
               <tr>
                 <td class="h5">Total CO<sub>2</sub> udledning:</td>
-                <td class="h5">Vedvarende energi (vind, sol og hydra)</td>
+                <td class="h5">Vedvarende energi <span class="text-nowrap">(vind, sol og hydra)</span></td>
                 <td class="h5">Relativ CO<sub>2</sub> udledning:</td>
               </tr>
               <tr>
@@ -83,15 +99,15 @@
           </div>
         </div>
 
-        <div class="pt-3 pb-3">
-          <h4 id="label-master-data">Brændsler anvendt til elfremstilling</h4>
+        <div class="pt-3">
+          <h3>Brændsler anvendt til elfremstilling</h3>
         </div>
 
         <div class="row pt-3">
-          <div class="col-8">
+          <div class="col-12 col-md-8">
             <canvas id="barChart"></canvas>
           </div>
-          <div class="col-4">
+          <div class="col-12 col-md-4">
             <table class="table table-striped">
               <thead>
                 <tr>
@@ -99,19 +115,18 @@
                   <th>Teknologi</th>
                   <th>Forbrug</th>
                 </tr>
+              <tbody id="technologiesTable"></tbody>
               </thead>
               <tbody id="technologiesTable"></tbody>
             </table>
           </div>
         </div>
 
-        <hr />
-
-        <div class="pt-3 pb-3">
-          <h4>Miljøforhold for el leveret til forbrug</h4>
+        <div class="pt-3">
+          <h3>Miljøforhold for el leveret til forbrug</h3>
         </div>
 
-        <div class="pt-3 pb-3">
+        <div class="pt-3">
           <table class="table table-striped" id="table-emission-data">
             <thead>
               <tr>
@@ -213,6 +228,8 @@
           </table>
         </div>
       </div>
+    </div>
+  </div>
 </body>
 
 </html>
