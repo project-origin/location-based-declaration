@@ -162,8 +162,6 @@ function generateMasterDataTable(data) {
             cell.appendChild(text);
         }
     }
-
-    $("#table-master-data").removeAttr('hidden');
 }
 
 function convertToPerkWh(emission_value, total_kWh, num_decimals) {
@@ -175,7 +173,6 @@ function generateEmissionTable(stats) {
 
     $("#Co2_value").text(convertToPerkWh(stats['Co2'], total_kWh, 2));
 
-    $("#table-emission-data").removeAttr('hidden');
 }
 
 function initFuelStats() {
@@ -228,8 +225,6 @@ function processMeasuringPoints(measuringPoints, fuelStats, emissionStats) {
 }
 
 function clear_data() {
-    $("#table-master-data").attr("hidden", true);
-    $("#table-emission-data").attr("hidden", true);
     $("#table-master-data tbody tr").empty();
     $('#label-master-data').text('');
     $('#label-emission-data').text('');
@@ -240,7 +235,7 @@ function computeDeclaration(obj) {
 
     let refreshToken = $('#input-token').val();
 
-    $('#label-master-data').text('Fremsøger forbrugsstamdata...');
+    $('#label-status').text('Fremstiller miljødeklarationen. Vent venligst...');
 
     retrieveDataAccessToken(refreshToken).then(function(data) {
         dataAccessToken = data['result'];
@@ -255,7 +250,7 @@ function computeDeclaration(obj) {
             fuelStats = initFuelStats();
             emissionStats = initEmissionStats();
             processMeasuringPoints(measuringPoints, fuelStats, emissionStats).then(function() {
-                $('#label-emission-data').text('Miljøforhold for el leveret til forbrug');
+                $('#label-status').text('');
 
                 console.log('fuelStats', fuelStats);
                 console.log('emissionStats', emissionStats);
@@ -264,19 +259,21 @@ function computeDeclaration(obj) {
                 buildBarChart(fuelStats);
                 buildGaugeChart(fuelStats);
                 buildTechnologyTable(fuelStats);
-                
+
                 $('#co2Total').text((emissionStats['Co2'] / 1000).toFixed(2) + ' kg.');
                 $('#co2Relative').text((emissionStats['Co2'] / emissionStats['Total_kWh']).toFixed(2) + ' g/kWh');
 
+                $('#data-sector').removeAttr('hidden');
+
             }).catch(function() {
-                $('#label-emission-data').text('Noget gik galt. Kunne ikke beregne miljødeklarationen. Prøv igen eller kontakt administratoren.');
+                $('#label-status').text('Noget gik galt. Kunne ikke beregne miljødeklarationen. Prøv igen eller kontakt administratoren.');
             });
 
         }).catch(function() {
-            $('#label-emission-data').text('Noget gik galt. Kunne ikke hente forbrugsdata. Prøv igen eller kontakt administratoren.');
+            $('#label-status').text('Noget gik galt. Kunne ikke hente forbrugsdata. Prøv igen eller kontakt administratoren.');
         });
     }).catch(function() {
-        $('#label-master-data').text('Noget gik galt. Venligst sikrer dig at din token er valid.');
+        $('#label-status').text('Noget gik galt. Venligst sikrer dig at din token er valid.');
     });
 }
 
@@ -294,22 +291,22 @@ function buildBarChart(fuelStats) {
             colors.push(COLORS[technology]);
         }
     }
-    
+
     var chart = new Chart(ctx, {
         type: 'pie',
         data: {
             labels: labels,
             datasets: [{
-                label: 'My First dataset',
+                label: '',
                 data: values,
                 backgroundColor: colors
             }]
         },
         options: {
             legend: {
-                display: true,
+                display: false,
                 align: 'center',
-                position: 'left '
+                position: 'bottom'
             },
             animation: {
                 duration: 200
@@ -318,8 +315,8 @@ function buildBarChart(fuelStats) {
                 enabled: true,
                 callbacks: {
                     label: function(tooltipItem, data) {
-                        return data.labels[tooltipItem.index].toString() 
-                            + ': ' 
+                        return data.labels[tooltipItem.index].toString()
+                            + ': '
                             + formatAmount(data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index]);
                     }
                 }
@@ -352,19 +349,20 @@ function buildGaugeChart(fuelStats) {
 function buildTechnologyTable(fuelStats) {
     var table = $('#technologiesTable');
     table.empty();
-    
+
     for(var technology in fuelStats) {
         if(technology != 'Total_kWh') {
-            table.append('<tr><td>'+technology+'</td><td>'+formatAmount(fuelStats[technology] * 1000)+'</td></tr>');
+            table.append(`<tr><td style="background-color:${COLORS[technology]};"></td><td>${technology}</td><td>${formatAmount(fuelStats[technology] * 1000)}</td></tr>`);
         }
     }
+    table.append(`<tr><td></td><td class='h4'>Total forbrug</td><td class='h4'>${formatAmount(fuelStats['Total_kWh'] * 1000)}</td></tr>`)
 }
 
 
 function formatAmount(amountWh) {
     let unit;
     let actualAmount;
-    
+
     if(amountWh >= Math.pow(10, 9)) {
         unit = 'GWh';
         actualAmount = (amountWh / Math.pow(10, 9)).toFixed(2);
@@ -390,6 +388,6 @@ function greenEnergyPercentage(fuelStats) {
                         + fuelStats['Offshore']
                         + fuelStats['Vandkraft']
                         + fuelStats['Anden VE'];
-                        
+
     return Math.round(greenEnergy / total * 100);
 }
