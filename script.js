@@ -261,7 +261,8 @@ function computeDeclaration(obj) {
                 console.log('emissionStats', emissionStats);
 
                 generateEmissionTable(emissionStats);
-                buildChart(fuelStats);
+                buildBarChart(fuelStats);
+                buildGaugeChart(fuelStats);
 
             }).catch(function() {
                 $('#label-emission-data').text('Noget gik galt. Kunne ikke beregne miljødeklarationen. Prøv igen eller kontakt administratoren.');
@@ -276,7 +277,7 @@ function computeDeclaration(obj) {
 }
 
 
-function buildChart(fuelStats) {
+function buildBarChart(fuelStats) {
     var ctx = document.getElementById('barChart').getContext('2d');
     var labels = [];
     var values = [];
@@ -323,23 +324,56 @@ function buildChart(fuelStats) {
 }
 
 
-function formatAmount(amount) {
+function buildGaugeChart(fuelStats) {
+    let element = document.querySelector('#gaugeArea')
+    let greenPercentage = greenEnergyPercentage(fuelStats)
+    
+    console.log('greenPercentage', greenPercentage);
+
+    // Properties of the gauge
+    let gaugeOptions = {
+        hasNeedle: true,
+        needleColor: 'gray',
+        needleUpdateSpeed: 0,
+        arcColors: ['green', 'black'],
+        arcDelimiters: [greenPercentage],
+        rangeLabel: ['0%', '100%'],
+        needleStartValue: greenEnergyPercentage(fuelStats),
+    };
+
+    GaugeChart.gaugeChart(element, 300, gaugeOptions).updateNeedle(greenPercentage)
+}
+
+
+function formatAmount(amountWh) {
     let unit;
     let actualAmount;
     
-    if(amount >= Math.pow(10, 9)) {
+    if(amountWh >= Math.pow(10, 9)) {
         unit = 'GWh';
-        actualAmount = (amount / Math.pow(10, 9)).toFixed(2);
-    } else if(amount >= Math.pow(10, 6)) {
+        actualAmount = (amountWh / Math.pow(10, 9)).toFixed(2);
+    } else if(amountWh >= Math.pow(10, 6)) {
         unit = 'MWh';
-        actualAmount = (amount / Math.pow(10, 6)).toFixed(2);
-    } else if(amount >= Math.pow(10, 3)) {
+        actualAmount = (amountWh / Math.pow(10, 6)).toFixed(2);
+    } else if(amountWh >= Math.pow(10, 3)) {
         unit = 'kWh';
-        actualAmount = (amount / Math.pow(10, 3)).toFixed(2);
+        actualAmount = (amountWh / Math.pow(10, 3)).toFixed(2);
     } else {
         unit = 'Wh';
-        actualAmount = amount.toFixed(2);
+        actualAmount = amountWh.toFixed(2);
     }
 
     return actualAmount + ' ' + unit;
+}
+
+
+function greenEnergyPercentage(fuelStats) {
+    var total = fuelStats['Total_kWh'];
+    var greenEnergy = fuelStats['Solceller']
+                        + fuelStats['Onshore']
+                        + fuelStats['Offshore']
+                        + fuelStats['Vandkraft']
+                        + fuelStats['Anden VE'];
+                        
+    return Math.round(greenEnergy / total * 100);
 }
