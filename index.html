@@ -28,7 +28,7 @@
   </div>
   <div class="container">
     <div class="bg-light p-5 rounded-lg m-3">
-      <h1 class="display-4">Miljødeklaration <spand id="title_year"><spand></h1>
+      <h1 class="display-4">Miljødeklaration <span id="title_year"><span></h1>
       <p class="lead">Udregn din virksomheds årlige miljødeklaration på timebasis.</p>
       <hr class="my-4">
 
@@ -54,31 +54,32 @@
         </tbody>
       </table>
 
-      <div>
+      <div class="pt-5 pb-5">
         <h4>Din grønne profil</h4>
-        
-        <div>
-            <div style="display: inline-block; width: 30%; text-align: center; font-size: 20px;">
-                Total CO<sub>2</sub> udledning:<br>
-                <b id="co2Total"></b>
-            </div>
-            <div style="display: inline-block; width: 40%">
-                <div id="gaugeArea"></div>
-            </div>
-            <div style="display: inline-block; width: 25%; text-align: center; font-size: 20px;">
-                Relativ CO<sub>2</sub> udledning:<br>
-                <b id="co2Relative"></b>
-            </div>
+
+        <div class="pt-3">
+            <table class="table text-center align-middle">
+                <tr>
+                    <td class="h5">Total CO<sub>2</sub> udledning:</td>
+                    <td class="h5">Vedvarende energi (vind, sol og hydra)</td>
+                    <td class="h5">Relativ CO<sub>2</sub> udledning:</td>
+                </tr>
+                <tr>
+                    <td class="h3"><b id="co2Total"></b></td>
+                    <td><span id="gaugeArea"></span></td>
+                    <td class="h3"><b id="co2Relative"></b></td>
+                </tr>
+            </table>
         </div>
       </div>
 
       <div class="pt-3 pb-3">
         <h4 id="label-emission-data"></h4>
       </div>
-      
+
       <h2></h2>
-      
-      
+
+
 
       <table class="table table-striped" id="table-emission-data" hidden>
         <thead>
@@ -179,17 +180,17 @@
           </tr>
         </tbody>
       </table>
-      
-      
-      
+
+
+
       <h2>Teknologi oprindelse</h2>
 
-        
+
       <div class="row">
         <div style="width: 60%;" style="display: inline-block;">
             <canvas id="barChart"></canvas>
         </div>
-        
+
         <div style="width: 40%;" style="display: inline-block;">
             <table style="width: 100%" cellpadding="4" cellspacing="1">
                 <tr style="background: #e1e1e1">
@@ -200,7 +201,7 @@
             </table>
         </div>
       </div>
-      
+
 
     </div>
 </body>
