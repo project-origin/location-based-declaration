@@ -14,9 +14,17 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
   <script src="script.js"></script>
 
 
+  <div style="background: #4d8a8b;">
+    <div class="container">
+        <div class="p-3 rounded-lg">
+            <img src="logo.png">
+        </div>
+    </div>
+  </div>
   <div class="container">
     <div class="bg-light p-5 rounded-lg m-3">
       <h1 class="display-4">Miljødeklaration <spand id="title_year"><spand></h1>
@@ -25,7 +33,7 @@
 
       <div class="input-group mb-3">
         <input type="text" class="form-control" id="input-token" placeholder="Token">
-        <button class="btn btn-primary" type="button" onclick="computeDeclaration(this)">Beregn</button>
+        <button class="btn btn-primary" type="button" onclick="computeDeclaration(this)" style="background: #4d8a8b; border: none;">Beregn</button>
       </div>
 
       <div class="pt-3 pb-3">
@@ -148,6 +156,10 @@
           </tr>
         </tbody>
       </table>
+      
+      <div style="width: 75%;" style="text-align: center">
+        <canvas id="barChart"></canvas>
+      </div>
 
     </div>
 </body>

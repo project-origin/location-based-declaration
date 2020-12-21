@@ -6,6 +6,25 @@ let FUEL_DATA;
 let API_HOST = 'https://api.eloverblik.dk';
 let YEAR = '2019';
 
+let COLORS = {
+  'Onshore': '#0a515d',
+  'Offshore': '#0a515d',
+  'Anden VE': '#0a515d',
+  'marine': '#f29e1f',
+  'Vandkraft': '#00a98f',
+  'Solceller': '#ffd424',
+  'biomass': '#a0cd92',
+  'Biogas': '#293a4c',
+  'Affald': '#a0c1c2',
+  'Kul': '#333333',
+  'Brunkul': '#333333',
+  'Naturgas': '#a0ffc8',
+  'Fuelolie': '#ff6600',
+  'Gasolie': '#ff6600',
+  'Atomkraft': '#8064a2',
+};
+
+
 $(document).ready(function() {
     loadData();
 
@@ -236,10 +255,12 @@ function computeDeclaration(obj) {
             processMeasuringPoints(measuringPoints, fuelStats, emissionStats).then(function() {
                 $('#label-emission-data').text('Miljøforhold for el leveret til forbrug');
 
-                generateEmissionTable(emissionStats)
+                console.log('fuelStats', fuelStats);
+                console.log('emissionStats', emissionStats);
 
-                console.log(fuelStats)
-                console.log(emissionStats)
+                generateEmissionTable(emissionStats);
+                buildChart(fuelStats);
+
             }).catch(function() {
                 $('#label-emission-data').text('Noget gik galt. Kunne ikke beregne miljødeklarationen. Prøv igen eller kontakt administratoren.');
             });
@@ -250,4 +271,70 @@ function computeDeclaration(obj) {
     }).catch(function() {
         $('#label-master-data').text('Noget gik galt. Venligst sikrer dig at din token er valid.');
     });
+}
+
+
+function buildChart(fuelStats) {
+    var ctx = document.getElementById('barChart').getContext('2d');
+    var colors = [];
+    for(var technology in fuelStats) {
+        colors.push(COLORS[technology]);
+    }
+    console.log('colors', colors);
+    var chart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: Object.keys(fuelStats),
+            datasets: [{
+                label: 'My First dataset',
+                data: Object.values(fuelStats),
+                backgroundColor: colors
+            }]
+        },
+        options: {
+            legend: {
+                align: 'center',
+                position: 'right'
+            },
+            animation: {
+                duration: 200
+            },
+            tooltips: {
+                enabled: true,
+                callbacks: {
+                    label: function(tooltipItem, data) {
+                    if(data.labels[tooltipItem.index].toString() !== 'No data') {
+                        return data.labels[tooltipItem.index].toString() 
+                            + ': ' 
+                            + formatAmount(data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index]);
+                    } else {
+                        return 'No data';
+                    }
+                    }
+                }
+            }
+        }
+    });
+}
+
+
+function formatAmount(amount) {
+    let unit;
+    let actualAmount;
+    
+    if(amount >= Math.pow(10, 9)) {
+        unit = 'GWh';
+        actualAmount = amount / Math.pow(10, 9).toFixed(2);
+    } else if(amount >= Math.pow(10, 6)) {
+        unit = 'MWh';
+        actualAmount = amount / Math.pow(10, 6).toFixed(2);
+    } else if(amount >= Math.pow(10, 3)) {
+        unit = 'kWh';
+        actualAmount = amount / Math.pow(10, 3).toFixed(2);
+    } else {
+        unit = 'Wh';
+        actualAmount = amount.toFixed(2);
+    }
+
+    return actualAmount + ' ' + unit;
 }
