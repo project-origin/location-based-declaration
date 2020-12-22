@@ -225,7 +225,9 @@ function processMeasuringPoints(measuringPoints, fuelStats, emissionStats) {
 }
 
 function clear_data() {
+    $('#data-sector').attr('hidden', true);
     $("#table-master-data tbody tr").empty();
+    $('#gaugeArea').empty();
     $('#label-master-data').text('');
     $('#label-emission-data').text('');
 }
