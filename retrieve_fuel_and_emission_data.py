@@ -11,26 +11,26 @@ def retrieve_fuel_data():
     url = 'https://www.energidataservice.dk/proxy/api/datastore_search_sql?sql=\
           SELECT "HourUTC", "PriceArea", "DKFuelType", "ConsumedDK" \
           FROM "declarationproductiontypeshour" \
+          WHERE "HourDK" >= \'2019-01-01\' AND "HourDK" <= \'2019-12-31\' \
           ORDER BY "HourUTC" ASC'
 
     response = requests.get(requote_uri(url))
     records = response.json()['result']['records']
 
-    filtered_year = list(filter(lambda x: x['HourUTC'].startswith(YEAR), records))
-    return filtered_year
+    return records
 
 
 def retrieve_emission_data():
     url = 'https://www.energidataservice.dk/proxy/api/datastore_search_sql?sql=\
            SELECT "HourUTC", "PriceArea", "Co2PerkWh" \
            FROM "declarationemissionhour" \
+           WHERE "HourDK" >= \'2019-01-01\' AND "HourDK" <= \'2019-12-31\' \
            ORDER BY "HourUTC" ASC'
 
     response = requests.get(requote_uri(url))
     records = response.json()['result']['records']
 
-    filtered_year = list(filter(lambda x: x['HourUTC'].startswith(YEAR), records))
-    return filtered_year
+    return records
 
 
 def calculate_kwh_per_hour(fuel_data):
@@ -106,7 +106,11 @@ def convert_emission_data(emission_data):
         area = row['PriceArea']
 
         for emission_type in emission_types:
-            converted_data[area][emission_type].append({'HourUTC': row['HourUTC'], 'PerkWh': row[emission_type + 'PerkWh']})
+            try:
+                converted_data[area][emission_type].append({'HourUTC': row['HourUTC'], 'PerkWh': row[emission_type + 'PerkWh']})
+            except KeyError:
+                print("Emission_type: ",emission_type)
+                print("Emission_types: ",emission_types)
 
     for area in VALID_AREAS:
         for emission_type in emission_types:
