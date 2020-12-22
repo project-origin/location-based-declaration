@@ -165,15 +165,14 @@ function generateMasterDataTable(data) {
     }
 }
 
-function convertToPerkWh(emission_value, total_kWh, num_decimals) {
-    return parseFloatAccordingToLocale((emission_value / total_kWh).toFixed(num_decimals));
+function convertToPerkWh(emission_value, total_kWh) {
+    return parseFloatAccordingToLocale((emission_value / total_kWh));
 }
 
 function generateEmissionTable(stats) {
     total_kWh = stats['Total_kWh']
 
-    $("#Co2_value").text(convertToPerkWh(stats['Co2'], total_kWh, 2));
-
+    $("#Co2_value").text(parseFloatAccordingToLocale(stats['Co2'] / total_kWh));
 }
 
 function initFuelStats() {
@@ -201,8 +200,8 @@ function initEmissionStats() {
 }
 
 function parseFloatAccordingToLocale(number) {
-    return parseFloat(number).toLocaleString();
-}
+    return parseFloat(number.toFixed(2)).toLocaleString('da-DK', {minimumFractionDigits: 2})
+ d}
 
 function processMeasuringPoints(measuringPoints, fuelStats, emissionStats) {
     $('#label-emission-data').text('Beregner miljødeklarationen...');
@@ -269,8 +268,8 @@ function computeDeclaration(obj) {
                 buildGaugeChart(fuelStats);
                 buildTechnologyTable(fuelStats);
 
-                $('#co2Total').text(parseFloatAccordingToLocale((emissionStats['Co2'] / 1000).toFixed(2)) + ' kg');
-                $('#co2Relative').text(parseFloatAccordingToLocale((emissionStats['Co2'] / emissionStats['Total_kWh']).toFixed(2)) + ' g/kWh');
+                $('#co2Total').text(parseFloatAccordingToLocale((emissionStats['Co2'] / 1000)) + ' kg');
+                $('#co2Relative').text(parseFloatAccordingToLocale((emissionStats['Co2'] / emissionStats['Total_kWh'])) + ' g/kWh');
 
                 $('#data-sector').removeAttr('hidden');
 
@@ -361,10 +360,15 @@ function buildTechnologyTable(fuelStats) {
 
     for(var technology in fuelStats) {
         if(technology != 'Total_kWh') {
-            table.append(`<tr><td style="background-color:${COLORS[technology]};"></td><td>${technology}</td><td>${formatAmount(fuelStats[technology], fuelStats['Total_kWh'])}</td></tr>`);
+            table.append(`<tr>
+                             <td style="background-color:${COLORS[technology]};"></td>
+                             <td>${technology}</td>
+                             <td class="text-end">${formatAmount(fuelStats[technology], fuelStats['Total_kWh'])}</td>
+                             <td class="text-end">${parseFloatAccordingToLocale((fuelStats[technology] * 100) / fuelStats['Total_kWh'])}%</td>
+                         </tr>`);
         }
     }
-    table.append(`<tr><td></td><td class='h4'>Total forbrug</td><td class='h4'>${formatAmount(fuelStats['Total_kWh'], fuelStats['Total_kWh'])}</td></tr>`)
+    table.append(`<tr><td></td><td class='h4'>Total forbrug</td><td class='h4'>${formatAmount(fuelStats['Total_kWh'], fuelStats['Total_kWh'])}</td><td></td></tr>`)
 }
 
 
@@ -374,10 +378,10 @@ function formatAmount(amountkWh, totalAmountKwH) {
 
     if(totalAmountKwH >= Math.pow(10, NUM_DIGITS_BEFORE_MEGA)) {
         unit = 'MWh';
-        actualAmount = (amountkWh / Math.pow(10, 3)).toFixed(2);
+        actualAmount = (amountkWh / Math.pow(10, 3));
     } else {
         unit = 'kWh';
-        actualAmount = amountkWh.toFixed(2);
+        actualAmount = amountkWh;
     }
 
     return parseFloatAccordingToLocale(actualAmount) + ' ' + unit;
