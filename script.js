@@ -5,6 +5,7 @@ let FUEL_DATA;
 
 let API_HOST = 'https://api.eloverblik.dk';
 let YEAR = '2019';
+let NUM_DIGITS_BEFORE_MEGA = 5;
 
 let COLORS = {
   'Onshore': '#0a515d',
@@ -165,7 +166,7 @@ function generateMasterDataTable(data) {
 }
 
 function convertToPerkWh(emission_value, total_kWh, num_decimals) {
-    return (emission_value / total_kWh).toFixed(num_decimals)
+    return parseFloatAccordingToLocale((emission_value / total_kWh).toFixed(num_decimals));
 }
 
 function generateEmissionTable(stats) {
@@ -199,6 +200,10 @@ function initEmissionStats() {
     return stats;
 }
 
+function parseFloatAccordingToLocale(number) {
+    return parseFloat(number).toLocaleString();
+}
+
 function processMeasuringPoints(measuringPoints, fuelStats, emissionStats) {
     $('#label-emission-data').text('Beregner miljødeklarationen...');
     measuringPointsIDAndArea = getAllMeasuringPointsIDAndArea(measuringPoints);
@@ -211,6 +216,8 @@ function processMeasuringPoints(measuringPoints, fuelStats, emissionStats) {
             return retrieveTimeSeries(measuringPointIDAndArea, dataAccessToken)
         }).then(function(data) {
             period = data['result'][0]['MyEnergyData_MarketDocument']['TimeSeries'][0]['Period'];
+
+            console.log(period)
 
             kWh_hourly = processTimeSeries(period);
 
@@ -262,8 +269,8 @@ function computeDeclaration(obj) {
                 buildGaugeChart(fuelStats);
                 buildTechnologyTable(fuelStats);
 
-                $('#co2Total').text((emissionStats['Co2'] / 1000).toFixed(2) + ' kg.');
-                $('#co2Relative').text((emissionStats['Co2'] / emissionStats['Total_kWh']).toFixed(2) + ' g/kWh');
+                $('#co2Total').text(parseFloatAccordingToLocale((emissionStats['Co2'] / 1000).toFixed(2)) + ' kg');
+                $('#co2Relative').text(parseFloatAccordingToLocale((emissionStats['Co2'] / emissionStats['Total_kWh']).toFixed(2)) + ' g/kWh');
 
                 $('#data-sector').removeAttr('hidden');
 
@@ -289,7 +296,7 @@ function buildBarChart(fuelStats) {
     for(var technology in fuelStats) {
         if(technology != 'Total_kWh') {
             labels.push(technology);
-            values.push(fuelStats[technology] * 1000);  // kWh to Wh
+            values.push(fuelStats[technology]);
             colors.push(COLORS[technology]);
         }
     }
@@ -319,7 +326,7 @@ function buildBarChart(fuelStats) {
                     label: function(tooltipItem, data) {
                         return data.labels[tooltipItem.index].toString()
                             + ': '
-                            + formatAmount(data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index]);
+                            + formatAmount(data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index], fuelStats['Total_kWh']);
                     }
                 }
             }
@@ -354,32 +361,26 @@ function buildTechnologyTable(fuelStats) {
 
     for(var technology in fuelStats) {
         if(technology != 'Total_kWh') {
-            table.append(`<tr><td style="background-color:${COLORS[technology]};"></td><td>${technology}</td><td>${formatAmount(fuelStats[technology] * 1000)}</td></tr>`);
+            table.append(`<tr><td style="background-color:${COLORS[technology]};"></td><td>${technology}</td><td>${formatAmount(fuelStats[technology], fuelStats['Total_kWh'])}</td></tr>`);
         }
     }
-    table.append(`<tr><td></td><td class='h4'>Total forbrug</td><td class='h4'>${formatAmount(fuelStats['Total_kWh'] * 1000)}</td></tr>`)
+    table.append(`<tr><td></td><td class='h4'>Total forbrug</td><td class='h4'>${formatAmount(fuelStats['Total_kWh'], fuelStats['Total_kWh'])}</td></tr>`)
 }
 
 
-function formatAmount(amountWh) {
+function formatAmount(amountkWh, totalAmountKwH) {
     let unit;
     let actualAmount;
 
-    if(amountWh >= Math.pow(10, 9)) {
-        unit = 'GWh';
-        actualAmount = (amountWh / Math.pow(10, 9)).toFixed(2);
-    } else if(amountWh >= Math.pow(10, 6)) {
+    if(totalAmountKwH >= Math.pow(10, NUM_DIGITS_BEFORE_MEGA)) {
         unit = 'MWh';
-        actualAmount = (amountWh / Math.pow(10, 6)).toFixed(2);
-    } else if(amountWh >= Math.pow(10, 3)) {
-        unit = 'kWh';
-        actualAmount = (amountWh / Math.pow(10, 3)).toFixed(2);
+        actualAmount = (amountkWh / Math.pow(10, 3)).toFixed(2);
     } else {
-        unit = 'Wh';
-        actualAmount = amountWh.toFixed(2);
+        unit = 'kWh';
+        actualAmount = amountkWh.toFixed(2);
     }
 
-    return actualAmount + ' ' + unit;
+    return parseFloatAccordingToLocale(actualAmount) + ' ' + unit;
 }
 
 
