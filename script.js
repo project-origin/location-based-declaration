@@ -459,8 +459,8 @@ function buildConnectedAreaTable(fuelStats) {
             table.append(`<tr>
                              <td style="background-color:${COLORS[technology]};"></td>
                              <td>${technology}</td>
-                             <td class="text-end">${formatAmount(fuelStats[technology]['DK2'], fuelStats['Total_kWh'])}</td>
                              <td class="text-end">${formatAmount(fuelStats[technology]['DK1'], fuelStats['Total_kWh'])}</td>
+                             <td class="text-end">${formatAmount(fuelStats[technology]['DK2'], fuelStats['Total_kWh'])}</td>
                              <td class="text-end">${formatAmount(fuelStats[technology]['GE'], fuelStats['Total_kWh'])}</td>
                              <td class="text-end">${formatAmount(fuelStats[technology]['NO'], fuelStats['Total_kWh'])}</td>
                              <td class="text-end">${formatAmount(fuelStats[technology]['SE'], fuelStats['Total_kWh'])}</td>
