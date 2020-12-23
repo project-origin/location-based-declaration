@@ -49,11 +49,12 @@ def retrieve_fuel_data():
 
 def retrieve_emission_data():
     url = f'https://www.energidataservice.dk/proxy/api/datastore_search_sql?sql=\
-           SELECT "HourUTC", "PriceArea", "Co2PerkWh" \
+           SELECT "HourUTC", "PriceArea", "Co2PerkWh", "SO2PerkWh", "NOxPerkWh", "NMvocPerkWh", \
+           "CH4PerkWh", "COPerkWh", "N2OPerkWh", "ParticlesPerkWh", "FlyAshPerkWh", "SlagPerkWh", "DesulpPerkWh", "WastePerkWh" \
            FROM "declarationemissionhour" \
            WHERE "HourDK" >= \'{YEAR}-01-01\' AND "HourDK" <= \'{YEAR}-12-31\' \
            ORDER BY "HourUTC" ASC'
-
+           
     response = requests.get(requote_uri(url))
     records = response.json()['result']['records']
 
@@ -146,7 +147,7 @@ def convert_emission_data(emission_data):
             converted_data[area][emission_type] = []
 
     for row in emission_data:
-        area =  "DK1" #row['PriceArea']
+        area = row['PriceArea']
 
         for emission_type in emission_types:
             converted_data[area][emission_type].append({'HourUTC': row['HourUTC'], 'PerkWh': row[emission_type + 'PerkWh']})

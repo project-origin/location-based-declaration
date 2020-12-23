@@ -80,7 +80,6 @@ function getAllMeasuringPointsIDAndArea(measuringPoints) {
     ids = []
 
     for (measuringPoint of measuringPoints) {
-        console.log(measuringPoint)
         if (measuringPoint['typeOfMP'] !== 'E17')
             continue
 
@@ -108,12 +107,11 @@ function processTimeSeries(period) {
 function calculateEmissionStats(kWh_hourly, stats) {
     area_emission_data = EMISSION_DATA[area]
 
-    for (emission_type of EMISSION_TYPES) {
-        for (var i = 0; i < kWh_hourly.length; i++) {
+    for (var i = 0; i < kWh_hourly.length; i++) {
+        for (emission_type of EMISSION_TYPES) {
             stats[emission_type] += area_emission_data[emission_type][i]['PerkWh'] * kWh_hourly[i]
-
-            stats['Total_kWh'] += kWh_hourly[i]
         }
+        stats['Total_kWh'] += kWh_hourly[i]
     }
 }
 
@@ -237,6 +235,21 @@ function generateEmissionTable(stats) {
     total_kWh = stats['Total_kWh']
 
     $("#Co2_value").text(parseFloatAccordingToLocale(stats['Co2'] / total_kWh));
+    $("#CH4_value").text(parseFloatAccordingToLocale(stats['CH4'] / total_kWh));
+    $("#N2O_value").text(parseFloatAccordingToLocale(stats['N2O'] / total_kWh));
+    $("#SO2_value").text(parseFloatAccordingToLocale(stats['SO2'] / total_kWh));
+    $("#NOx_value").text(parseFloatAccordingToLocale(stats['NOx'] / total_kWh));
+    $("#CO_value").text(parseFloatAccordingToLocale(stats['CO'] / total_kWh));
+    $("#NMvoc_value").text(parseFloatAccordingToLocale(stats['NMvoc'] / total_kWh));
+    $("#Particles_value").text(parseFloatAccordingToLocale(stats['Particles'] / total_kWh));
+
+    $("#FlyAsh_value").text(parseFloatAccordingToLocale(stats['FlyAsh'] / total_kWh));
+    $("#Desulp_value").text(parseFloatAccordingToLocale(stats['Desulp'] / total_kWh));
+    $("#Slag_value").text(parseFloatAccordingToLocale(stats['Slag'] / total_kWh));
+    $("#Waste_value").text(parseFloatAccordingToLocale(stats['Waste'] / total_kWh));
+
+
+
 }
 
 function initFuelStats() {
@@ -283,12 +296,10 @@ function processMeasuringPoints(measuringPoints, fuelStats, emissionStats) {
         }).then(function(data) {
             period = data['result'][0]['MyEnergyData_MarketDocument']['TimeSeries'][0]['Period'];
 
-            console.log(period)
-
             kWh_hourly = processTimeSeries(period);
 
             calculateFuelStats(kWh_hourly, fuelStats, measuringPointIDAndArea['area'])
-            //calculateEmissionStats(kWh_hourly, emissionStats)
+            calculateEmissionStats(kWh_hourly, emissionStats)
         });
     }
 
