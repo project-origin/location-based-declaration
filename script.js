@@ -387,6 +387,7 @@ function buildBarChart(fuelStats) {
             }]
         },
         options: {
+            maintainAspectRatio: false,
             legend: {
                 display: false,
                 align: 'center',
