@@ -4,6 +4,7 @@ import requests
 from requests.utils import requote_uri
 
 VALID_AREAS = ['DK1', 'DK2']
+CONNECTED_AREAS = ['NO', 'NL', 'GE', 'SE', 'DK2', 'DK1']
 YEAR = '2019'
 
 GROUP_FUELS = {
@@ -85,12 +86,17 @@ def fill_missing_fuel_type_per_hour(fuel_data):
     for row in fuel_data:
         hour = row['HourUTC']
         area = row['PriceArea']
-        fuelType = row['ProductionGroup']
 
         if not hour in filled_fuel_data[area]:
             filled_fuel_data[area][hour] = {}
 
-        filled_fuel_data[area][hour][fuelType] = filled_fuel_data[area][hour].get(fuelType, 0) + row['Share']
+            for fuel_type in FUEL_TYPES:
+                filled_fuel_data[area][hour][fuel_type] = {}
+
+                for connectedArea in CONNECTED_AREAS:
+                    filled_fuel_data[area][hour][fuel_type][connectedArea] = 0
+
+        filled_fuel_data[area][hour][row['ProductionGroup']][row['ConnectedArea']] += row['Share']
 
     return filled_fuel_data
 
@@ -99,28 +105,26 @@ def convert_fuel_data(fuel_data):
     for area in VALID_AREAS:
         converted_data[area] = {}
         for fuel_type in FUEL_TYPES:
-            converted_data[area][fuel_type] = []
+            converted_data[area][fuel_type] = {}
+            for connected_area in CONNECTED_AREAS:
+                converted_data[area][fuel_type][connected_area] = []
+
 
     filled_fuel_data = fill_missing_fuel_type_per_hour(fuel_data)
 
     for area in VALID_AREAS:
-
         for hour in filled_fuel_data[area]:
-            test = 0
             for fuel_type in FUEL_TYPES:
+                for connected_area in CONNECTED_AREAS:
 
-                share = filled_fuel_data[area][hour].get(fuel_type, 0)
+                    share = filled_fuel_data[area][hour][fuel_type][connected_area]
 
-                test += share
-
-                converted_data[area][fuel_type].append({'HourUTC': hour,'Share': share})
-
-            if test != 1:
-                print(test)
+                    converted_data[area][fuel_type][connected_area].append({'HourUTC': hour,'Share': share})
 
     for area in VALID_AREAS:
         for fuel_type in FUEL_TYPES:
-            converted_data[area][fuel_type] = sorted(converted_data[area][fuel_type], key = lambda i: i['HourUTC'])
+            for connected_area in CONNECTED_AREAS:
+                converted_data[area][fuel_type][connected_area] = sorted(converted_data[area][fuel_type][connected_area], key = lambda i: i['HourUTC'])
 
     return converted_data
 
@@ -138,11 +142,7 @@ def convert_emission_data(emission_data):
         area =  "DK1" #row['PriceArea']
 
         for emission_type in emission_types:
-            try:
-                converted_data[area][emission_type].append({'HourUTC': row['HourUTC'], 'PerkWh': row[emission_type + 'PerkWh']})
-            except KeyError:
-                print("Emission_type: ",emission_type)
-                print("Emission_types: ",emission_types)
+            converted_data[area][emission_type].append({'HourUTC': row['HourUTC'], 'PerkWh': row[emission_type + 'PerkWh']})
 
     for area in VALID_AREAS:
         for emission_type in emission_types:
