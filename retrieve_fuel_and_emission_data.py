@@ -114,12 +114,19 @@ def convert_fuel_data(fuel_data):
 
     for area in VALID_AREAS:
         for hour in filled_fuel_data[area]:
+            test = 0
             for fuel_type in FUEL_TYPES:
                 for connected_area in CONNECTED_AREAS:
 
                     share = filled_fuel_data[area][hour][fuel_type][connected_area]
 
                     converted_data[area][fuel_type][connected_area].append({'HourUTC': hour,'Share': share})
+
+                    test += share
+
+            if test > 1:
+                print(test)
+
 
     for area in VALID_AREAS:
         for fuel_type in FUEL_TYPES:

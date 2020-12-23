@@ -429,6 +429,9 @@ function buildGaugeChart(fuelStats) {
     GaugeChart.gaugeChart(element, 300, gaugeOptions).updateNeedle(greenPercentage)
 }
 
+function getProcentwiseOfTotal(amount, totalAmount) {
+    return parseFloatAccordingToLocale((amount * 100) / totalAmount)
+}
 
 function buildTechnologyTable(fuelStats) {
     var table = $('#technologiesTable');
@@ -441,7 +444,7 @@ function buildTechnologyTable(fuelStats) {
                              <td style="background-color:${COLORS[technology]};"></td>
                              <td>${technology}</td>
                              <td class="text-end">${formatAmount(consumed, fuelStats['Total_kWh'])}</td>
-                             <td class="text-end">${parseFloatAccordingToLocale((consumed * 100) / fuelStats['Total_kWh'])}%</td>
+                             <td class="text-end">${getProcentwiseOfTotal(consumed, fuelStats['Total_kWh'])}%</td>
                          </tr>`);
         }
     }
@@ -459,13 +462,13 @@ function buildConnectedAreaTable(fuelStats) {
             table.append(`<tr>
                              <td style="background-color:${COLORS[technology]};"></td>
                              <td>${technology}</td>
-                             <td class="text-end">${formatAmount(fuelStats[technology]['DK1'], fuelStats['Total_kWh'])}</td>
-                             <td class="text-end">${formatAmount(fuelStats[technology]['DK2'], fuelStats['Total_kWh'])}</td>
-                             <td class="text-end">${formatAmount(fuelStats[technology]['GE'], fuelStats['Total_kWh'])}</td>
-                             <td class="text-end">${formatAmount(fuelStats[technology]['NO'], fuelStats['Total_kWh'])}</td>
-                             <td class="text-end">${formatAmount(fuelStats[technology]['SE'], fuelStats['Total_kWh'])}</td>
-                             <td class="text-end">${formatAmount(fuelStats[technology]['NL'], fuelStats['Total_kWh'])}</td>
-                             <td class="text-end">${parseFloatAccordingToLocale((consumed * 100) / fuelStats['Total_kWh'])}%</td>
+                             <td class="text-end">${getProcentwiseOfTotal(fuelStats[technology]['DK1'], fuelStats['Total_kWh'])}%</td>
+                             <td class="text-end">${getProcentwiseOfTotal(fuelStats[technology]['DK2'], fuelStats['Total_kWh'])}%</td>
+                             <td class="text-end">${getProcentwiseOfTotal(fuelStats[technology]['GE'], fuelStats['Total_kWh'])}%</td>
+                             <td class="text-end">${getProcentwiseOfTotal(fuelStats[technology]['NO'], fuelStats['Total_kWh'])}%</td>
+                             <td class="text-end">${getProcentwiseOfTotal(fuelStats[technology]['SE'], fuelStats['Total_kWh'])}%</td>
+                             <td class="text-end">${getProcentwiseOfTotal(fuelStats[technology]['NL'], fuelStats['Total_kWh'])}%</td>
+                             <td class="text-end">${getProcentwiseOfTotal(consumed, fuelStats['Total_kWh'])}%</td>
                          </tr>`);
         }
     }
