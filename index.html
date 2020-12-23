@@ -66,8 +66,23 @@
           <h3>Forbrugsstamdata</h3>
         </div>
 
+        <h5 class="pt-3">Deklarationen gælder:</h5>
         <div class="pt-3">
-          <table class="table table-striped" id="table-master-data">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>CVR</th>
+                <th>Navn</th>
+              </tr>
+            </thead>
+            <tbody id="table-cvr-data"></tbody>
+          </table>
+        </div>
+
+        <h5 class="pt-3">Deklarationen omfatter:</h5>
+
+        <div class="pt-3">
+          <table class="table table-striped">
             <thead>
               <tr>
                 <th>Målepunkt ID</th>
@@ -76,7 +91,7 @@
                 <th>By</th>
               </tr>
             </thead>
-            <tbody></tbody>
+            <tbody id="table-mp-data"></tbody>
           </table>
         </div>
 

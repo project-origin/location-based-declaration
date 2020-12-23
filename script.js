@@ -185,17 +185,49 @@ function formatAddress(element) {
     return address;
 }
 
-function generateMasterDataTable(data) {
-    for (let elem of data) {
-        row = $("#table-master-data tbody")[0].insertRow();
+function buildMasterDataTable(data) {
+    cvrs = new Set()
+    mps = new Set()
 
-        for (value of [elem['meteringPointId'], formatAddress(elem), elem['postcode'], elem['cityName']]) {
-            let cell = row.insertCell();
-            let text = document.createTextNode(value);
-            cell.appendChild(text);
-        }
+    for (let elem of data) {
+        cvrs.add({
+            cvr: elem['consumerCVR'],
+            name: elem['firstConsumerPartyName']
+        })
+
+        mps.add({
+            id: elem['meteringPointId'],
+            address: formatAddress(elem),
+            postcode: elem['postcode'],
+            city: elem['cityName']
+        })
+    }
+
+    var cvrTable = $('#table-cvr-data');
+    cvrTable.empty();
+
+    for (var cvr of cvrs.values()) {
+        cvrTable.append(`<tr>
+                        <td>${cvr['cvr']}</td>
+                        <td>${cvr['name']}</td>
+                     </tr>`
+                 );
+    }
+
+    var mpTable = $('#table-mp-data');
+    mpTable.empty();
+
+    for (var mp of mps.values()) {
+        mpTable.append(`<tr>
+                        <td>${mp['id']}</td>
+                        <td>${mp['address']}</td>
+                        <td>${mp['postcode']}</td>
+                        <td>${mp['city']}</td>
+                     </tr>`
+                 );
     }
 }
+
 
 function convertToPerkWh(emission_value, total_kWh) {
     return parseFloatAccordingToLocale((emission_value / total_kWh));
@@ -236,7 +268,7 @@ function initEmissionStats() {
 
 function parseFloatAccordingToLocale(number, numDecimals = 2) {
     return parseFloat(number.toFixed(numDecimals)).toLocaleString('da-DK', {minimumFractionDigits: numDecimals})
- d}
+}
 
 function processMeasuringPoints(measuringPoints, fuelStats, emissionStats) {
     $('#label-emission-data').text('Beregner miljødeklarationen...');
@@ -288,7 +320,7 @@ function computeDeclaration(obj) {
 
             $('#label-master-data').text('Forbrugsstamdata');
 
-            generateMasterDataTable(measuringPoints);
+            buildMasterDataTable(measuringPoints);
 
             fuelStats = initFuelStats();
             emissionStats = initEmissionStats();
