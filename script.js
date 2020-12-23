@@ -1,5 +1,4 @@
 let EMISSION_TYPES;
-let FUEL_TYPES;
 let EMISSION_DATA;
 let FUEL_DATA;
 
@@ -7,7 +6,29 @@ let API_HOST = 'https://api.eloverblik.dk';
 let YEAR = '2019';
 let NUM_DIGITS_BEFORE_MEGA = 5;
 
+
+let FUEL_TYPES = [
+    'Vind',
+    'Sol',
+    'Vandkraft',
+    'Biomasse',
+    'Affald',
+    'Naturgas',
+    'Kul og Olie',
+    'Atomkraft'
+];
+
 let COLORS = {
+  'Vind': '#00a98f',
+  'Sol': '#a0ffc8',
+  'Vandkraft': '#0a515d',
+  'Biomasse': '#ffd424',
+  'Affald': '#fcba03',
+  'Naturgas': '#a0c1c2',
+  'Kul og Olie': '#333333',
+  'Atomkraft': '#ff6600',
+
+/**
   'Onshore': '#0a515d',
   'Offshore': '#0a515d',
   'Anden VE': '#0a515d',
@@ -25,6 +46,7 @@ let COLORS = {
   'Atomkraft': '#8064a2',
   'Halm': '#fcba03',
   'Træ_mm': '#fcba03'
+  */
 };
 
 
@@ -41,7 +63,6 @@ function loadData() {
         dataType: "json"
     }).done(function(data) {
         EMISSION_TYPES = data['emission_types']
-        FUEL_TYPES = data['fuel_types']
         EMISSION_DATA = data['emission_data']
         FUEL_DATA = data['fuel_data']
     });
@@ -55,7 +76,7 @@ function getAllMeasuringPointsIDAndArea(measuringPoints) {
         if (measuringPoint['typeOfMP'] !== 'E17')
             continue
 
-        area = parseInt(measuringPoint['postcode']) < 5000 ? 'DK' : 'DK';
+        area = parseInt(measuringPoint['postcode']) < 5000 ? 'DK1' : 'DK2';
         ids.push({
             id: measuringPoint['meteringPointId'],
             area: area
@@ -93,7 +114,8 @@ function calculateFuelStats(kWh_hourly, stats) {
 
     for (var i = 0; i < kWh_hourly.length; i++) {
         for (fuel_type of FUEL_TYPES) {
-            kWh = area_fuel_data[fuel_type][i]['ProcentwiseGross'] * kWh_hourly[i]
+
+            kWh = area_fuel_data[fuel_type][i]['Share'] * kWh_hourly[i]
 
             stats['Total_kWh'] += kWh
             stats[fuel_type] += kWh
@@ -358,8 +380,12 @@ function buildTechnologyTable(fuelStats) {
     var table = $('#technologiesTable');
     table.empty();
 
-    for(var technology in fuelStats) {
-        if(technology != 'Total_kWh') {
+    console.log("********")
+    console.log(fuelStats)
+
+    for(var technology of FUEL_TYPES) {
+        if (technology != 'Total_kWh') {
+            console.log(technology)
             table.append(`<tr>
                              <td style="background-color:${COLORS[technology]};"></td>
                              <td>${technology}</td>
@@ -368,6 +394,7 @@ function buildTechnologyTable(fuelStats) {
                          </tr>`);
         }
     }
+
     table.append(`<tr><td></td><td class='h4'>Total forbrug</td><td class='h4'>${formatAmount(fuelStats['Total_kWh'], fuelStats['Total_kWh'])}</td><td></td></tr>`)
 }
 
@@ -390,11 +417,9 @@ function formatAmount(amountkWh, totalAmountKwH) {
 
 function greenEnergyPercentage(fuelStats) {
     var total = fuelStats['Total_kWh'];
-    var greenEnergy = fuelStats['Solceller']
-                        + fuelStats['Onshore']
-                        + fuelStats['Offshore']
+    var greenEnergy = fuelStats['Sol']
+                        + fuelStats['Vind']
                         + fuelStats['Vandkraft']
-                        + fuelStats['Anden VE'];
 
     return Math.round(greenEnergy / total * 100);
 }
