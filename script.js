@@ -377,7 +377,7 @@ function buildBarChart(fuelStats) {
     }
 
     var chart = new Chart(ctx, {
-        type: 'pie',
+        type: 'outlabeledPie',
         data: {
             labels: labels,
             datasets: [{
