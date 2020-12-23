@@ -4,8 +4,16 @@ let FUEL_DATA;
 
 let API_HOST = 'https://api.eloverblik.dk';
 let YEAR = '2019';
-let NUM_DIGITS_BEFORE_MEGA = 5;
+let NUM_DIGITS_BEFORE_MEGA = 7;
 
+let CONNECTED_AREAS = [
+    'NO',
+    'NL',
+    'GE',
+    'SE',
+    'DK2',
+    'DK1'
+]
 
 let FUEL_TYPES = [
     'Vind',
@@ -113,12 +121,14 @@ function calculateFuelStats(kWh_hourly, stats) {
     area_fuel_data = FUEL_DATA[area]
 
     for (var i = 0; i < kWh_hourly.length; i++) {
-        for (fuel_type of FUEL_TYPES) {
+        for (fuelType of FUEL_TYPES) {
+            for (connectedArea of CONNECTED_AREAS) {
 
-            kWh = area_fuel_data[fuel_type][i]['Share'] * kWh_hourly[i]
+                kWh = area_fuel_data[fuelType][connectedArea][i]['Share'] * kWh_hourly[i]
 
-            stats['Total_kWh'] += kWh
-            stats[fuel_type] += kWh
+                stats['Total_kWh'] += kWh
+                stats[fuelType][connectedArea] += kWh
+            }
         }
     }
 }
@@ -202,8 +212,11 @@ function initFuelStats() {
         Total_kWh: 0
     };
 
-    for (type of FUEL_TYPES) {
-        stats[type] = 0
+    for (fuelType of FUEL_TYPES) {
+        stats[fuelType] = {}
+        for (connectedArea of CONNECTED_AREAS) {
+            stats[fuelType][connectedArea] = 0
+        }
     }
 
     return stats;
@@ -221,8 +234,8 @@ function initEmissionStats() {
     return stats;
 }
 
-function parseFloatAccordingToLocale(number) {
-    return parseFloat(number.toFixed(2)).toLocaleString('da-DK', {minimumFractionDigits: 2})
+function parseFloatAccordingToLocale(number, numDecimals = 2) {
+    return parseFloat(number.toFixed(numDecimals)).toLocaleString('da-DK', {minimumFractionDigits: numDecimals})
  d}
 
 function processMeasuringPoints(measuringPoints, fuelStats, emissionStats) {
@@ -289,6 +302,7 @@ function computeDeclaration(obj) {
                 buildBarChart(fuelStats);
                 buildGaugeChart(fuelStats);
                 buildTechnologyTable(fuelStats);
+                buildConnectedAreaTable(fuelStats)
 
                 $('#co2Total').text(parseFloatAccordingToLocale((emissionStats['Co2'] / 1000)) + ' kg');
                 $('#co2Relative').text(parseFloatAccordingToLocale((emissionStats['Co2'] / emissionStats['Total_kWh'])) + ' g/kWh');
@@ -307,6 +321,14 @@ function computeDeclaration(obj) {
     });
 }
 
+function sumConnectedAreas(consumedFromConnectedArea) {
+    sum = 0;
+    for (connectedArea of CONNECTED_AREAS) {
+        sum += consumedFromConnectedArea[connectedArea];
+    }
+
+    return sum;
+}
 
 function buildBarChart(fuelStats) {
     var ctx = document.getElementById('barChart').getContext('2d');
@@ -317,7 +339,7 @@ function buildBarChart(fuelStats) {
     for(var technology in fuelStats) {
         if(technology != 'Total_kWh') {
             labels.push(technology);
-            values.push(fuelStats[technology]);
+            values.push(sumConnectedAreas(fuelStats[technology]));
             colors.push(COLORS[technology]);
         }
     }
@@ -380,22 +402,41 @@ function buildTechnologyTable(fuelStats) {
     var table = $('#technologiesTable');
     table.empty();
 
-    console.log("********")
-    console.log(fuelStats)
-
     for(var technology of FUEL_TYPES) {
         if (technology != 'Total_kWh') {
-            console.log(technology)
+            consumed = sumConnectedAreas(fuelStats[technology]);
             table.append(`<tr>
                              <td style="background-color:${COLORS[technology]};"></td>
                              <td>${technology}</td>
-                             <td class="text-end">${formatAmount(fuelStats[technology], fuelStats['Total_kWh'])}</td>
-                             <td class="text-end">${parseFloatAccordingToLocale((fuelStats[technology] * 100) / fuelStats['Total_kWh'])}%</td>
+                             <td class="text-end">${formatAmount(consumed, fuelStats['Total_kWh'])}</td>
+                             <td class="text-end">${parseFloatAccordingToLocale((consumed * 100) / fuelStats['Total_kWh'])}%</td>
                          </tr>`);
         }
     }
 
     table.append(`<tr><td></td><td class='h4'>Total forbrug</td><td class='h4'>${formatAmount(fuelStats['Total_kWh'], fuelStats['Total_kWh'])}</td><td></td></tr>`)
+}
+
+function buildConnectedAreaTable(fuelStats) {
+    var table = $('#connectedAreaTable');
+    table.empty();
+
+    for(var technology of FUEL_TYPES) {
+        if (technology != 'Total_kWh') {
+            consumed = sumConnectedAreas(fuelStats[technology]);
+            table.append(`<tr>
+                             <td style="background-color:${COLORS[technology]};"></td>
+                             <td>${technology}</td>
+                             <td class="text-end">${formatAmount(fuelStats[technology]['DK2'], fuelStats['Total_kWh'])}</td>
+                             <td class="text-end">${formatAmount(fuelStats[technology]['DK1'], fuelStats['Total_kWh'])}</td>
+                             <td class="text-end">${formatAmount(fuelStats[technology]['GE'], fuelStats['Total_kWh'])}</td>
+                             <td class="text-end">${formatAmount(fuelStats[technology]['NO'], fuelStats['Total_kWh'])}</td>
+                             <td class="text-end">${formatAmount(fuelStats[technology]['SE'], fuelStats['Total_kWh'])}</td>
+                             <td class="text-end">${formatAmount(fuelStats[technology]['NL'], fuelStats['Total_kWh'])}</td>
+                             <td class="text-end">${parseFloatAccordingToLocale((consumed * 100) / fuelStats['Total_kWh'])}%</td>
+                         </tr>`);
+        }
+    }
 }
 
 
@@ -411,15 +452,15 @@ function formatAmount(amountkWh, totalAmountKwH) {
         actualAmount = amountkWh;
     }
 
-    return parseFloatAccordingToLocale(actualAmount) + ' ' + unit;
+    return parseFloatAccordingToLocale(actualAmount, 0) + ' ' + unit;
 }
 
 
 function greenEnergyPercentage(fuelStats) {
     var total = fuelStats['Total_kWh'];
-    var greenEnergy = fuelStats['Sol']
-                        + fuelStats['Vind']
-                        + fuelStats['Vandkraft']
+    var greenEnergy = sumConnectedAreas(fuelStats['Sol'])
+                    + sumConnectedAreas(fuelStats['Vind'])
+                    + sumConnectedAreas(fuelStats['Vandkraft'])
 
     return Math.round(greenEnergy / total * 100);
 }
