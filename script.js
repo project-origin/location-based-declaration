@@ -464,6 +464,15 @@ function buildTechnologyTable(fuelStats) {
     table.append(`<tr><td></td><td class='h4'>Total forbrug</td><td class='h4'>${formatAmount(fuelStats['Total_kWh'], fuelStats['Total_kWh'])}</td><td></td></tr>`)
 }
 
+function sumFuelsAccordingToConnectedArea(fuelStats, connectedArea) {
+    sum = 0
+    for(var technology of FUEL_TYPES) {
+        sum += fuelStats[technology][connectedArea];
+    }
+
+    return sum;
+}
+
 function buildConnectedAreaTable(fuelStats) {
     var table = $('#connectedAreaTable');
     table.empty();
@@ -480,10 +489,20 @@ function buildConnectedAreaTable(fuelStats) {
                              <td class="text-end">${getProcentwiseOfTotal(fuelStats[technology]['NO'], fuelStats['Total_kWh'])}%</td>
                              <td class="text-end">${getProcentwiseOfTotal(fuelStats[technology]['SE'], fuelStats['Total_kWh'])}%</td>
                              <td class="text-end">${getProcentwiseOfTotal(fuelStats[technology]['NL'], fuelStats['Total_kWh'])}%</td>
-                             <td class="text-end">${getProcentwiseOfTotal(consumed, fuelStats['Total_kWh'])}%</td>
+                             <td class="text-end"><strong>${getProcentwiseOfTotal(consumed, fuelStats['Total_kWh'])}%</strong></td>
                          </tr>`);
         }
     }
+    table.append(`<tr>
+                    <td></td>
+                    <td><strong>Total</strong></td>
+                    <td class="text-end"><strong>${getProcentwiseOfTotal(sumFuelsAccordingToConnectedArea(fuelStats, 'DK1'), fuelStats['Total_kWh'])}%</strong></td>
+                    <td class="text-end"><strong>${getProcentwiseOfTotal(sumFuelsAccordingToConnectedArea(fuelStats, 'DK2'), fuelStats['Total_kWh'])}%</strong></td>
+                    <td class="text-end"><strong>${getProcentwiseOfTotal(sumFuelsAccordingToConnectedArea(fuelStats, 'GE'), fuelStats['Total_kWh'])}%</strong></td>
+                    <td class="text-end"><strong>${getProcentwiseOfTotal(sumFuelsAccordingToConnectedArea(fuelStats, 'NO'), fuelStats['Total_kWh'])}%</strong></td>
+                    <td class="text-end"><strong>${getProcentwiseOfTotal(sumFuelsAccordingToConnectedArea(fuelStats, 'SE'), fuelStats['Total_kWh'])}%</strong></td>
+                    <td class="text-end"><strong>${getProcentwiseOfTotal(sumFuelsAccordingToConnectedArea(fuelStats, 'NL'), fuelStats['Total_kWh'])}%</strong></td>
+                  </tr>`)
 }
 
 
