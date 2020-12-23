@@ -117,7 +117,7 @@ function calculateEmissionStats(kWh_hourly, stats) {
     }
 }
 
-function calculateFuelStats(kWh_hourly, stats) {
+function calculateFuelStats(kWh_hourly, stats, area) {
     area_fuel_data = FUEL_DATA[area]
 
     for (var i = 0; i < kWh_hourly.length; i++) {
@@ -287,8 +287,8 @@ function processMeasuringPoints(measuringPoints, fuelStats, emissionStats) {
 
             kWh_hourly = processTimeSeries(period);
 
-            calculateFuelStats(kWh_hourly, fuelStats)
-            calculateEmissionStats(kWh_hourly, emissionStats)
+            calculateFuelStats(kWh_hourly, fuelStats, measuringPointIDAndArea['area'])
+            //calculateEmissionStats(kWh_hourly, emissionStats)
         });
     }
 
