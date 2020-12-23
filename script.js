@@ -26,6 +26,17 @@ let FUEL_TYPES = [
     'Atomkraft'
 ];
 
+let IMAGES = {
+  'Vind': './images/wind.png',
+  'Sol': './images/solar.png',
+  'Vandkraft': './images/hydro.png',
+  'Biomasse': './images/biomass.png',
+  'Affald': './images/waste.png',
+  'Naturgas': './images/naturalgas.png',
+  'Kul og Olie': './images/coal.png',
+  'Atomkraft': './images/nuclear.png',
+}
+
 let COLORS = {
   'Vind': '#00a98f',
   'Sol': '#a0ffc8',
@@ -453,7 +464,7 @@ function buildTechnologyTable(fuelStats) {
         if (technology != 'Total_kWh') {
             consumed = sumConnectedAreas(fuelStats[technology]);
             table.append(`<tr>
-                             <td style="background-color:${COLORS[technology]};"></td>
+                             <td style="background-color:${COLORS[technology]};"><img src="${IMAGES[technology]}" width="30" height="30"></td>
                              <td>${technology}</td>
                              <td class="text-end">${formatAmount(consumed, fuelStats['Total_kWh'])}</td>
                              <td class="text-end">${getProcentwiseOfTotal(consumed, fuelStats['Total_kWh'])}%</td>
@@ -481,7 +492,7 @@ function buildConnectedAreaTable(fuelStats) {
         if (technology != 'Total_kWh') {
             consumed = sumConnectedAreas(fuelStats[technology]);
             table.append(`<tr>
-                             <td style="background-color:${COLORS[technology]};"></td>
+                             <td class="text-center" style="background-color:${COLORS[technology]};"><img src="${IMAGES[technology]}" width="30" height="30"></td>
                              <td>${technology}</td>
                              <td class="text-end">${getProcentwiseOfTotal(fuelStats[technology]['DK1'], fuelStats['Total_kWh'])}%</td>
                              <td class="text-end">${getProcentwiseOfTotal(fuelStats[technology]['DK2'], fuelStats['Total_kWh'])}%</td>
