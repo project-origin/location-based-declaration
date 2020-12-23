@@ -84,7 +84,7 @@ function getAllMeasuringPointsIDAndArea(measuringPoints) {
         if (measuringPoint['typeOfMP'] !== 'E17')
             continue
 
-        area = parseInt(measuringPoint['postcode']) < 5000 ? 'DK1' : 'DK2';
+        area = parseInt(measuringPoint['postcode']) < 5000 ? 'DK2' : 'DK1';
         ids.push({
             id: measuringPoint['meteringPointId'],
             area: area
