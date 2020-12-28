@@ -3,8 +3,9 @@ let EMISSION_DATA;
 let FUEL_DATA;
 
 let API_HOST = 'https://api.eloverblik.dk';
-let YEAR = '2019';
+let YEAR = 2019;
 let NUM_DIGITS_BEFORE_MEGA = 7;
+let CHUNK_SIZE = 10;
 
 let CONNECTED_AREAS = [
     'NO',
@@ -46,26 +47,6 @@ let COLORS = {
   'Naturgas': '#a0c1c2',
   'Kul og Olie': '#333333',
   'Atomkraft': '#ff6600',
-
-/**
-  'Onshore': '#0a515d',
-  'Offshore': '#0a515d',
-  'Anden VE': '#0a515d',
-  'marine': '#f29e1f',
-  'Vandkraft': '#00a98f',
-  'Solceller': '#ffd424',
-  'biomass': '#a0cd92',
-  'Biogas': '#293a4c',
-  'Affald': '#a0c1c2',
-  'Kul': '#333333',
-  'Brunkul': '#333333',
-  'Naturgas': '#a0ffc8',
-  'Fuelolie': '#ff6600',
-  'Gasolie': '#ff6600',
-  'Atomkraft': '#8064a2',
-  'Halm': '#fcba03',
-  'Træ_mm': '#fcba03'
-  */
 };
 
 
@@ -88,13 +69,14 @@ function loadData() {
 }
 
 function getAllMeasuringPointsIDAndArea(measuringPoints) {
-    ids = []
+    let ids = []
 
-    for (measuringPoint of measuringPoints) {
+    for (var measuringPoint of measuringPoints) {
         if (measuringPoint['typeOfMP'] !== 'E17')
             continue
 
-        area = parseInt(measuringPoint['postcode']) < 5000 ? 'DK2' : 'DK1';
+        let area = parseInt(measuringPoint['postcode']) >= 5000 ? 'DK1' : 'DK2';
+
         ids.push({
             id: measuringPoint['meteringPointId'],
             area: area
@@ -104,10 +86,10 @@ function getAllMeasuringPointsIDAndArea(measuringPoints) {
 }
 
 function processTimeSeries(period) {
-    kWh_hourly = [];
+    let kWh_hourly = [];
 
-    for (elem of period) {
-        for (point of elem['Point']) {
+    for (var elem of period) {
+        for (var point of elem['Point']) {
             kWh_hourly.push(parseFloat(point['out_Quantity.quantity']))
         }
     }
@@ -115,25 +97,27 @@ function processTimeSeries(period) {
     return kWh_hourly;
 }
 
-function calculateEmissionStats(kWh_hourly, stats) {
-    area_emission_data = EMISSION_DATA[area]
+function calculateEmissionStats(kWh_hourly, stats, area) {
+    let area_emission_data = EMISSION_DATA[area]
 
-    for (var i = 0; i < kWh_hourly.length; i++) {
-        for (emission_type of EMISSION_TYPES) {
-            stats[emission_type] += area_emission_data[emission_type][i]['PerkWh'] * kWh_hourly[i]
+    for (var emission_type of EMISSION_TYPES) {
+        var offset = area_emission_data[emission_type].length - kWh_hourly.length;
+        if (offset < 0) offset = 0;
+        for (var i = 0; i < kWh_hourly.length, i + offset < area_emission_data[emission_type].length; i++) {
+            stats[emission_type] += area_emission_data[emission_type][i + offset]['PerkWh'] * kWh_hourly[i]
         }
-        stats['Total_kWh'] += kWh_hourly[i]
     }
 }
 
 function calculateFuelStats(kWh_hourly, stats, area) {
-    area_fuel_data = FUEL_DATA[area]
+    let area_fuel_data = FUEL_DATA[area];
 
-    for (var i = 0; i < kWh_hourly.length; i++) {
-        for (fuelType of FUEL_TYPES) {
-            for (connectedArea of CONNECTED_AREAS) {
-
-                kWh = area_fuel_data[fuelType][connectedArea][i]['Share'] * kWh_hourly[i]
+    for (var fuelType of FUEL_TYPES) {
+        for (var connectedArea of CONNECTED_AREAS) {
+            var offset = area_fuel_data[fuelType][connectedArea].length - kWh_hourly.length;
+            if (offset < 0) offset = 0;
+            for (var i = 0; i < kWh_hourly.length, i + offset < area_fuel_data[fuelType][connectedArea].length; i++) {
+                let kWh = area_fuel_data[fuelType][connectedArea][i + offset]['Share'] * kWh_hourly[i]
 
                 stats['Total_kWh'] += kWh
                 stats[fuelType][connectedArea] += kWh
@@ -142,13 +126,18 @@ function calculateFuelStats(kWh_hourly, stats, area) {
     }
 }
 
-function retrieveTimeSeries(measuringPointIDAndArea, dataAccessToken) {
+function retrieveTimeSeries(measuringPointIDsAndArea, dataAccessToken) {
+    let ids = measuringPointIDsAndArea.map(function(A) {return A.id;})
+    console.log("Not reversed = " + ids)
+    let reversed = ids.reverse()
+    console.log("Reversed = " + reversed)
+
     return $.ajax({
-        url: `${API_HOST}/CustomerApi/api/MeterData/GetTimeSeries/${YEAR}-01-01/${YEAR}-12-31/Hour`,
+        url: `${API_HOST}/CustomerApi/api/MeterData/GetTimeSeries/${YEAR}-01-01/${YEAR + 1}-01-01/Hour`,
         type: 'POST',
         data: JSON.stringify({
             "meteringPoints": {
-                "meteringPoint": [measuringPointIDAndArea['id']]
+                "meteringPoint": ids
             }
         }),
         dataType: 'json',
@@ -180,7 +169,7 @@ function retrieveDataAccessToken(refreshToken) {
 }
 
 function formatAddress(element) {
-    address = element['streetName']
+    var address = element['streetName']
 
     if (element['buildingNumber'])
         address += " " + element['buildingNumber']
@@ -195,15 +184,20 @@ function formatAddress(element) {
 }
 
 function buildMasterDataTable(data) {
-    cvrs = new Set()
-    mps = new Set()
+    let cvrs = new Set()
+    let mps = new Set()
 
-    for (let elem of data) {
+    console.log(data)
+
+    for (var elem of data) {
+
+        for (var i = 0; i < 10; i++)
         cvrs.add({
             cvr: elem['consumerCVR'],
             name: elem['firstConsumerPartyName']
         })
 
+        for (var i = 0; i < 10; i++)
         mps.add({
             id: elem['meteringPointId'],
             address: formatAddress(elem),
@@ -217,10 +211,9 @@ function buildMasterDataTable(data) {
 
     for (var cvr of cvrs.values()) {
         cvrTable.append(`<tr>
-                        <td>${cvr['cvr']}</td>
-                        <td>${cvr['name']}</td>
-                     </tr>`
-                 );
+                         <td>${cvr['cvr']}</td>
+                         <td>${cvr['name']}</td>
+                         </tr>`);
     }
 
     var mpTable = $('#table-mp-data');
@@ -232,8 +225,7 @@ function buildMasterDataTable(data) {
                         <td>${mp['address']}</td>
                         <td>${mp['postcode']}</td>
                         <td>${mp['city']}</td>
-                     </tr>`
-                 );
+                        </tr>`);
     }
 }
 
@@ -242,35 +234,30 @@ function convertToPerkWh(emission_value, total_kWh) {
     return parseFloatAccordingToLocale((emission_value / total_kWh));
 }
 
-function generateEmissionTable(stats) {
-    total_kWh = stats['Total_kWh']
-
+function generateEmissionTable(stats, total_kWh) {
     $("#Co2_value").text(parseFloatAccordingToLocale(stats['Co2'] / total_kWh));
-    $("#CH4_value").text(parseFloatAccordingToLocale(stats['CH4'] / total_kWh));
-    $("#N2O_value").text(parseFloatAccordingToLocale(stats['N2O'] / total_kWh));
-    $("#SO2_value").text(parseFloatAccordingToLocale(stats['SO2'] / total_kWh));
-    $("#NOx_value").text(parseFloatAccordingToLocale(stats['NOx'] / total_kWh));
-    $("#CO_value").text(parseFloatAccordingToLocale(stats['CO'] / total_kWh));
-    $("#NMvoc_value").text(parseFloatAccordingToLocale(stats['NMvoc'] / total_kWh));
-    $("#Particles_value").text(parseFloatAccordingToLocale(stats['Particles'] / total_kWh));
+    $("#CH4_value").text(parseFloatAccordingToLocale(stats['CH4'] / 1000 / total_kWh));
+    $("#N2O_value").text(parseFloatAccordingToLocale(stats['N2O'] / 1000 / total_kWh, 3));
+    $("#SO2_value").text(parseFloatAccordingToLocale(stats['SO2'] / 1000 / total_kWh));
+    $("#NOx_value").text(parseFloatAccordingToLocale(stats['NOx'] / 1000 / total_kWh));
+    $("#CO_value").text(parseFloatAccordingToLocale(stats['CO'] / 1000 / total_kWh));
+    $("#NMvoc_value").text(parseFloatAccordingToLocale(stats['NMvoc'] / 1000 / total_kWh));
+    $("#Particles_value").text(parseFloatAccordingToLocale(stats['Particles'] / 1000 / total_kWh));
 
     $("#FlyAsh_value").text(parseFloatAccordingToLocale(stats['FlyAsh'] / total_kWh));
     $("#Desulp_value").text(parseFloatAccordingToLocale(stats['Desulp'] / total_kWh));
     $("#Slag_value").text(parseFloatAccordingToLocale(stats['Slag'] / total_kWh));
     $("#Waste_value").text(parseFloatAccordingToLocale(stats['Waste'] / total_kWh));
-
-
-
 }
 
 function initFuelStats() {
-    stats = {
+    let stats = {
         Total_kWh: 0
     };
 
-    for (fuelType of FUEL_TYPES) {
+    for (var fuelType of FUEL_TYPES) {
         stats[fuelType] = {}
-        for (connectedArea of CONNECTED_AREAS) {
+        for (var connectedArea of CONNECTED_AREAS) {
             stats[fuelType][connectedArea] = 0
         }
     }
@@ -279,12 +266,10 @@ function initFuelStats() {
 }
 
 function initEmissionStats() {
-    stats = {
-        Total_kWh: 0
-    };
+    let stats = {}
 
-    for (type of EMISSION_TYPES) {
-        stats[type] = 0
+    for (var emissionType of EMISSION_TYPES) {
+        stats[emissionType] = 0
     }
 
     return stats;
@@ -294,23 +279,41 @@ function parseFloatAccordingToLocale(number, numDecimals = 2) {
     return parseFloat(number.toFixed(numDecimals)).toLocaleString('da-DK', {minimumFractionDigits: numDecimals})
 }
 
-function processMeasuringPoints(measuringPoints, fuelStats, emissionStats) {
+function findAreaFromID(id, array) {
+    for (var item of array) {
+        if (id === item['id'])  {
+            return item['area'];
+        }
+    }
+    return undefined;
+}
+
+function processMeasuringPoints(measuringPoints, fuelStats, emissionStats, dataAccessToken) {
     $('#label-emission-data').text('Beregner miljødeklarationen...');
     measuringPointsIDAndArea = getAllMeasuringPointsIDAndArea(measuringPoints);
 
-    var dfd = $.Deferred();
+    let dfd = $.Deferred();
     var promise = dfd.promise()
 
-    for (measuringPointIDAndArea of measuringPointsIDAndArea) {
+    for (var i=0; i<measuringPointsIDAndArea.length; i+=CHUNK_SIZE) {
+        let slice = measuringPointsIDAndArea.slice(i,i+CHUNK_SIZE);
+
         promise = promise.then(function() {
-            return retrieveTimeSeries(measuringPointIDAndArea, dataAccessToken)
+            return retrieveTimeSeries(slice, dataAccessToken)
         }).then(function(data) {
-            period = data['result'][0]['MyEnergyData_MarketDocument']['TimeSeries'][0]['Period'];
+            console.log(data)
 
-            kWh_hourly = processTimeSeries(period);
+            let result = data['result']
+            for (var j = 0; j < result.length; j++) {
+                let period = result[j]['MyEnergyData_MarketDocument']['TimeSeries'][0]['Period'];
+                let id =  result[j]['id'];
 
-            calculateFuelStats(kWh_hourly, fuelStats, measuringPointIDAndArea['area'])
-            calculateEmissionStats(kWh_hourly, emissionStats)
+                let kWh_hourly = processTimeSeries(period);
+
+                let area = findAreaFromID(id, slice);
+                calculateFuelStats(kWh_hourly, fuelStats, area);
+                calculateEmissionStats(kWh_hourly, emissionStats, area);
+            }
         });
     }
 
@@ -321,8 +324,6 @@ function processMeasuringPoints(measuringPoints, fuelStats, emissionStats) {
 
 function clear_data() {
     $('#data-sector').attr('hidden', true);
-    $("#table-master-data tbody tr").empty();
-    $('#gaugeArea').empty();
     $('#label-master-data').text('');
     $('#label-emission-data').text('');
 }
@@ -335,31 +336,28 @@ function computeDeclaration(obj) {
     $('#label-status').text('Fremstiller miljødeklarationen. Vent venligst...');
 
     retrieveDataAccessToken(refreshToken).then(function(data) {
-        dataAccessToken = data['result'];
+        let dataAccessToken = data['result'];
 
         retrieveMeasuringPoints(dataAccessToken).then(function(data) {
-            measuringPoints = data['result'];
+            let measuringPoints = data['result'];
 
             $('#label-master-data').text('Forbrugsstamdata');
 
             buildMasterDataTable(measuringPoints);
 
-            fuelStats = initFuelStats();
-            emissionStats = initEmissionStats();
-            processMeasuringPoints(measuringPoints, fuelStats, emissionStats).then(function() {
+            let fuelStats = initFuelStats();
+            let emissionStats = initEmissionStats();
+            processMeasuringPoints(measuringPoints, fuelStats, emissionStats, dataAccessToken).then(function() {
                 $('#label-status').text('');
 
-                console.log('fuelStats', fuelStats);
-                console.log('emissionStats', emissionStats);
-
-                generateEmissionTable(emissionStats);
+                generateEmissionTable(emissionStats, fuelStats['Total_kWh']);
                 buildBarChart(fuelStats);
                 buildGaugeChart(fuelStats);
                 buildTechnologyTable(fuelStats);
                 buildConnectedAreaTable(fuelStats)
 
                 $('#co2Total').text(parseFloatAccordingToLocale((emissionStats['Co2'] / 1000)) + ' kg');
-                $('#co2Relative').text(parseFloatAccordingToLocale((emissionStats['Co2'] / emissionStats['Total_kWh'])) + ' g/kWh');
+                $('#co2Relative').text(parseFloatAccordingToLocale((emissionStats['Co2'] / fuelStats['Total_kWh'])) + ' g/kWh');
 
                 $('#data-sector').removeAttr('hidden');
 
@@ -376,8 +374,8 @@ function computeDeclaration(obj) {
 }
 
 function sumConnectedAreas(consumedFromConnectedArea) {
-    sum = 0;
-    for (connectedArea of CONNECTED_AREAS) {
+    var sum = 0;
+    for (var connectedArea of CONNECTED_AREAS) {
         sum += consumedFromConnectedArea[connectedArea];
     }
 
@@ -390,8 +388,8 @@ function buildBarChart(fuelStats) {
     var values = [];
     var colors = [];
 
-    for(var technology in fuelStats) {
-        if(technology != 'Total_kWh') {
+    for (var technology in fuelStats) {
+        if (technology !== 'Total_kWh') {
             labels.push(technology);
             values.push(sumConnectedAreas(fuelStats[technology]));
             colors.push(COLORS[technology]);
@@ -435,6 +433,8 @@ function buildBarChart(fuelStats) {
 
 function buildGaugeChart(fuelStats) {
     let element = document.querySelector('#gaugeArea')
+    $('#gaugeArea').empty();
+
     let greenPercentage = greenEnergyPercentage(fuelStats)
 
     // Properties of the gauge
@@ -460,9 +460,9 @@ function buildTechnologyTable(fuelStats) {
     var table = $('#technologiesTable');
     table.empty();
 
-    for(var technology of FUEL_TYPES) {
-        if (technology != 'Total_kWh') {
-            consumed = sumConnectedAreas(fuelStats[technology]);
+    for (var technology of FUEL_TYPES) {
+        if (technology !== 'Total_kWh') {
+            let consumed = sumConnectedAreas(fuelStats[technology]);
             table.append(`<tr>
                              <td style="background-color:${COLORS[technology]};"><img src="${IMAGES[technology]}" width="30" height="30"></td>
                              <td>${technology}</td>
@@ -476,8 +476,8 @@ function buildTechnologyTable(fuelStats) {
 }
 
 function sumFuelsAccordingToConnectedArea(fuelStats, connectedArea) {
-    sum = 0
-    for(var technology of FUEL_TYPES) {
+    var sum = 0
+    for (var technology of FUEL_TYPES) {
         sum += fuelStats[technology][connectedArea];
     }
 
@@ -488,31 +488,33 @@ function buildConnectedAreaTable(fuelStats) {
     var table = $('#connectedAreaTable');
     table.empty();
 
-    for(var technology of FUEL_TYPES) {
-        if (technology != 'Total_kWh') {
-            consumed = sumConnectedAreas(fuelStats[technology]);
+    for (var technology of FUEL_TYPES) {
+        if (technology !== 'Total_kWh') {
+            let consumed = sumConnectedAreas(fuelStats[technology]);
+
+            var rows = ``
+            for (var connectedArea of CONNECTED_AREAS) {
+                rows += `<td class="text-end">${getProcentwiseOfTotal(fuelStats[technology][connectedArea], fuelStats['Total_kWh'])}%</td>`
+            }
+
             table.append(`<tr>
-                             <td class="text-center" style="background-color:${COLORS[technology]};"><img src="${IMAGES[technology]}" width="30" height="30"></td>
-                             <td>${technology}</td>
-                             <td class="text-end">${getProcentwiseOfTotal(fuelStats[technology]['DK1'], fuelStats['Total_kWh'])}%</td>
-                             <td class="text-end">${getProcentwiseOfTotal(fuelStats[technology]['DK2'], fuelStats['Total_kWh'])}%</td>
-                             <td class="text-end">${getProcentwiseOfTotal(fuelStats[technology]['GE'], fuelStats['Total_kWh'])}%</td>
-                             <td class="text-end">${getProcentwiseOfTotal(fuelStats[technology]['NO'], fuelStats['Total_kWh'])}%</td>
-                             <td class="text-end">${getProcentwiseOfTotal(fuelStats[technology]['SE'], fuelStats['Total_kWh'])}%</td>
-                             <td class="text-end">${getProcentwiseOfTotal(fuelStats[technology]['NL'], fuelStats['Total_kWh'])}%</td>
-                             <td class="text-end"><strong>${getProcentwiseOfTotal(consumed, fuelStats['Total_kWh'])}%</strong></td>
-                         </tr>`);
+                          <td class="text-center" style="background-color:${COLORS[technology]};"><img src="${IMAGES[technology]}" width="30" height="30"></td>
+                          <td>${technology}</td>
+                          ${rows}
+                          <td class="text-end"><strong>${getProcentwiseOfTotal(consumed, fuelStats['Total_kWh'])}%</strong></td>
+                          </tr>`);
         }
     }
+
+    var rows = ``
+    for (var connectedArea of CONNECTED_AREAS) {
+        rows += `<td class="text-end"><strong>${getProcentwiseOfTotal(sumFuelsAccordingToConnectedArea(fuelStats, connectedArea), fuelStats['Total_kWh'])}%</strong></td>`
+    }
     table.append(`<tr>
-                    <td></td>
-                    <td><strong>Total</strong></td>
-                    <td class="text-end"><strong>${getProcentwiseOfTotal(sumFuelsAccordingToConnectedArea(fuelStats, 'DK1'), fuelStats['Total_kWh'])}%</strong></td>
-                    <td class="text-end"><strong>${getProcentwiseOfTotal(sumFuelsAccordingToConnectedArea(fuelStats, 'DK2'), fuelStats['Total_kWh'])}%</strong></td>
-                    <td class="text-end"><strong>${getProcentwiseOfTotal(sumFuelsAccordingToConnectedArea(fuelStats, 'GE'), fuelStats['Total_kWh'])}%</strong></td>
-                    <td class="text-end"><strong>${getProcentwiseOfTotal(sumFuelsAccordingToConnectedArea(fuelStats, 'NO'), fuelStats['Total_kWh'])}%</strong></td>
-                    <td class="text-end"><strong>${getProcentwiseOfTotal(sumFuelsAccordingToConnectedArea(fuelStats, 'SE'), fuelStats['Total_kWh'])}%</strong></td>
-                    <td class="text-end"><strong>${getProcentwiseOfTotal(sumFuelsAccordingToConnectedArea(fuelStats, 'NL'), fuelStats['Total_kWh'])}%</strong></td>
+                  <td></td>
+                  <td><strong>Total</strong></td>
+                  ${rows}
+                  <td class="text-end"><strong>100.00%</strong></td>
                   </tr>`)
 }
 
@@ -521,7 +523,7 @@ function formatAmount(amountkWh, totalAmountKwH) {
     let unit;
     let actualAmount;
 
-    if(totalAmountKwH >= Math.pow(10, NUM_DIGITS_BEFORE_MEGA)) {
+    if (totalAmountKwH >= Math.pow(10, NUM_DIGITS_BEFORE_MEGA)) {
         unit = 'MWh';
         actualAmount = (amountkWh / Math.pow(10, 3));
     } else {
@@ -534,8 +536,8 @@ function formatAmount(amountkWh, totalAmountKwH) {
 
 
 function greenEnergyPercentage(fuelStats) {
-    var total = fuelStats['Total_kWh'];
-    var greenEnergy = sumConnectedAreas(fuelStats['Sol'])
+    let total = fuelStats['Total_kWh'];
+    let greenEnergy = sumConnectedAreas(fuelStats['Sol'])
                     + sumConnectedAreas(fuelStats['Vind'])
                     + sumConnectedAreas(fuelStats['Vandkraft'])
 
