@@ -43,7 +43,7 @@ let FUEL_TYPES = {
     },
     'Kul og Olie': {
       image: './images/coal.png',
-      color: '#ff6600'
+      color: '#333333'
     },
     'Atomkraft': {
       image: './images/nuclear.png',

@@ -34,7 +34,7 @@ def retrieve_fuel_data():
     url = f'https://www.energidataservice.dk/proxy/api/datastore_search_sql?sql=\
           SELECT "HourUTC", "PriceArea", "ConnectedArea", "ProductionGroup", "Share" \
           FROM "declarationcoveragehour" \
-          WHERE "HourDK" >= \'{YEAR}-01-01\' AND "HourDK" <= \'{YEAR + 1}-01-01\' \
+          WHERE "HourDK" >= \'{YEAR}-01-01\' AND "HourDK" < \'{YEAR + 1}-01-01\' \
           ORDER BY "HourUTC" ASC'
 
     response = requests.get(requote_uri(url))
@@ -50,14 +50,13 @@ def retrieve_fuel_data():
 def retrieve_emission_data():
     url = f'https://www.energidataservice.dk/proxy/api/datastore_search_sql?sql=\
            SELECT "HourUTC", "PriceArea", "CO2PerkWh", "SO2PerkWh", "NOxPerkWh", "NMvocPerkWh", \
-           "CH4PerkWh", "COPerkWh", "N2OPerkWh", "ParticlesPerkWh", "CoalFlyAshPerkWh", "CoalSlagPerkWh", "DesulpPerkWh", "FuelGasWastePerkWh", "BioashPerkWh", "WasteSlagPerkWh", "RadioactiveWastePerkWh" \
+           "CH4PerkWh", "COPerkWh", "N2OPerkWh", "ParticlesPerkWh", "CoalFlyAshPerkWh", "CoalSlagPerkWh", \
+           "DesulpPerkWh", "FuelGasWastePerkWh", "BioashPerkWh", "WasteSlagPerkWh", "RadioactiveWastePerkWh" \
            FROM "declarationemissionhour" \
            WHERE "HourDK" >= \'{YEAR}-01-01\' AND "HourDK" < \'{YEAR + 1}-01-01\' \
            ORDER BY "HourUTC" ASC'
 
-
     response = requests.get(requote_uri(url))
-    #print(response.json())
     records = response.json()['result']['records']
 
     return records
@@ -73,8 +72,6 @@ def calculate_kwh_per_hour(fuel_data):
         consumed = row['ConsumedDK'] * 1000 # convert from MWh to kWh.
 
         kwh_hourly[(hour, area)] = kwh_hourly.get((hour, area), 0) + consumed
-
-        fuel_types['']
 
         fuel_types.add(row['DKFuelType'])
 
@@ -117,19 +114,11 @@ def convert_fuel_data(fuel_data):
 
     for area in VALID_AREAS:
         for hour in filled_fuel_data[area]:
-            test = 0
             for fuel_type in FUEL_TYPES:
                 for connected_area in CONNECTED_AREAS:
-
                     share = filled_fuel_data[area][hour][fuel_type][connected_area]
 
                     converted_data[area][fuel_type][connected_area].append({'HourUTC': hour,'Share': share})
-
-                    test += share
-
-            if test > 1:
-                print(test)
-
 
     for area in VALID_AREAS:
         for fuel_type in FUEL_TYPES:
