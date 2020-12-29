@@ -16,37 +16,39 @@ let CONNECTED_AREAS = [
     'NL'
 ]
 
-let FUEL_TYPES = [
-    'Vind',
-    'Sol',
-    'Vandkraft',
-    'Biomasse',
-    'Affald',
-    'Naturgas',
-    'Kul og Olie',
-    'Atomkraft'
-];
-
-let IMAGES = {
-  'Vind': './images/wind.png',
-  'Sol': './images/solar.png',
-  'Vandkraft': './images/hydro.png',
-  'Biomasse': './images/biomass.png',
-  'Affald': './images/waste.png',
-  'Naturgas': './images/naturalgas.png',
-  'Kul og Olie': './images/coal.png',
-  'Atomkraft': './images/nuclear.png',
-}
-
-let COLORS = {
-  'Vind': '#00a98f',
-  'Sol': '#a0ffc8',
-  'Vandkraft': '#0a515d',
-  'Biomasse': '#ffd424',
-  'Affald': '#fcba03',
-  'Naturgas': '#a0c1c2',
-  'Kul og Olie': '#333333',
-  'Atomkraft': '#ff6600',
+let FUEL_TYPES = {
+    'Vind': {
+      image: './images/wind.png',
+      color: '#00a98f'
+    },
+    'Sol': {
+      image: './images/solar.png',
+      color: '#a0ffc8'
+    },
+    'Vandkraft': {
+      image: './images/hydro.png',
+      color: '#0a515d'
+    },
+    'Biomasse': {
+      image: './images/biomass.png',
+      color: '#ffd424'
+    },
+    'Affald': {
+      image: './images/waste.png',
+      color: '#fcba03'
+    },
+    'Naturgas': {
+      image: './images/naturalgas.png',
+      color: '#a0c1c2'
+    },
+    'Kul og Olie': {
+      image: './images/coal.png',
+      color: '#ff6600'
+    },
+    'Atomkraft': {
+      image: './images/nuclear.png',
+      color: '#ff6600'
+    }
 };
 
 
@@ -119,7 +121,7 @@ function calculateEmissionStats(kWh_hourly, stats, area) {
 function calculateFuelStats(kWh_hourly, stats, area) {
     let area_fuel_data = FUEL_DATA[area];
 
-    for (var fuelType of FUEL_TYPES) {
+    for (var fuelType of Object.keys(FUEL_TYPES)) {
         for (var connectedArea of CONNECTED_AREAS) {
             var offset = area_fuel_data[fuelType][connectedArea].length - kWh_hourly.length;
             if (offset < 0) offset = 0;
@@ -135,9 +137,6 @@ function calculateFuelStats(kWh_hourly, stats, area) {
 
 function retrieveTimeSeries(measuringPointIDsAndArea, dataAccessToken) {
     let ids = measuringPointIDsAndArea.map(function(A) {return A.id;})
-    console.log("Not reversed = " + ids)
-    let reversed = ids.reverse()
-    console.log("Reversed = " + reversed)
 
     return $.ajax({
         url: `${API_HOST}/CustomerApi/api/MeterData/GetTimeSeries/${YEAR}-01-01/${YEAR + 1}-01-01/Hour`,
@@ -266,7 +265,7 @@ function initFuelStats() {
         Total_kWh: 0
     };
 
-    for (var fuelType of FUEL_TYPES) {
+    for (var fuelType of Object.keys(FUEL_TYPES)) {
         stats[fuelType] = {}
         for (var connectedArea of CONNECTED_AREAS) {
             stats[fuelType][connectedArea] = 0
@@ -361,18 +360,14 @@ function computeDeclaration(obj) {
             processMeasuringPoints(measuringPoints, fuelStats, emissionStats, dataAccessToken).then(function() {
                 $('#label-status').text('');
 
-                console.log('HELLLLOOOOOOO')
-                console.log('fuelStats = ' + fuelStats);
-                console.log('emissionStats = ' + emissionStats);
-
                 buildEmissionTable(emissionStats, fuelStats['Total_kWh']);
                 buildBarChart(fuelStats);
                 buildGaugeChart(fuelStats);
-                buildTechnologyTable(fuelStats);
+                buildFuelTable(fuelStats);
                 buildConnectedAreaTable(fuelStats)
 
-                $('#co2Total').text(parseFloatAccordingToLocale((emissionStats['CO2'] / 1000)) + ' kg');
-                $('#co2Relative').text(parseFloatAccordingToLocale((emissionStats['CO2'] / fuelStats['Total_kWh'])) + ' g/kWh');
+                $('#num-co2-total').text(parseFloatAccordingToLocale((emissionStats['CO2'] / 1000)) + ' kg');
+                $('#num-co2-relative').text(parseFloatAccordingToLocale((emissionStats['CO2'] / fuelStats['Total_kWh'])) + ' g/kWh');
 
                 $('#data-sector').removeAttr('hidden');
 
@@ -403,11 +398,11 @@ function buildBarChart(fuelStats) {
     var values = [];
     var colors = [];
 
-    for (var technology in fuelStats) {
-        if (technology !== 'Total_kWh') {
-            labels.push(technology);
-            values.push(sumConnectedAreas(fuelStats[technology]));
-            colors.push(COLORS[technology]);
+    for (var fuelType of Object.keys(FUEL_TYPES)) {
+        if (fuelType !== 'Total_kWh') {
+            labels.push(fuelType);
+            values.push(sumConnectedAreas(fuelStats[fuelType]));
+            colors.push(FUEL_TYPES[fuelType]['color']);
         }
     }
 
@@ -447,8 +442,8 @@ function buildBarChart(fuelStats) {
 
 
 function buildGaugeChart(fuelStats) {
-    let element = document.querySelector('#gaugeArea')
-    $('#gaugeArea').empty();
+    let element = document.querySelector('#gauge-green-meter')
+    $('#gauge-green-meter').empty();
 
     let greenPercentage = greenEnergyPercentage(fuelStats)
 
@@ -470,16 +465,16 @@ function getProcentwiseOfTotal(amount, totalAmount) {
     return parseFloatAccordingToLocale((amount * 100) / totalAmount)
 }
 
-function buildTechnologyTable(fuelStats) {
-    var table = $('#technologiesTable');
+function buildFuelTable(fuelStats) {
+    var table = $('#table-fuels');
     table.empty();
 
-    for (var technology of FUEL_TYPES) {
-        if (technology !== 'Total_kWh') {
-            let consumed = sumConnectedAreas(fuelStats[technology]);
+    for (var fuelType of Object.keys(FUEL_TYPES)) {
+        if (fuelType !== 'Total_kWh') {
+            let consumed = sumConnectedAreas(fuelStats[fuelType]);
             table.append(`<tr>
-                             <td style="background-color:${COLORS[technology]};"><img src="${IMAGES[technology]}" width="30" height="30"></td>
-                             <td>${technology}</td>
+                             <td style="background-color:${FUEL_TYPES[fuelType]['color']};"><img src="${FUEL_TYPES[fuelType]['image']}" width="30" height="30"></td>
+                             <td>${fuelType}</td>
                              <td class="text-end">${formatAmount(consumed, fuelStats['Total_kWh'])}</td>
                              <td class="text-end">${getProcentwiseOfTotal(consumed, fuelStats['Total_kWh'])}%</td>
                          </tr>`);
@@ -491,29 +486,29 @@ function buildTechnologyTable(fuelStats) {
 
 function sumFuelsAccordingToConnectedArea(fuelStats, connectedArea) {
     var sum = 0
-    for (var technology of FUEL_TYPES) {
-        sum += fuelStats[technology][connectedArea];
+    for (var fuelType of Object.keys(FUEL_TYPES)) {
+        sum += fuelStats[fuelType][connectedArea];
     }
 
     return sum;
 }
 
 function buildConnectedAreaTable(fuelStats) {
-    var table = $('#connectedAreaTable');
+    var table = $('#table-from-production');
     table.empty();
 
-    for (var technology of FUEL_TYPES) {
-        if (technology !== 'Total_kWh') {
-            let consumed = sumConnectedAreas(fuelStats[technology]);
+    for (var fuelType of Object.keys(FUEL_TYPES)) {
+        if (fuelType !== 'Total_kWh') {
+            let consumed = sumConnectedAreas(fuelStats[fuelType]);
 
             var rows = ``
             for (var connectedArea of CONNECTED_AREAS) {
-                rows += `<td class="text-end">${getProcentwiseOfTotal(fuelStats[technology][connectedArea], fuelStats['Total_kWh'])}%</td>`
+                rows += `<td class="text-end">${getProcentwiseOfTotal(fuelStats[fuelType][connectedArea], fuelStats['Total_kWh'])}%</td>`
             }
 
             table.append(`<tr>
-                          <td class="text-center" style="background-color:${COLORS[technology]};"><img src="${IMAGES[technology]}" width="30" height="30"></td>
-                          <td>${technology}</td>
+                          <td class="text-center" style="background-color:${FUEL_TYPES[fuelType]['color']};"><img src="${FUEL_TYPES[fuelType]['image']}" width="30" height="30"></td>
+                          <td>${fuelType}</td>
                           ${rows}
                           <td class="text-end"><strong>${getProcentwiseOfTotal(consumed, fuelStats['Total_kWh'])}%</strong></td>
                           </tr>`);
