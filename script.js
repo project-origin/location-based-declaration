@@ -4,16 +4,16 @@ let FUEL_DATA;
 
 let API_HOST = 'https://api.eloverblik.dk';
 let YEAR = 2019;
-let NUM_DIGITS_BEFORE_MEGA = 7;
+let NUM_DIGITS_MEGA_CONVERT = 7;
 let CHUNK_SIZE = 10;
 
 let CONNECTED_AREAS = [
-    'NO',
-    'NL',
-    'GE',
-    'SE',
+    'DK1',
     'DK2',
-    'DK1'
+    'GE',
+    'NO',
+    'SE',
+    'NL'
 ]
 
 let FUEL_TYPES = [
@@ -238,7 +238,7 @@ function convertToPerkWh(emission_value, total_kWh) {
     return parseFloatAccordingToLocale((emission_value / total_kWh));
 }
 
-function generateEmissionTable(stats, total_kWh) {
+function buildEmissionTable(stats, total_kWh) {
     $("#CO2_value").text(parseFloatAccordingToLocale(stats['CO2'] / total_kWh));
     $("#CH4_value").text(parseFloatAccordingToLocale(stats['CH4'] / 1000 / total_kWh));
     $("#N2O_value").text(parseFloatAccordingToLocale(stats['N2O'] / 1000 / total_kWh, 3));
@@ -365,7 +365,7 @@ function computeDeclaration(obj) {
                 console.log('fuelStats = ' + fuelStats);
                 console.log('emissionStats = ' + emissionStats);
 
-                generateEmissionTable(emissionStats, fuelStats['Total_kWh']);
+                buildEmissionTable(emissionStats, fuelStats['Total_kWh']);
                 buildBarChart(fuelStats);
                 buildGaugeChart(fuelStats);
                 buildTechnologyTable(fuelStats);
@@ -452,7 +452,6 @@ function buildGaugeChart(fuelStats) {
 
     let greenPercentage = greenEnergyPercentage(fuelStats)
 
-    // Properties of the gauge
     let gaugeOptions = {
         hasNeedle: true,
         needleColor: 'gray',
@@ -538,7 +537,7 @@ function formatAmount(amountkWh, totalAmountKwH) {
     let unit;
     let actualAmount;
 
-    if (totalAmountKwH >= Math.pow(10, NUM_DIGITS_BEFORE_MEGA)) {
+    if (totalAmountKwH >= Math.pow(10, NUM_DIGITS_MEGA_CONVERT)) {
         unit = 'MWh';
         actualAmount = (amountkWh / Math.pow(10, 3));
     } else {
