@@ -54,7 +54,14 @@ $(document).ready(function() {
     loadData();
 
     $('#title_year').text(YEAR);
+
+    $("#input-token").keypress(function(event) {
+      if (event.keyCode === 13) {
+        $("#button-calculate").click();
+      }
+    });
 });
+
 
 function loadData() {
     $.ajax({
@@ -235,6 +242,10 @@ function generateEmissionTable(stats, total_kWh) {
     $("#CO2_value").text(parseFloatAccordingToLocale(stats['CO2'] / total_kWh));
     $("#CH4_value").text(parseFloatAccordingToLocale(stats['CH4'] / 1000 / total_kWh));
     $("#N2O_value").text(parseFloatAccordingToLocale(stats['N2O'] / 1000 / total_kWh, 3));
+
+    C02Eqv = (stats['CO2'] + (stats['CH4'] * 28) / 1000 + (stats['N2O'] * 265) / 1000 )
+
+    $("#C02Eqv_value").text(parseFloatAccordingToLocale(C02Eqv / total_kWh));
     $("#SO2_value").text(parseFloatAccordingToLocale(stats['SO2'] / 1000 / total_kWh));
     $("#NOx_value").text(parseFloatAccordingToLocale(stats['NOx'] / 1000 / total_kWh));
     $("#CO_value").text(parseFloatAccordingToLocale(stats['CO'] / 1000 / total_kWh));

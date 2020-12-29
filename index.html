@@ -56,7 +56,7 @@
 
         <div class="input-group mb-3">
           <input type="text" class="form-control" id="input-token" placeholder="Token">
-          <button class="btn btn-primary" type="button" onclick="computeDeclaration(this)" style="background: #4d8a8b; border: none;">Beregn</button>
+          <button class="btn btn-primary" id="button-calculate" type="button" onclick="computeDeclaration(this)" style="background: #4d8a8b; border: none;">Beregn</button>
         </div>
 
         <div class="pt-3">
@@ -197,6 +197,11 @@
               <tr>
                 <td class="text-start">N<sub>2</sub>O (Lattergas - drivhusgas)</td>
                 <td><span id='N2O_value'></span></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td class="text-start">CO<sub>2</sub>-ækvivalenter i alt</td>
+                <td><span id='C02Eqv_value'></span></td>
                 <td></td>
               </tr>
               <tr>
