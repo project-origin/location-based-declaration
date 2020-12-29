@@ -190,14 +190,11 @@ function buildMasterDataTable(data) {
     console.log(data)
 
     for (var elem of data) {
-
-        for (var i = 0; i < 10; i++)
         cvrs.add({
             cvr: elem['consumerCVR'],
             name: elem['firstConsumerPartyName']
         })
 
-        for (var i = 0; i < 10; i++)
         mps.add({
             id: elem['meteringPointId'],
             address: formatAddress(elem),
@@ -235,7 +232,7 @@ function convertToPerkWh(emission_value, total_kWh) {
 }
 
 function generateEmissionTable(stats, total_kWh) {
-    $("#Co2_value").text(parseFloatAccordingToLocale(stats['Co2'] / total_kWh));
+    $("#CO2_value").text(parseFloatAccordingToLocale(stats['CO2'] / total_kWh));
     $("#CH4_value").text(parseFloatAccordingToLocale(stats['CH4'] / 1000 / total_kWh));
     $("#N2O_value").text(parseFloatAccordingToLocale(stats['N2O'] / 1000 / total_kWh, 3));
     $("#SO2_value").text(parseFloatAccordingToLocale(stats['SO2'] / 1000 / total_kWh));
@@ -244,10 +241,13 @@ function generateEmissionTable(stats, total_kWh) {
     $("#NMvoc_value").text(parseFloatAccordingToLocale(stats['NMvoc'] / 1000 / total_kWh));
     $("#Particles_value").text(parseFloatAccordingToLocale(stats['Particles'] / 1000 / total_kWh));
 
-    $("#FlyAsh_value").text(parseFloatAccordingToLocale(stats['FlyAsh'] / total_kWh));
+    $("#CoalFlyAsh_value").text(parseFloatAccordingToLocale(stats['CoalFlyAsh'] / total_kWh));
+    $("#CoalSlag_value").text(parseFloatAccordingToLocale(stats['CoalSlag'] / total_kWh));
     $("#Desulp_value").text(parseFloatAccordingToLocale(stats['Desulp'] / total_kWh));
-    $("#Slag_value").text(parseFloatAccordingToLocale(stats['Slag'] / total_kWh));
-    $("#Waste_value").text(parseFloatAccordingToLocale(stats['Waste'] / total_kWh));
+    $("#WasteSlag_value").text(parseFloatAccordingToLocale(stats['WasteSlag'] / total_kWh));
+    $("#FuelGasWaste_value").text(parseFloatAccordingToLocale(stats['FuelGasWaste'] / total_kWh));
+    $("#Bioash_value").text(parseFloatAccordingToLocale(stats['Bioash'] / total_kWh));
+    $("#RadioactiveWaste_value").text(parseFloatAccordingToLocale(stats['RadioactiveWaste'] / total_kWh));
 }
 
 function initFuelStats() {
@@ -350,14 +350,18 @@ function computeDeclaration(obj) {
             processMeasuringPoints(measuringPoints, fuelStats, emissionStats, dataAccessToken).then(function() {
                 $('#label-status').text('');
 
+                console.log('HELLLLOOOOOOO')
+                console.log('fuelStats = ' + fuelStats);
+                console.log('emissionStats = ' + emissionStats);
+
                 generateEmissionTable(emissionStats, fuelStats['Total_kWh']);
                 buildBarChart(fuelStats);
                 buildGaugeChart(fuelStats);
                 buildTechnologyTable(fuelStats);
                 buildConnectedAreaTable(fuelStats)
 
-                $('#co2Total').text(parseFloatAccordingToLocale((emissionStats['Co2'] / 1000)) + ' kg');
-                $('#co2Relative').text(parseFloatAccordingToLocale((emissionStats['Co2'] / fuelStats['Total_kWh'])) + ' g/kWh');
+                $('#co2Total').text(parseFloatAccordingToLocale((emissionStats['CO2'] / 1000)) + ' kg');
+                $('#co2Relative').text(parseFloatAccordingToLocale((emissionStats['CO2'] / fuelStats['Total_kWh'])) + ' g/kWh');
 
                 $('#data-sector').removeAttr('hidden');
 

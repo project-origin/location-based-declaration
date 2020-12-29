@@ -5,7 +5,7 @@ from requests.utils import requote_uri
 
 VALID_AREAS = ['DK1', 'DK2']
 CONNECTED_AREAS = ['NO', 'NL', 'GE', 'SE', 'DK2', 'DK1']
-YEAR = '2019'
+YEAR = 2019
 
 GROUP_FUELS = {
     "Offshore": "Vind",
@@ -33,8 +33,8 @@ FUEL_TYPES = list(set(GROUP_FUELS.values()))
 def retrieve_fuel_data():
     url = f'https://www.energidataservice.dk/proxy/api/datastore_search_sql?sql=\
           SELECT "HourUTC", "PriceArea", "ConnectedArea", "ProductionGroup", "Share" \
-          FROM "declconscoveragehour" \
-          WHERE "HourDK" >= \'{YEAR}-01-01\' AND "HourDK" <= \'{YEAR}-12-31\' \
+          FROM "declarationcoveragehour" \
+          WHERE "HourDK" >= \'{YEAR}-01-01\' AND "HourDK" <= \'{YEAR + 1}-01-01\' \
           ORDER BY "HourUTC" ASC'
 
     response = requests.get(requote_uri(url))
@@ -49,13 +49,15 @@ def retrieve_fuel_data():
 
 def retrieve_emission_data():
     url = f'https://www.energidataservice.dk/proxy/api/datastore_search_sql?sql=\
-           SELECT "HourUTC", "PriceArea", "Co2PerkWh", "SO2PerkWh", "NOxPerkWh", "NMvocPerkWh", \
-           "CH4PerkWh", "COPerkWh", "N2OPerkWh", "ParticlesPerkWh", "FlyAshPerkWh", "SlagPerkWh", "DesulpPerkWh", "WastePerkWh" \
+           SELECT "HourUTC", "PriceArea", "CO2PerkWh", "SO2PerkWh", "NOxPerkWh", "NMvocPerkWh", \
+           "CH4PerkWh", "COPerkWh", "N2OPerkWh", "ParticlesPerkWh", "CoalFlyAshPerkWh", "CoalSlagPerkWh", "DesulpPerkWh", "FuelGasWastePerkWh", "BioashPerkWh", "WasteSlagPerkWh", "RadioactiveWastePerkWh" \
            FROM "declarationemissionhour" \
-           WHERE "HourDK" >= \'{YEAR}-01-01\' AND "HourDK" <= \'{YEAR}-12-31\' \
+           WHERE "HourDK" >= \'{YEAR}-01-01\' AND "HourDK" < \'{YEAR + 1}-01-01\' \
            ORDER BY "HourUTC" ASC'
-           
+
+
     response = requests.get(requote_uri(url))
+    #print(response.json())
     records = response.json()['result']['records']
 
     return records
