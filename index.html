@@ -48,7 +48,7 @@
   <div class="container">
     <div class="bg-light p-5 rounded-lg m-3">
 
-      <h1 class="display-4">Miljødeklaration <span id="title_year"><span></h1>
+      <h1 class="display-4">Miljødeklaration <span id="title-year"><span></h1>
 
       <div id="section-not-to-print">
         <p class="lead">Udregn din virksomheds årlige miljødeklaration på timebasis.</p>
@@ -179,96 +179,7 @@
                 <th>To be decided</th>
               </tr>
             </thead>
-            <tbody class="text-center">
-              <tr>
-                <td class="text-start"><strong>Emissioner til luften</strong></td>
-                <td colspan="2"><strong>g/kWh</strong></td>
-              </tr>
-              <tr>
-                <td class="text-start">CO<sub>2</sub> (Kuldioxid - drivhusgas)</td>
-                <td><span id='CO2_value'></span></td>
-                <td></td>
-              </tr>
-              <tr>
-                <td class="text-start">CH<sub>4</sub> (Metan - drivhusgas)</td>
-                <td><span id='CH4_value'></span></td>
-                <td></td>
-              </tr>
-              <tr>
-                <td class="text-start">N<sub>2</sub>O (Lattergas - drivhusgas)</td>
-                <td><span id='N2O_value'></span></td>
-                <td></td>
-              </tr>
-              <tr>
-                <td class="text-start">CO<sub>2</sub>-ækvivalenter i alt</td>
-                <td><span id='C02Eqv_value'></span></td>
-                <td></td>
-              </tr>
-              <tr>
-                <td class="text-start">SO<sub>2</sub> (Svovldioxid)</td>
-                <td><span id='SO2_value'></span></td>
-                <td></td>
-              </tr>
-              <tr>
-                <td class="text-start">NO<sub>x</sub> (Kvælstofilte)</td>
-                <td><span id='NOx_value'></span></td>
-                <td></td>
-              </tr>
-              <tr>
-                <td class="text-start">CO (Kulilte)</td>
-                <td><span id='CO_value'></span></td>
-                <td></td>
-              </tr>
-              <tr>
-                <td class="text-start">NM<sub>VOC</sub> (Uforbrændt kulbrinter)</td>
-                <td><span id='NMvoc_value'></span></td>
-                <td></td>
-              </tr>
-              <tr>
-                <td class="text-start">Partikler</td>
-                <td><span id='Particles_value'></span></td>
-                <td></td>
-              </tr>
-              <tr>
-                <td class="text-start"><strong>Restprodukter</strong></td>
-                <td colspan="2" align="center"><strong>g/kWh</strong></td>
-              </tr>
-              <tr>
-                <td class="text-start">Kulflyveaske</td>
-                <td><span id='CoalFlyAsh_value'></span></td>
-                <td></td>
-              </tr>
-              <tr>
-                <td class="text-start">Kulslagge</td>
-                <td><span id='CoalSlag_value'></span></td>
-                <td></td>
-              </tr>
-              <tr>
-                <td class="text-start">Afsvovlingsprodukter (Gips)</td>
-                <td><span id='Desulp_value'></span></td>
-                <td></td>
-              </tr>
-              <tr>
-                <td class="text-start">Slagge (affaldsforbrænding)</td>
-                <td><span id='WasteSlag_value'></span></td>
-                <td></td>
-              </tr>
-              <tr>
-                <td class="text-start">RGA (røggasaffald)</td>
-                <td><span id='FuelGasWaste_value'></span></td>
-                <td></td>
-              </tr>
-              <tr>
-                <td class="text-start">Bioaske</td>
-                <td><span id='Bioash_value'></span></td>
-                <td></td>
-              </tr>
-              <tr>
-                <td class="text-start">Radioaktivt affald (mg/kwh)</td>
-                <td><span id='RadioactiveWaste_value'></span></td>
-                <td></td>
-              </tr>
-            </tbody>
+            <tbody id="table-emissions"></tbody>
           </table>
         </div>
       </div>

@@ -150,12 +150,9 @@ def convert_emission_data(emission_data):
     return emission_types, converted_data
 
 
-def write_to_file(emission_types, fuel_types, emission_data, fuel_data, filename='data.json'):
+def write_to_file(emission_data, fuel_data, filename='data.json'):
     with open(filename, 'w') as json_file:
-        json_file.write(json.dumps({'emission_types': emission_types,
-                                    'fuel_types': fuel_types,
-                                    'emission_data': emission_data,
-                                    'fuel_data': fuel_data}))
+        json_file.write(json.dumps({'emission_data': emission_data, 'fuel_data': fuel_data}))
 
 
 def main():
@@ -165,7 +162,7 @@ def main():
     converted_fuel_data = convert_fuel_data(fuel_data)
     emission_types, converted_emission_data = convert_emission_data(emission_data)
 
-    write_to_file(emission_types, FUEL_TYPES, converted_emission_data, converted_fuel_data)
+    write_to_file(converted_emission_data, converted_fuel_data)
 
 
 if __name__ == '__main__':
