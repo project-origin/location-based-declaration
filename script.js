@@ -1,4 +1,4 @@
-let EMISSION_TYPES;
+var EMISSION_TYPES;
 let EMISSION_DATA;
 let FUEL_DATA;
 
@@ -50,6 +50,73 @@ let FUEL_TYPES = {
       color: '#ff6600'
     }
 };
+
+let EMISSION_TYPES1 = {
+    'CO2': {
+        html: 'CO<sub>2</sub> (Kuldioxid - drivhusgas)',
+        unit: 'g'
+    },
+    'CH4': {
+        html: 'CH<sub>4</sub> (Metan - drivhusgas)',
+        unit: 'mg'
+    },
+    'N2O': {
+        html: 'N<sub>2</sub>O (Lattergas - drivhusgas)',
+        unit: 'mg'
+    },
+    'CO2Eqv': {
+        html: 'CO<sub>2</sub>-ækvivalenter i alt',
+        unit: 'mg'
+    },
+    'SO2': {
+        html: 'SO<sub>2</sub> (Svovldioxid)',
+        unit: 'mg'
+    },
+    'NOx': {
+        html: 'NO<sub>x</sub> (Kvælstofilte)',
+        unit: 'mg'
+    },
+    'CO': {
+        html: 'CO (Kulilte)',
+        unit: 'mg'
+    },
+    'NMvoc': {
+        html: 'NM<sub>VOC</sub> (Uforbrændt kulbrinter)',
+        unit: 'mg'
+    },
+    'Particles': {
+        html: 'Partikler',
+        unit: 'mg'
+    },
+    'CoalFlyAsh': {
+        html: 'Kulflyveaske',
+        unit: 'g'
+    },
+    'CoalSlag': {
+        html: 'Kulslagge',
+        unit: 'g'
+    },
+    'Desulp': {
+        html: 'Afsvovlingsprodukter (Gips)',
+        unit: 'g'
+    },
+    'WasteSlag': {
+        html: 'Slagge (affaldsforbrænding)',
+        unit: 'g'
+    },
+    'FuelGasWaste': {
+        html: 'RGA (røggasaffald)',
+        unit: 'g'
+    },
+    'Bioash': {
+        html: 'Bioaske',
+        unit: 'g'
+    },
+    'RadioactiveWaste': {
+        html: 'Radioaktivt affald (mg/kWh)',
+        unit: 'g'
+    }
+}
 
 
 $(document).ready(function() {
@@ -359,6 +426,8 @@ function computeDeclaration(obj) {
             let emissionStats = initEmissionStats();
             processMeasuringPoints(measuringPoints, fuelStats, emissionStats, dataAccessToken).then(function() {
                 $('#label-status').text('');
+
+                console.log(emissionStats)
 
                 buildEmissionTable(emissionStats, fuelStats['Total_kWh']);
                 buildBarChart(fuelStats);
