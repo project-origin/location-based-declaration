@@ -191,39 +191,47 @@ function getAllMeasuringPointsIDAndArea(measuringPoints) {
 }
 
 function processTimeSeries(period) {
-  let kWh_hourly = [];
+  let kWhHourly = [];
 
   for (var elem of period) {
     for (var point of elem['Point']) {
-      kWh_hourly.push(parseFloat(point['out_Quantity.quantity']))
+      kWhHourly.push(parseFloat(point['out_Quantity.quantity']))
     }
   }
 
-  return kWh_hourly;
+  return kWhHourly;
 }
 
-function calculateEmissionStats(kWh_hourly, stats, area) {
-  let area_emission_data = EMISSION_DATA[area]
+function calculateEmissionStats(kWhHourly, stats, area) {
+  let areaEmissionData = EMISSION_DATA[area]
 
   for (var emissionType of Object.keys(EMISSION_TYPES)) {
-    if (emissionType === 'CO2Eqv') continue;
-    var offset = area_emission_data[emissionType].length - kWh_hourly.length;
-    if (offset < 0) offset = 0;
-    for (var i = 0; i < kWh_hourly.length, i + offset < area_emission_data[emissionType].length; i++) {
-      stats[emissionType] += area_emission_data[emissionType][i + offset]['PerkWh'] * kWh_hourly[i]
+    if (emissionType === 'CO2Eqv') // this value is computed so we skip it.
+      continue;
+
+    var offset = areaEmissionData[emissionType].length - kWhHourly.length; // the customers measurements doesn't always cover a full year.
+
+    if (offset < 0) // if the customers measurements cover a full year then there will be 23 unit of hours too many.
+      offset = 0;
+
+    for (var i = 0; i < kWhHourly.length, i + offset < areaEmissionData[emissionType].length; i++) {
+      stats[emissionType] += areaEmissionData[emissionType][i + offset]['PerkWh'] * kWhHourly[i]
     }
   }
 }
 
-function calculateFuelStats(kWh_hourly, stats, area) {
-  let area_fuel_data = FUEL_DATA[area];
+function calculateFuelStats(kWhHourly, stats, area) {
+  let areaFuelData = FUEL_DATA[area];
 
   for (var fuelType of Object.keys(FUEL_TYPES)) {
     for (var connectedArea of CONNECTED_AREAS) {
-      var offset = area_fuel_data[fuelType][connectedArea].length - kWh_hourly.length;
-      if (offset < 0) offset = 0;
-      for (var i = 0; i < kWh_hourly.length, i + offset < area_fuel_data[fuelType][connectedArea].length; i++) {
-        let kWh = area_fuel_data[fuelType][connectedArea][i + offset]['Share'] * kWh_hourly[i]
+      var offset = areaFuelData[fuelType][connectedArea].length - kWhHourly.length;  // the customers measurements doesn't always cover a full year.
+
+      if (offset < 0)  // if the customers measurements cover a full year then there will be 23 unit of hours too many.
+        offset = 0;
+
+      for (var i = 0; i < kWhHourly.length, i + offset < areaFuelData[fuelType][connectedArea].length; i++) {
+        let kWh = areaFuelData[fuelType][connectedArea][i + offset]['Share'] * kWhHourly[i]
 
         stats['Total_kWh'] += kWh
         stats[fuelType][connectedArea] += kWh
@@ -274,47 +282,30 @@ function retrieveDataAccessToken(refreshToken) {
 }
 
 function formatAddress(element) {
-  var address = element['streetName']
+  var address = element['streetName'];
 
   if (element['buildingNumber'])
-    address += " " + element['buildingNumber']
+    address += " " + element['buildingNumber'];
   if (element['floorId'])
-    address += ", " + element['floorId']
+    address += ", " + element['floorId'];
   if (element['roomId'] && element['floorId'])
-    address += " " + element['roomId']
+    address += " " + element['roomId'];
   else if (element['roomId'])
-    address += ", " + element['roomId']
+    address += ", " + element['roomId'];
 
   return address;
 }
 
-function buildMasterDataTable(data) {
-  let cvrs = new Set()
-  let mps = new Set()
-
-  console.log(data)
-
-  for (var elem of data) {
-    cvrs.add({
-      cvr: elem['consumerCVR'],
-      name: elem['firstConsumerPartyName']
-    })
-
-    mps.add({
-      id: elem['meteringPointId'],
-      address: formatAddress(elem),
-      postcode: elem['postcode'],
-      city: elem['cityName']
-    })
-  }
-
+function buildConsumerTable(cvrs) {
   var cvrTable = $('#table-cvr-data');
   cvrTable.empty();
 
   for (var cvr of cvrs.values()) {
     cvrTable.append(`<tr><td>${cvr['cvr']}</td><td>${cvr['name']}</td></tr>`);
   }
+}
 
+function buildMeteringPointTable(mps) {
   var mpTable = $('#table-mp-data');
   mpTable.empty();
 
@@ -323,9 +314,28 @@ function buildMasterDataTable(data) {
   }
 }
 
+function buildMasterDataTables(data) {
+  let cvrs = new Set();
+  let mps = new Set();
 
-function convertToPerkWh(emission_value, total_kWh) {
-  return parseFloatAccordingToLocale((emission_value / total_kWh));
+  console.log(data);
+
+  for (var elem of data) {
+    cvrs.add({
+      cvr: elem['consumerCVR'],
+      name: elem['firstConsumerPartyName']
+    });
+
+    mps.add({
+      id: elem['meteringPointId'],
+      address: formatAddress(elem),
+      postcode: elem['postcode'],
+      city: elem['cityName']
+    });
+  }
+
+  buildConsumerTable(cvrs);
+  buildMeteringPointTable(mps);
 }
 
 function getEmissionValue(emissionType, stats) {
@@ -348,7 +358,7 @@ function buildEmissionTable(stats, total_kWh) {
   var residualRows = '';
 
   for (var emissionType of Object.keys(EMISSION_TYPES)) {
-    var value = getEmissionValue(emissionType, stats)
+    let value = getEmissionValue(emissionType, stats)
 
     html = `<tr>
             <td class="text-start">${EMISSION_TYPES[emissionType]['html']}</td>
@@ -377,9 +387,9 @@ function initFuelStats() {
   };
 
   for (var fuelType of Object.keys(FUEL_TYPES)) {
-    stats[fuelType] = {}
+    stats[fuelType] = {};
     for (var connectedArea of CONNECTED_AREAS) {
-      stats[fuelType][connectedArea] = 0
+      stats[fuelType][connectedArea] = 0;
     }
   }
 
@@ -387,19 +397,17 @@ function initFuelStats() {
 }
 
 function initEmissionStats() {
-  let stats = {}
+  let stats = {};
 
   for (var emissionType of Object.keys(EMISSION_TYPES)) {
-    stats[emissionType] = 0
+    stats[emissionType] = 0;
   }
 
   return stats;
 }
 
 function parseFloatAccordingToLocale(number, numDecimals = 2) {
-  return parseFloat(number.toFixed(numDecimals)).toLocaleString('da-DK', {
-    minimumFractionDigits: numDecimals
-  })
+  return parseFloat(number.toFixed(numDecimals)).toLocaleString('da-DK', {minimumFractionDigits: numDecimals});
 }
 
 function findAreaFromID(id, array) {
@@ -416,33 +424,33 @@ function processMeasuringPoints(measuringPoints, fuelStats, emissionStats, dataA
   measuringPointsIDAndArea = getAllMeasuringPointsIDAndArea(measuringPoints);
 
   let dfd = $.Deferred();
-  var promise = dfd.promise()
+  var promise = dfd.promise();
 
   for (var i = 0; i < measuringPointsIDAndArea.length; i += CHUNK_SIZE) {
     let slice = measuringPointsIDAndArea.slice(i, i + CHUNK_SIZE);
 
     promise = promise.then(function() {
-      return retrieveTimeSeries(slice, dataAccessToken)
+      return retrieveTimeSeries(slice, dataAccessToken);
     }).then(function(data) {
-      console.log(data)
+      console.log(data);
 
-      let result = data['result']
+      let result = data['result'];
       for (var j = 0; j < result.length; j++) {
         let period = result[j]['MyEnergyData_MarketDocument']['TimeSeries'][0]['Period'];
         let id = result[j]['id'];
 
-        let kWh_hourly = processTimeSeries(period);
+        let kWhHourly = processTimeSeries(period);
 
         let area = findAreaFromID(id, slice);
-        calculateFuelStats(kWh_hourly, fuelStats, area);
-        calculateEmissionStats(kWh_hourly, emissionStats, area);
+        calculateFuelStats(kWhHourly, fuelStats, area);
+        calculateEmissionStats(kWhHourly, emissionStats, area);
       }
     });
   }
 
-  dfd.resolve()
+  dfd.resolve();
 
-  return promise
+  return promise;
 }
 
 function clear_data() {
@@ -451,8 +459,25 @@ function clear_data() {
   $('#label-emission-data').text('');
 }
 
+function buildHomepage(fuelStats, emissionStats) {
+  $('#label-status').text('');
+
+  console.log(emissionStats)
+
+  buildEmissionTable(emissionStats, fuelStats['Total_kWh']);
+  buildBarChart(fuelStats);
+  buildGaugeChart(fuelStats);
+  buildFuelTable(fuelStats);
+  buildConnectedAreaTable(fuelStats);
+
+  $('#num-co2-total').text(parseFloatAccordingToLocale((emissionStats['CO2'] / 1000)) + ' kg');
+  $('#num-co2-relative').text(parseFloatAccordingToLocale((emissionStats['CO2'] / fuelStats['Total_kWh'])) + ' g/kWh');
+
+  $('#data-sector').removeAttr('hidden');
+}
+
 function computeDeclaration(obj) {
-  clear_data()
+  clear_data();
 
   let refreshToken = $('#input-token').val();
 
@@ -466,25 +491,13 @@ function computeDeclaration(obj) {
 
       $('#label-master-data').text('Forbrugsstamdata');
 
-      buildMasterDataTable(measuringPoints);
+      buildMasterDataTables(measuringPoints);
 
       let fuelStats = initFuelStats();
       let emissionStats = initEmissionStats();
       processMeasuringPoints(measuringPoints, fuelStats, emissionStats, dataAccessToken).then(function() {
-        $('#label-status').text('');
 
-        console.log(emissionStats)
-
-        buildEmissionTable(emissionStats, fuelStats['Total_kWh']);
-        buildBarChart(fuelStats);
-        buildGaugeChart(fuelStats);
-        buildFuelTable(fuelStats);
-        buildConnectedAreaTable(fuelStats)
-
-        $('#num-co2-total').text(parseFloatAccordingToLocale((emissionStats['CO2'] / 1000)) + ' kg');
-        $('#num-co2-relative').text(parseFloatAccordingToLocale((emissionStats['CO2'] / fuelStats['Total_kWh'])) + ' g/kWh');
-
-        $('#data-sector').removeAttr('hidden');
+        buildHomepage(fuelStats, emissionStats);
 
       }).catch(function() {
         $('#label-status').text('Noget gik galt. Kunne ikke beregne miljødeklarationen. Prøv igen eller kontakt administratoren.');
@@ -555,12 +568,11 @@ function buildBarChart(fuelStats) {
   });
 }
 
-
 function buildGaugeChart(fuelStats) {
-  let element = document.querySelector('#gauge-green-meter')
+  let element = document.querySelector('#gauge-green-meter');
   $('#gauge-green-meter').empty();
 
-  let greenPercentage = greenEnergyPercentage(fuelStats)
+  let greenPercentage = greenEnergyPercentage(fuelStats);
 
   let gaugeOptions = {
     hasNeedle: true,
@@ -573,34 +585,34 @@ function buildGaugeChart(fuelStats) {
     centralLabel: greenPercentage + '% grøn',
   };
 
-  GaugeChart.gaugeChart(element, 300, gaugeOptions).updateNeedle(greenPercentage)
+  GaugeChart.gaugeChart(element, 300, gaugeOptions).updateNeedle(greenPercentage);
 }
 
 function getProcentwiseOfTotal(amount, totalAmount) {
-  return parseFloatAccordingToLocale((amount * 100) / totalAmount)
+  return parseFloatAccordingToLocale((amount * 100) / totalAmount);
 }
 
 function buildFuelTable(fuelStats) {
-  var table = $('#table-fuels');
+  let table = $('#table-fuels');
   table.empty();
 
   for (var fuelType of Object.keys(FUEL_TYPES)) {
     if (fuelType !== 'Total_kWh') {
       let consumed = sumConnectedAreas(fuelStats[fuelType]);
       table.append(`<tr>
-                             <td style="background-color:${FUEL_TYPES[fuelType]['color']};"><img src="${FUEL_TYPES[fuelType]['image']}" width="30" height="30"></td>
-                             <td>${fuelType}</td>
-                             <td class="text-end">${formatAmount(consumed, fuelStats['Total_kWh'])}</td>
-                             <td class="text-end">${getProcentwiseOfTotal(consumed, fuelStats['Total_kWh'])}%</td>
-                         </tr>`);
+                    <td style="background-color:${FUEL_TYPES[fuelType]['color']};"><img src="${FUEL_TYPES[fuelType]['image']}" width="30" height="30"></td>
+                    <td>${fuelType}</td>
+                    <td class="text-end">${formatAmount(consumed, fuelStats['Total_kWh'])}</td>
+                    <td class="text-end">${getProcentwiseOfTotal(consumed, fuelStats['Total_kWh'])}%</td>
+                    </tr>`);
     }
   }
 
-  table.append(`<tr><td></td><td class='h4'>Total forbrug</td><td class='h4'>${formatAmount(fuelStats['Total_kWh'], fuelStats['Total_kWh'])}</td><td></td></tr>`)
+  table.append(`<tr><td></td><td class='h4'>Total forbrug</td><td class='h4'>${formatAmount(fuelStats['Total_kWh'], fuelStats['Total_kWh'])}</td><td></td></tr>`);
 }
 
 function sumFuelsAccordingToConnectedArea(fuelStats, connectedArea) {
-  var sum = 0
+  var sum = 0;
   for (var fuelType of Object.keys(FUEL_TYPES)) {
     sum += fuelStats[fuelType][connectedArea];
   }
@@ -609,39 +621,38 @@ function sumFuelsAccordingToConnectedArea(fuelStats, connectedArea) {
 }
 
 function buildConnectedAreaTable(fuelStats) {
-  var table = $('#table-from-production');
+  let table = $('#table-from-production');
   table.empty();
 
   for (var fuelType of Object.keys(FUEL_TYPES)) {
     if (fuelType !== 'Total_kWh') {
       let consumed = sumConnectedAreas(fuelStats[fuelType]);
 
-      var rows = ``
+      var rows = ``;
       for (var connectedArea of CONNECTED_AREAS) {
         rows += `<td class="text-end">${getProcentwiseOfTotal(fuelStats[fuelType][connectedArea], fuelStats['Total_kWh'])}%</td>`
       }
 
       table.append(`<tr>
-                          <td class="text-center" style="background-color:${FUEL_TYPES[fuelType]['color']};"><img src="${FUEL_TYPES[fuelType]['image']}" width="30" height="30"></td>
-                          <td>${fuelType}</td>
-                          ${rows}
-                          <td class="text-end"><strong>${getProcentwiseOfTotal(consumed, fuelStats['Total_kWh'])}%</strong></td>
-                          </tr>`);
+                    <td class="text-center" style="background-color:${FUEL_TYPES[fuelType]['color']};"><img src="${FUEL_TYPES[fuelType]['image']}" width="30" height="30"></td>
+                    <td>${fuelType}</td>
+                    ${rows}
+                    <td class="text-end"><strong>${getProcentwiseOfTotal(consumed, fuelStats['Total_kWh'])}%</strong></td>
+                    </tr>`);
     }
   }
 
-  var rows = ``
+  var rows = ``;
   for (var connectedArea of CONNECTED_AREAS) {
-    rows += `<td class="text-end"><strong>${getProcentwiseOfTotal(sumFuelsAccordingToConnectedArea(fuelStats, connectedArea), fuelStats['Total_kWh'])}%</strong></td>`
+    rows += `<td class="text-end"><strong>${getProcentwiseOfTotal(sumFuelsAccordingToConnectedArea(fuelStats, connectedArea), fuelStats['Total_kWh'])}%</strong></td>`;
   }
   table.append(`<tr>
-                  <td></td>
-                  <td><strong>Total</strong></td>
-                  ${rows}
-                  <td class="text-end"><strong>100.00%</strong></td>
-                  </tr>`)
+                <td></td>
+                <td><strong>Total</strong></td>
+                ${rows}
+                <td class="text-end"><strong>100.00%</strong></td>
+                </tr>`);
 }
-
 
 function formatAmount(amountkWh, totalAmountKwH) {
   let unit;
@@ -658,12 +669,11 @@ function formatAmount(amountkWh, totalAmountKwH) {
   return parseFloatAccordingToLocale(actualAmount, 0) + ' ' + unit;
 }
 
-
 function greenEnergyPercentage(fuelStats) {
   let total = fuelStats['Total_kWh'];
   let greenEnergy = sumConnectedAreas(fuelStats['Sol']) +
     sumConnectedAreas(fuelStats['Vind']) +
-    sumConnectedAreas(fuelStats['Vandkraft'])
+    sumConnectedAreas(fuelStats['Vandkraft']);
 
   return Math.round(greenEnergy / total * 100);
 }
