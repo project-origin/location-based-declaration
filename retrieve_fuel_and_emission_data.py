@@ -77,7 +77,8 @@ def calculate_kwh_per_hour(fuel_data):
 
     return list(fuel_types), kwh_hourly
 
-def fill_missing_fuel_type_per_hour(fuel_data):
+
+def convert_to_intermediate_data(fuel_data):
     filled_fuel_data = {}
 
     for area in VALID_AREAS:
@@ -100,7 +101,8 @@ def fill_missing_fuel_type_per_hour(fuel_data):
 
     return filled_fuel_data
 
-def convert_fuel_data(fuel_data):
+
+def init_fuel_convert_data():
     converted_data = {}
     for area in VALID_AREAS:
         converted_data[area] = {}
@@ -109,8 +111,20 @@ def convert_fuel_data(fuel_data):
             for connected_area in CONNECTED_AREAS:
                 converted_data[area][fuel_type][connected_area] = []
 
+    return converted_data
 
-    filled_fuel_data = fill_missing_fuel_type_per_hour(fuel_data)
+
+def sort_fuel_data(converted_data):
+    for area in VALID_AREAS:
+        for fuel_type in FUEL_TYPES:
+            for connected_area in CONNECTED_AREAS:
+                converted_data[area][fuel_type][connected_area] = sorted(converted_data[area][fuel_type][connected_area], key = lambda i: i['HourUTC'])
+
+
+def convert_fuel_data(fuel_data):
+    converted_data = init_fuel_convert_data()
+
+    filled_fuel_data = convert_to_intermediate_data(fuel_data)
 
     for area in VALID_AREAS:
         for hour in filled_fuel_data[area]:
@@ -120,22 +134,31 @@ def convert_fuel_data(fuel_data):
 
                     converted_data[area][fuel_type][connected_area].append({'HourUTC': hour,'Share': share})
 
-    for area in VALID_AREAS:
-        for fuel_type in FUEL_TYPES:
-            for connected_area in CONNECTED_AREAS:
-                converted_data[area][fuel_type][connected_area] = sorted(converted_data[area][fuel_type][connected_area], key = lambda i: i['HourUTC'])
+    sort_fuel_data(converted_data)
 
     return converted_data
 
 
-def convert_emission_data(emission_data):
-    emission_types = [x[:-6] for x in emission_data[0].keys() if x not in ['HourUTC', 'PriceArea']]
-
+def init_emission_convert_data(emission_types):
     converted_data = {}
     for area in VALID_AREAS:
         converted_data[area] = {}
         for emission_type in emission_types:
             converted_data[area][emission_type] = []
+
+    return converted_data
+
+
+def sort_emission_data(converted_data, emission_types):
+    for area in VALID_AREAS:
+        for emission_type in emission_types:
+            converted_data[area][emission_type] = sorted(converted_data[area][emission_type], key = lambda i: i['HourUTC'])
+
+
+def convert_emission_data(emission_data):
+    emission_types = [x[:-6] for x in emission_data[0].keys() if x not in ['HourUTC', 'PriceArea']]
+
+    converted_data = init_emission_convert_data(emission_types)
 
     for row in emission_data:
         area = row['PriceArea']
@@ -143,11 +166,9 @@ def convert_emission_data(emission_data):
         for emission_type in emission_types:
             converted_data[area][emission_type].append({'HourUTC': row['HourUTC'], 'PerkWh': row[emission_type + 'PerkWh']})
 
-    for area in VALID_AREAS:
-        for emission_type in emission_types:
-            converted_data[area][emission_type] = sorted(converted_data[area][emission_type], key = lambda i: i['HourUTC'])
+    sort_emission_data(converted_data, emission_types)
 
-    return emission_types, converted_data
+    return converted_data
 
 
 def write_to_file(emission_data, fuel_data, filename='data.json'):
@@ -160,7 +181,7 @@ def main():
     emission_data = retrieve_emission_data()
 
     converted_fuel_data = convert_fuel_data(fuel_data)
-    emission_types, converted_emission_data = convert_emission_data(emission_data)
+    converted_emission_data = convert_emission_data(emission_data)
 
     write_to_file(converted_emission_data, converted_fuel_data)
 
