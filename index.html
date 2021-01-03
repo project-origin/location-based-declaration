@@ -21,7 +21,7 @@
     }
 
     .table-responsive {
-        max-height:200px;
+      max-height: 200px;
     }
   </style>
 
@@ -48,12 +48,21 @@
   <div class="container">
     <div class="bg-light p-5 rounded-lg m-3">
 
-      <h1 class="display-4">Miljødeklaration <span id="title-year"><span></h1>
+      <h1 class="display-4">Deklaration, leveret el. <span id="title-year"><span></h1>
 
       <div id="section-not-to-print">
-        <p class="lead">Udregn din virksomheds årlige miljødeklaration på timebasis.</p>
+        <p class="lead">De beregnede emissioner er baseret på timeforbruget og lokation for de viste målere, kombineret med Energinets områdeafhængige timedeklaration. De beregnede nøgletal per kWh er gennemsnitsværdier for perioden, og vil være
+          individuelle for
+          hver enkelt kunde. Jo større del af forbruget, der ligger i perioder med høj andel af VE, jo lavere vil emissionerne være per kWh.
+          Bemærk:
+        </p>
+        <ul>
+          <li class="lead">El-deklarationerne fra din elhandler er baseret på handel med certifikater, men de påvirker ikke hvad der leveres fra elnettet. Læs mere om de forskellige deklarationer på Energinets hjemmeside.</li>
+          <li class="lead">Producerer du selv strøm, skal du selv indregne den del af forbrug og produktion, der ikke passerer elmåleren (egetforbrug).</li>
+        </ul>
         <hr class="my-4">
 
+        <p class="lead">Beregn din emission ved at indtaste din token fra www.eloverblik.dk:</p>
         <div class="input-group mb-3">
           <input type="text" class="form-control" id="input-token" placeholder="Token">
           <button class="btn btn-primary" id="button-calculate" type="button" onclick="computeDeclaration(this)" style="background: #4d8a8b; border: none;">Beregn</button>
@@ -125,7 +134,7 @@
 
         <div class="row pt-3 align-middle">
           <div class="col-12 col-md-7 align-middle">
-                  <canvas id="barChart"  width="1000" height="1000"></canvas>
+            <canvas id="barChart" width="1000" height="1000"></canvas>
           </div>
           <div class="col-12 col-md-5 align-middle">
             <table class="table table-striped align-middle">
@@ -182,9 +191,10 @@
             <tbody id="table-emissions"></tbody>
           </table>
         </div>
-        
+
       </div>
     </div>
   </div>
 </body>
+
 </html>
