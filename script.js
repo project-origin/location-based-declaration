@@ -373,9 +373,9 @@ function buildEmissionTable(stats, total_kWh) {
     }
   }
 
-  table.append('<tr><td class="text-start"><strong>Emissioner til luften</strong></td><td  class="text-center" colspan="2"><strong>g/kWh</strong></td></tr>')
+  table.append('<tr><td class="text-start"><strong>Emissioner til luften</strong></td><td  class="text-center" colspan="2"><strong>g/kWh</strong></td><td></td></tr>')
   table.append(airRows);
-  table.append('<tr><td class="text-start"><strong>Restprodukter</strong></td><td  class="text-center" colspan="2"><strong>g/kWh</strong></td></tr>')
+  table.append('<tr><td class="text-start"><strong>Restprodukter</strong></td><td  class="text-center" colspan="2"><strong>g/kWh</strong></td><td></td></tr>')
   table.append(residualRows);
 }
 
@@ -434,6 +434,8 @@ function processMeasuringPoints(measuringPoints, fuelStats, emissionStats, dataA
       for (var j = 0; j < result.length; j++) {
         let period = result[j]['MyEnergyData_MarketDocument']['TimeSeries'][0]['Period'];
         let id = result[j]['id'];
+
+        console.log(period)
 
         let kWhHourly = processTimeSeries(period);
 
@@ -660,7 +662,7 @@ function formatAmount(amountkWh, totalAmountKwH) {
     actualAmount = amountkWh;
   }
 
-  return parseFloatAccordingToLocale(actualAmount, 0) + ' ' + unit;
+  return parseFloatAccordingToLocale(actualAmount, 2) + ' ' + unit;
 }
 
 function greenEnergyPercentage(fuelStats) {

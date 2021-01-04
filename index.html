@@ -11,8 +11,17 @@
   <style type="text/css">
     @media print {
 
+      @page {
+        size: A4;
+      }
+
       body * {
         -webkit-print-color-adjust: exact;
+      }
+
+      th,
+      td {
+        font-size: 11px;
       }
 
       #section-not-to-print * {
@@ -76,37 +85,41 @@
 
       <div id="data-sector" hidden>
 
-        <div class="pt-3">
-          <h3>Forbrugsstamdata</h3>
-        </div>
+        <div id="section-not-to-print">
 
-        <h5 class="pt-3">Deklarationen gælder:</h5>
-        <div class="pt-3 table-responsive">
-          <table class="table table-striped">
-            <thead>
-              <tr>
-                <th>CVR</th>
-                <th>Navn</th>
-              </tr>
-            </thead>
-            <tbody id="table-cvr-data"></tbody>
-          </table>
-        </div>
+          <div class="pt-3">
+            <h3>Forbrugsstamdata</h3>
+          </div>
 
-        <h5 class="pt-3">Deklarationen omfatter:</h5>
+          <h5 class="pt-3">Deklarationen gælder:</h5>
+          <div class="pt-3 table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>CVR</th>
+                  <th>Navn</th>
+                </tr>
+              </thead>
+              <tbody id="table-cvr-data"></tbody>
+            </table>
+          </div>
 
-        <div class="pt-3 table-responsive">
-          <table class="table table-striped">
-            <thead>
-              <tr>
-                <th>Målepunkt ID</th>
-                <th>Addresse</th>
-                <th>Postnummer</th>
-                <th>By</th>
-              </tr>
-            </thead>
-            <tbody id="table-mp-data"></tbody>
-          </table>
+          <h5 class="pt-3">Deklarationen omfatter:</h5>
+
+          <div class="pt-3 table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Målepunkt ID</th>
+                  <th>Addresse</th>
+                  <th>Postnummer</th>
+                  <th>By</th>
+                </tr>
+              </thead>
+              <tbody id="table-mp-data"></tbody>
+            </table>
+          </div>
+
         </div>
 
         <div class="pt-3">
@@ -128,34 +141,39 @@
           </div>
         </div>
 
-        <div class="pt-3">
-          <h3>Brændsler anvendt til elfremstilling</h3>
-        </div>
+        <div style="page-break-before:always">
 
-        <div class="row pt-3 align-middle">
-          <div class="col-12 col-md-7 align-middle">
-            <canvas id="barChart" width="1000" height="1000"></canvas>
+
+          <div class="pt-3">
+            <h3>Brændsler anvendt til elfremstilling</h3>
           </div>
-          <div class="col-12 col-md-5 align-middle">
-            <table class="table table-striped align-middle">
-              <thead>
-                <tr>
-                  <th></th>
-                  <th class="text-center">Brændselstype</th>
-                  <th class="text-center">Forbrug</th>
-                  <th class="text-center">Procentvis</th>
-                </tr>
-              </thead>
-              <tbody id="table-fuels"></tbody>
-            </table>
+
+          <div class="row pt-3 align-middle">
+            <div class="col-12 col-md-7 align-middle">
+              <canvas id="barChart" width="1000" height="1000"></canvas>
+            </div>
+            <div class="col-12 col-md-5 align-middle" style="page-break-after:always">
+              <table class="table table-striped align-middle">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th class="text-center">Brændselstype</th>
+                    <th class="text-center">Forbrug</th>
+                    <th class="text-center">Procentvis</th>
+                  </tr>
+                </thead>
+                <tbody id="table-fuels"></tbody>
+              </table>
+            </div>
           </div>
         </div>
 
-        <div class="pt-3">
-          <h3>Hvor kommer din strøm fra?</h3>
-        </div>
+        <div class="pt-3" style="page-break-before:always">
 
-        <div class="pt-3">
+          <div class="pt-3">
+            <h3>Hvor kommer din strøm fra?</h3>
+          </div>
+
           <table class="table table-striped">
             <thead>
               <tr>
@@ -174,12 +192,12 @@
           </table>
         </div>
 
+        <div class="pt-3" style="page-break-before:always">
 
-        <div class="pt-3">
-          <h3>Miljøforhold for el leveret til forbrug</h3>
-        </div>
+          <div class="pt-3">
+            <h3>Miljøforhold for el leveret til forbrug</h3>
+          </div>
 
-        <div class="pt-3">
           <table class="table table-striped" id="table-emission-data">
             <thead>
               <tr>
