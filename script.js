@@ -318,8 +318,6 @@ function buildMasterDataTables(data) {
   let cvrs = new Set();
   let mps = new Set();
 
-  console.log(data);
-
   for (var elem of data) {
     cvrs.add({
       cvr: elem['consumerCVR'],
@@ -432,8 +430,6 @@ function processMeasuringPoints(measuringPoints, fuelStats, emissionStats, dataA
     promise = promise.then(function() {
       return retrieveTimeSeries(slice, dataAccessToken);
     }).then(function(data) {
-      console.log(data);
-
       let result = data['result'];
       for (var j = 0; j < result.length; j++) {
         let period = result[j]['MyEnergyData_MarketDocument']['TimeSeries'][0]['Period'];
@@ -461,8 +457,6 @@ function clear_data() {
 
 function buildHomepage(fuelStats, emissionStats) {
   $('#label-status').text('');
-
-  console.log(emissionStats)
 
   buildEmissionTable(emissionStats, fuelStats['Total_kWh']);
   buildBarChart(fuelStats);
