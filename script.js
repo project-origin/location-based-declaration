@@ -604,20 +604,20 @@ function buildGaugeChart(fuelStats) {
   let element = document.querySelector('#gauge-green-meter');
   $('#gauge-green-meter').empty();
 
-  let greenPercentage = greenEnergyPercentage(fuelStats);
+  let sustainablePercentage = sustainableEnergyPercentage(fuelStats);
 
   let gaugeOptions = {
     hasNeedle: true,
     needleColor: 'gray',
     needleUpdateSpeed: 0,
     arcColors: ['green', 'black'],
-    arcDelimiters: [greenPercentage],
+    arcDelimiters: [sustainablePercentage],
     rangeLabel: ['0%', '100%'],
-    needleStartValue: greenEnergyPercentage(fuelStats),
-    centralLabel: greenPercentage + '%',
+    needleStartValue: sustainableEnergyPercentage(fuelStats),
+    centralLabel: sustainablePercentage + '%',
   };
 
-  GaugeChart.gaugeChart(element, 300, gaugeOptions).updateNeedle(greenPercentage);
+  GaugeChart.gaugeChart(element, 300, gaugeOptions).updateNeedle(sustainablePercentage);
 }
 
 function getProcentwiseOfTotal(amount, totalAmount) {
@@ -701,7 +701,7 @@ function formatAmount(amountkWh, totalAmountKwH) {
   return parseFloatAccordingToLocale(actualAmount, 0) + ' ' + unit;
 }
 
-function greenEnergyPercentage(fuelStats) {
+function sustainableEnergyPercentage(fuelStats) {
   let total = fuelStats['Total_kWh'];
   let greenEnergy = sumConnectedAreas(fuelStats['Sol']) +
     sumConnectedAreas(fuelStats['Vind']) +
