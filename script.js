@@ -151,7 +151,8 @@ let EMISSION_TYPES = {
 
 
 $(document).ready(function() {
-  loadData();
+  loadEmissionData();
+  loadFuelData();
 
   $('#title-year').text(YEAR);
 
@@ -162,14 +163,23 @@ $(document).ready(function() {
   });
 });
 
-function loadData() {
+function loadEmissionData() {
   $.ajax({
     type: "GET",
-    url: "data.json",
+    url: "emission_data.json",
     dataType: "json"
   }).done(function(data) {
-    EMISSION_DATA = data['emission_data']
-    FUEL_DATA = data['fuel_data']
+    EMISSION_DATA = data
+  });
+}
+
+function loadFuelData() {
+  $.ajax({
+    type: "GET",
+    url: "fuel_data.json",
+    dataType: "json"
+  }).done(function(data) {
+    FUEL_DATA = data
   });
 }
 
@@ -202,36 +212,27 @@ function processTimeSeries(period) {
   return kWhHourly;
 }
 
-function calculateEmissionStats(kWhHourly, stats, area) {
+function calculateEmissionStats(kWhHourly, stats, area, offsetStartFrom) {
   let areaEmissionData = EMISSION_DATA[area]
 
   for (var emissionType of Object.keys(EMISSION_TYPES)) {
     if (emissionType === 'CO2Eqv') // this value is computed so we skip it.
       continue;
 
-    var offset = areaEmissionData[emissionType].length - kWhHourly.length; // the customers measurements doesn't always cover a full year.
-
-    if (offset < 0) // if the customers measurements cover a full year then there will be 23 unit of hours too many.
-      offset = 0;
-
-    for (var i = 0; i < kWhHourly.length, i + offset < areaEmissionData[emissionType].length; i++) {
-      stats[emissionType] += areaEmissionData[emissionType][i + offset]['PerkWh'] * kWhHourly[i]
+    for (var i = 0; i < kWhHourly.length, i + offsetStartFrom < areaEmissionData[emissionType].length; i++) {
+      stats[emissionType] += areaEmissionData[emissionType][i + offsetStartFrom]['PerkWh'] * kWhHourly[i]
     }
   }
 }
 
-function calculateFuelStats(kWhHourly, stats, area) {
+function calculateFuelStats(kWhHourly, stats, area, offsetStartFrom) {
   let areaFuelData = FUEL_DATA[area];
 
   for (var fuelType of Object.keys(FUEL_TYPES)) {
     for (var connectedArea of CONNECTED_AREAS) {
-      var offset = areaFuelData[fuelType][connectedArea].length - kWhHourly.length;  // the customers measurements doesn't always cover a full year.
 
-      if (offset < 0)  // if the customers measurements cover a full year then there will be 23 unit of hours too many.
-        offset = 0;
-
-      for (var i = 0; i < kWhHourly.length, i + offset < areaFuelData[fuelType][connectedArea].length; i++) {
-        let kWh = areaFuelData[fuelType][connectedArea][i + offset]['Share'] * kWhHourly[i]
+      for (var i = 0; i < kWhHourly.length, i + offsetStartFrom < areaFuelData[fuelType][connectedArea].length; i++) {
+        let kWh = areaFuelData[fuelType][connectedArea][i + offsetStartFrom]['Share'] * kWhHourly[i]
 
         stats['Total_kWh'] += kWh
         stats[fuelType][connectedArea] += kWh
@@ -337,12 +338,14 @@ function buildMasterDataTables(data) {
 }
 
 function getEmissionValue(emissionType, stats) {
-  let value = (emissionType === 'CO2Eqv') ? stats['CO2'] + (stats['CH4'] * 28) / 1000 + (stats['N2O'] * 265) : stats[emissionType];
+  if (emissionType === 'CO2Eqv') {
+    return stats['CO2'] + (stats['CH4'] * 28) / 1000 + (stats['N2O'] * 265) / 1000
+  }
 
   if (EMISSION_TYPES[emissionType]['unit'] === 'g') {
-    return value;
+    return stats[emissionType];
   } else if (EMISSION_TYPES[emissionType]['unit'] === 'mg') {
-    return value / 1000;
+    return stats[emissionType] / 1000;
   } else {
     throw 'Unknown unit type';
   }
@@ -358,11 +361,20 @@ function buildEmissionTable(stats, total_kWh) {
   for (var emissionType of Object.keys(EMISSION_TYPES)) {
     let value = getEmissionValue(emissionType, stats)
 
-    html = `<tr>
+    var html = ''
+    if (emissionType === 'CO2Eqv') {
+      html = `<tr>
+              <td class="text-start"><em>${EMISSION_TYPES[emissionType]['html']}</em></td>
+              <td class="text-center"><em>${parseFloatAccordingToLocale(value / total_kWh, EMISSION_TYPES[emissionType]['numDecimals'])}</em></td>
+              <td></td>
+              </tr>`
+    } else {
+      html = `<tr>
             <td class="text-start">${EMISSION_TYPES[emissionType]['html']}</td>
-            <td class="text-center">${parseFloatAccordingToLocale(value / total_kWh, EMISSION_TYPES[emissionType]['numDecimals'])}
-            <td><td>
+            <td class="text-center">${parseFloatAccordingToLocale(value / total_kWh, EMISSION_TYPES[emissionType]['numDecimals'])}</td>
+            <td></td>
             </tr>`
+    }
 
     if (EMISSION_TYPES[emissionType]['type'] === 'air') {
       airRows += html;
@@ -405,7 +417,9 @@ function initEmissionStats() {
 }
 
 function parseFloatAccordingToLocale(number, numDecimals = 2) {
-  return parseFloat(number.toFixed(numDecimals)).toLocaleString('da-DK', {minimumFractionDigits: numDecimals});
+  return parseFloat(number.toFixed(numDecimals)).toLocaleString('da-DK', {
+    minimumFractionDigits: numDecimals
+  });
 }
 
 function findAreaFromID(id, array) {
@@ -415,6 +429,21 @@ function findAreaFromID(id, array) {
     }
   }
   return undefined;
+}
+
+function findOffsetStartFrom(period) {
+  if (period.length < 1)
+    throw 'Period contained no values';
+
+  var start = period[0]['timeInterval']['start'];
+  start = start.substring(0, start.length - 1);
+
+  for (var i = 0; i < FUEL_DATA['DK1']['Vind']['DK1'].length; i++) {
+    if (start === FUEL_DATA['DK1']['Vind']['DK1'][i]['HourUTC'])
+      return i;
+  }
+
+  throw 'Timeslot was not found';
 }
 
 function processMeasuringPoints(measuringPoints, fuelStats, emissionStats, dataAccessToken) {
@@ -431,17 +460,22 @@ function processMeasuringPoints(measuringPoints, fuelStats, emissionStats, dataA
       return retrieveTimeSeries(slice, dataAccessToken);
     }).then(function(data) {
       let result = data['result'];
+
+      console.log(result);
+
       for (var j = 0; j < result.length; j++) {
         let period = result[j]['MyEnergyData_MarketDocument']['TimeSeries'][0]['Period'];
         let id = result[j]['id'];
 
-        console.log(period)
+        console.log(result[j]['MyEnergyData_MarketDocument']['period.time'])
+
+        let offsetStartFrom = findOffsetStartFrom(period);
 
         let kWhHourly = processTimeSeries(period);
 
         let area = findAreaFromID(id, slice);
-        calculateFuelStats(kWhHourly, fuelStats, area);
-        calculateEmissionStats(kWhHourly, emissionStats, area);
+        calculateFuelStats(kWhHourly, fuelStats, area, offsetStartFrom);
+        calculateEmissionStats(kWhHourly, emissionStats, area, offsetStartFrom);
       }
     });
   }
@@ -662,14 +696,16 @@ function formatAmount(amountkWh, totalAmountKwH) {
     actualAmount = amountkWh;
   }
 
-  return parseFloatAccordingToLocale(actualAmount, 2) + ' ' + unit;
+  return parseFloatAccordingToLocale(actualAmount, 0) + ' ' + unit;
 }
 
 function greenEnergyPercentage(fuelStats) {
   let total = fuelStats['Total_kWh'];
   let greenEnergy = sumConnectedAreas(fuelStats['Sol']) +
     sumConnectedAreas(fuelStats['Vind']) +
-    sumConnectedAreas(fuelStats['Vandkraft']);
+    sumConnectedAreas(fuelStats['Vandkraft']) +
+    sumConnectedAreas(fuelStats['Biomasse']) +
+    sumConnectedAreas(fuelStats['Affald']) * 0.588;
 
   return Math.round(greenEnergy / total * 100);
 }
