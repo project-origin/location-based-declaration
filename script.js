@@ -235,6 +235,7 @@ function calculateFuelStats(kWhHourly, stats, area, offsetStartFrom) {
         let kWh = areaFuelData[fuelType][connectedArea][i + offsetStartFrom]['Share'] * kWhHourly[i]
 
         stats['Total_kWh'] += kWh
+        stats[area] += kWh
         stats[fuelType][connectedArea] += kWh
       }
     }
@@ -393,7 +394,9 @@ function buildEmissionTable(stats, total_kWh) {
 
 function initFuelStats() {
   let stats = {
-    Total_kWh: 0
+    Total_kWh: 0,
+    DK1: 0,
+    DK2: 0
   };
 
   for (var fuelType of Object.keys(FUEL_TYPES)) {
@@ -467,8 +470,6 @@ function processMeasuringPoints(measuringPoints, fuelStats, emissionStats, dataA
         let period = result[j]['MyEnergyData_MarketDocument']['TimeSeries'][0]['Period'];
         let id = result[j]['id'];
 
-        console.log(result[j]['MyEnergyData_MarketDocument']['period.time'])
-
         let offsetStartFrom = findOffsetStartFrom(period);
 
         let kWhHourly = processTimeSeries(period);
@@ -527,6 +528,7 @@ function computeDeclaration(obj) {
       let emissionStats = initEmissionStats();
       processMeasuringPoints(measuringPoints, fuelStats, emissionStats, dataAccessToken).then(function() {
 
+        console.log(fuelStats)
         buildHomepage(fuelStats, emissionStats);
 
       }).catch(function() {
@@ -612,7 +614,7 @@ function buildGaugeChart(fuelStats) {
     arcDelimiters: [greenPercentage],
     rangeLabel: ['0%', '100%'],
     needleStartValue: greenEnergyPercentage(fuelStats),
-    centralLabel: greenPercentage + '% grøn',
+    centralLabel: greenPercentage + '%',
   };
 
   GaugeChart.gaugeChart(element, 300, gaugeOptions).updateNeedle(greenPercentage);
