@@ -529,7 +529,12 @@ function processMeasuringPoints(measuringPoints, fuelStats, emissionStats, dataA
       let result = data['result'];
 
       for (var j = 0; j < result.length; j++) {
-        let period = result[j]['MyEnergyData_MarketDocument']['TimeSeries'][0]['Period'];
+        let timeseries = result[j]['MyEnergyData_MarketDocument']['TimeSeries'];
+
+        if (timeseries.length == 0)
+            continue;
+
+        let period = timeseries[0]['Period'];
         let id = result[j]['id'];
 
         let offsetStartFrom = findOffsetStartFrom(period);
