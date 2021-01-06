@@ -198,17 +198,6 @@ let EMISSION_TYPES = {
     }
 };
 
-REFERENCE_EMISSION = {
-
-};
-
-REFERENCE_FUEL = {
-    DK1: {
-
-    }
-}
-
-
 $(document).ready(function() {
     loadEmissionData();
     loadFuelData();
@@ -365,7 +354,7 @@ function buildConsumerTable(cvrs) {
 
     for (var cvr of cvrs.values()) {
         let elements = cvr.split('*');
-        cvrTable.append(`<tr><td>${elements[0]}</td><td>${elements[1]}</td></tr>`);
+        cvrTable.append(`<tr><td class="h4">${elements[0]}</td><td class="h4">${elements[1]}</td></tr>`);
     }
 }
 
@@ -375,7 +364,7 @@ function buildMeteringPointTable(mps) {
 
     for (var mp of mps.values()) {
         let elements = mp.split('*');
-        mpTable.append(`<tr><td>${elements[0]}</td><td>${elements[1]}</td><td>${elements[2]}</td><td>${elements[3]}</td></tr>`);
+        mpTable.append(`<tr><td>${elements[0]}</td><td>${elements[1]}</td><td>${elements[2]}</td><td>${elements[3]}</td><td>${elements[4]}</td></tr>`);
     }
 }
 
@@ -387,10 +376,13 @@ function buildMasterDataTables(data) {
         cvrs.add(elem['consumerCVR'] + '*' +
         elem['firstConsumerPartyName']);
 
+        let type = (elem['typeOfMP'] !== 'E17' || elem['settlementMethod'] === 'E01') ? 'Nej' : 'Ja'
+
         mps.add(elem['meteringPointId'] + '*' +
             formatAddress(elem) + '*' +
             elem['postcode'] + '*' +
-            elem['cityName']);
+            elem['cityName'] + '*' +
+            type);
     }
 
     buildConsumerTable(cvrs);
@@ -727,7 +719,7 @@ function buildIndicatorGaugeChart(emissionStats, fuelStats) {
         needleUpdateSpeed: 0,
         arcColors: ['red', 'yellow', 'green'],
         arcDelimiters: [45, 55],
-        rangeLabel: ['Dårlig', 'God'],
+        rangeLabel: ['Dårligere', 'Bedre'],
         needleStartValue: value,
         centralLabel: parseFloatAccordingToLocale(value) + '%',
     };
