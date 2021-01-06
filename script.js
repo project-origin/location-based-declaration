@@ -717,9 +717,9 @@ function buildIndicatorGaugeChart(emissionStats, fuelStats) {
         hasNeedle: true,
         needleColor: 'gray',
         needleUpdateSpeed: 0,
-        arcColors: ['red', 'yellow', 'green'],
+        arcColors: ['black', '#ADD8E6', 'green'],
         arcDelimiters: [45, 55],
-        rangeLabel: ['Dårligere', 'Bedre'],
+        rangeLabel: ['Mere CO\u2082', 'Mindre CO\u2082'],
         needleStartValue: value,
         centralLabel: parseFloatAccordingToLocale(value) + '%',
     };
