@@ -244,8 +244,10 @@ function loadFuelData() {
 function getAllMeasuringPointsIDAndArea(measuringPoints) {
   let ids = []
 
+  console.log(measuringPoints)
+
   for (var measuringPoint of measuringPoints) {
-    if (measuringPoint['typeOfMP'] !== 'E17')
+    if (measuringPoint['typeOfMP'] !== 'E17' || measuringPoint['settlementMethod'] === 'E01')
       continue
 
     let area = parseInt(measuringPoint['postcode']) >= 5000 ? 'DK1' : 'DK2';
@@ -429,13 +431,13 @@ function buildEmissionTable(stats, totalkWh, DK1kWh, DK2kWh) {
       html = `<tr>
               <td class="text-start"><em>${EMISSION_TYPES[emissionType]['html']}</em></td>
               <td class="text-center"><em>${parseFloatAccordingToLocale(value / totalkWh, EMISSION_TYPES[emissionType]['numDecimals'])}</em></td>
-              <td class="text-end"><em>${reference}</em></td>
+              <td class="text-end text-secondary"><em>${reference}</em></td>
               </tr>`
     } else {
       html = `<tr>
             <td class="text-start">${EMISSION_TYPES[emissionType]['html']}</td>
             <td class="text-center">${parseFloatAccordingToLocale(value / totalkWh, EMISSION_TYPES[emissionType]['numDecimals'])}</td>
-             <td class="text-end"><em>${reference}</em></td>
+             <td class="text-end text-secondary">${reference}</td>
             </tr>`
     }
 
@@ -558,6 +560,7 @@ function buildHomepage(fuelStats, emissionStats) {
   buildEmissionTable(emissionStats, fuelStats['Total_kWh'], fuelStats['DK1'], fuelStats['DK2']);
   buildBarChart(fuelStats);
   buildGaugeChart(fuelStats);
+  buildIndicatorGaugeChart(emissionStats, fuelStats);
   buildFuelTable(fuelStats);
   buildConnectedAreaTable(fuelStats);
 
@@ -679,6 +682,42 @@ function buildGaugeChart(fuelStats) {
   GaugeChart.gaugeChart(element, 300, gaugeOptions).updateNeedle(sustainablePercentage);
 }
 
+function buildIndicatorGaugeChart(emissionStats, fuelStats) {
+  let element = document.querySelector('#gauge-indicator-meter');
+  $('#gauge-indicator-meter').empty();
+
+  let totalkWh = fuelStats['Total_kWh'];
+  let dk1Part = fuelStats['DK1'] / totalkWh;
+  let dk2Part = fuelStats['DK2'] / totalkWh;
+
+  let CO2 = emissionStats['CO2'] / totalkWh;
+
+  let reference = dk1Part * EMISSION_TYPES['CO2']['ref_dk1'] + dk2Part * EMISSION_TYPES['CO2']['ref_dk2'];
+
+
+  var value = 100 - (CO2 / reference) * 100;
+
+  console.log(value);
+
+  let gaugeOptions = {
+    hasNeedle: true,
+    needleColor: 'gray',
+    needleUpdateSpeed: 0,
+    arcColors: ['red', 'yellow', 'green'],
+    arcDelimiters: [45, 55],
+    rangeLabel: ['Dårligt', 'Godt'],
+    needleStartValue: value,
+    centralLabel: parseFloatAccordingToLocale(value) + '%',
+  };
+
+  let multiplied = 5 * value;
+  let needleValue = (multiplied > 50) ? 100 : (multiplied < -50) ? 0 : multiplied;
+
+  console.log(needleValue)
+  GaugeChart.gaugeChart(element, 300, gaugeOptions).updateNeedle(50 + needleValue);
+
+}
+
 function getProcentwiseOfTotal(amount, totalAmount) {
   return parseFloatAccordingToLocale((amount * 100) / totalAmount);
 }
@@ -699,7 +738,7 @@ function buildFuelTable(fuelStats) {
                     <td>${fuelType}</td>
                     <td class="text-end">${formatAmount(consumed, totalkWh)}</td>
                     <td class="text-end">${getProcentwiseOfTotal(consumed, totalkWh)}%</td>
-                    <td class="text-end"><em>${parseFloatAccordingToLocale(dk1Part * FUEL_TYPES[fuelType]['ref_dk1'] + dk2Part * FUEL_TYPES[fuelType]['ref_dk2'], 2)}%</em></td>
+                    <td class="text-end text-secondary">${parseFloatAccordingToLocale(dk1Part * FUEL_TYPES[fuelType]['ref_dk1'] + dk2Part * FUEL_TYPES[fuelType]['ref_dk2'], 2)}%</td>
                     </tr>`);
     }
   }
