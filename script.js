@@ -18,35 +18,51 @@ let CONNECTED_AREAS = [
 let FUEL_TYPES = {
   'Vind': {
     image: './images/wind.png',
-    color: '#00a98f'
+    color: '#00a98f',
+    ref_dk1: 44.80,
+    ref_dk2: 33.40
   },
   'Sol': {
     image: './images/solar.png',
-    color: '#a0ffc8'
+    color: '#a0ffc8',
+    ref_dk1: 3.20,
+    ref_dk2: 4.00
   },
   'Vandkraft': {
     image: './images/hydro.png',
-    color: '#0a515d'
+    color: '#0a515d',
+    ref_dk1: 15.20,
+    ref_dk2: 12.20
   },
   'Biomasse': {
     image: './images/biomass.png',
-    color: '#ffd424'
+    color: '#ffd424',
+    ref_dk1: 9.00,
+    ref_dk2: 17.20
   },
   'Affald': {
     image: './images/waste.png',
-    color: '#fcba03'
+    color: '#fcba03',
+    ref_dk1: 2.70,
+    ref_dk2: 5.20
   },
   'Naturgas': {
     image: './images/naturalgas.png',
-    color: '#a0c1c2'
+    color: '#a0c1c2',
+    ref_dk1: 7.40,
+    ref_dk2: 5.50
   },
   'Kul og Olie': {
     image: './images/coal.png',
-    color: '#333333'
+    color: '#333333',
+    ref_dk1: 12.90,
+    ref_dk2: 11.00
   },
   'Atomkraft': {
     image: './images/nuclear.png',
-    color: '#ff6600'
+    color: '#ff6600',
+    ref_dk1: 4.80,
+    ref_dk2: 11.50
   }
 };
 
@@ -55,99 +71,141 @@ let EMISSION_TYPES = {
     html: 'CO<sub>2</sub> (Kuldioxid - drivhusgas)',
     unit: 'g',
     numDecimals: 2,
-    type: 'air'
+    type: 'air',
+    ref_dk1: 147.70741,
+    ref_dk2: 136.120351
   },
   'CH4': {
     html: 'CH<sub>4</sub> (Metan - drivhusgas)',
     unit: 'mg',
     numDecimals: 2,
-    type: 'air'
+    type: 'air',
+    ref_dk1: 0.1044816,
+    ref_dk2: 0.07020113
   },
   'N2O': {
     html: 'N<sub>2</sub>O (Lattergas - drivhusgas)',
     unit: 'mg',
     numDecimals: 3,
-    type: 'air'
+    type: 'air',
+    ref_dk1: 0.002279985,
+    ref_dk2: 0.002915154
   },
   'CO2Eqv': {
     html: 'CO<sub>2</sub>-ækvivalenter i alt',
     unit: 'mg',
     numDecimals: 2,
-    type: 'air'
+    type: 'air',
+    ref_dk1: 151.237091,
+    ref_dk2: 138.858498
   },
   'SO2': {
     html: 'SO<sub>2</sub> (Svovldioxid)',
     unit: 'mg',
     numDecimals: 2,
-    type: 'air'
+    type: 'air',
+    ref_dk1: 0.02693083,
+    ref_dk2: 0.03839438
   },
   'NOx': {
     html: 'NO<sub>x</sub> (Kvælstofilte)',
     unit: 'mg',
     numDecimals: 2,
-    type: 'air'
+    type: 'air',
+    ref_dk1: 0.1647971,
+    ref_dk2: 0.2248935
   },
   'CO': {
     html: 'CO (Kulilte)',
     unit: 'mg',
     numDecimals: 2,
-    type: 'air'
+    type: 'air',
+    ref_dk1: 0.1037752,
+    ref_dk2: 0.1515124
   },
   'NMvoc': {
     html: 'NM<sub>VOC</sub> (Uforbrændt kulbrinter)',
     unit: 'mg',
     numDecimals: 2,
-    type: 'air'
+    type: 'air',
+    ref_dk1: 0.01746065,
+    ref_dk2: 0.01563837
   },
   'Particles': {
     html: 'Partikler',
     unit: 'mg',
     numDecimals: 2,
-    type: 'air'
+    type: 'air',
+    ref_dk1: 0.009346569,
+    ref_dk2: 0.01530363
   },
   'CoalFlyAsh': {
     html: 'Kulflyveaske',
     unit: 'g',
     numDecimals: 2,
-    type: 'residual'
+    type: 'residual',
+    ref_dk1: 4.638885,
+    ref_dk2: 3.670074
   },
   'CoalSlag': {
     html: 'Kulslagge',
     unit: 'g',
     numDecimals: 2,
-    type: 'residual'
+    type: 'residual',
+    ref_dk1: 0.798421,
+    ref_dk2: 0.631674
   },
   'Desulp': {
     html: 'Afsvovlingsprodukter (Gips)',
     unit: 'g',
     numDecimals: 2,
-    type: 'residual'
+    type: 'residual',
+    ref_dk1: 1.686586,
+    ref_dk2: 1.33435
   },
   'WasteSlag': {
     html: 'Slagge (affaldsforbrænding)',
     unit: 'g',
     numDecimals: 2,
-    type: 'residual'
+    type: 'residual',
+    ref_dk1: 4.649827,
+    ref_dk2: 8.68308
   },
   'FuelGasWaste': {
     html: 'RGA (røggasaffald)',
     unit: 'g',
     numDecimals: 2,
-    type: 'residual'
+    type: 'residual',
+    ref_dk1: 0.704331,
+    ref_dk2: 1.315267
   },
   'Bioash': {
     html: 'Bioaske',
     unit: 'g',
     numDecimals: 2,
-    type: 'residual'
+    type: 'residual',
+    ref_dk1: 0.740667,
+    ref_dk2: 1.620461
   },
   'RadioactiveWaste': {
     html: 'Radioaktivt affald (mg/kWh)',
     unit: 'g',
     numDecimals: 2,
-    type: 'residual'
+    type: 'residual',
+    ref_dk1: 0.109743,
+    ref_dk2: 0.263936
   }
 };
+
+REFERENCE_EMISSION = {
+
+};
+
+REFERENCE_FUEL = {
+    DK1: {
+
+    }
+}
 
 
 $(document).ready(function() {
@@ -352,28 +410,32 @@ function getEmissionValue(emissionType, stats) {
   }
 }
 
-function buildEmissionTable(stats, total_kWh) {
+function buildEmissionTable(stats, totalkWh, DK1kWh, DK2kWh) {
   let table = $('#table-emissions');
   table.empty();
+
+  let dk1Part = DK1kWh / totalkWh;
+  let dk2Part = DK2kWh / totalkWh;
 
   var airRows = '';
   var residualRows = '';
 
   for (var emissionType of Object.keys(EMISSION_TYPES)) {
     let value = getEmissionValue(emissionType, stats)
+    let reference = parseFloatAccordingToLocale(dk1Part * EMISSION_TYPES[emissionType]['ref_dk1'] + dk2Part * EMISSION_TYPES[emissionType]['ref_dk2'], (emissionType === 'N2O') ? 3 : 2);
 
     var html = ''
     if (emissionType === 'CO2Eqv') {
       html = `<tr>
               <td class="text-start"><em>${EMISSION_TYPES[emissionType]['html']}</em></td>
-              <td class="text-center"><em>${parseFloatAccordingToLocale(value / total_kWh, EMISSION_TYPES[emissionType]['numDecimals'])}</em></td>
-              <td></td>
+              <td class="text-center"><em>${parseFloatAccordingToLocale(value / totalkWh, EMISSION_TYPES[emissionType]['numDecimals'])}</em></td>
+              <td class="text-end"><em>${reference}</em></td>
               </tr>`
     } else {
       html = `<tr>
             <td class="text-start">${EMISSION_TYPES[emissionType]['html']}</td>
-            <td class="text-center">${parseFloatAccordingToLocale(value / total_kWh, EMISSION_TYPES[emissionType]['numDecimals'])}</td>
-            <td></td>
+            <td class="text-center">${parseFloatAccordingToLocale(value / totalkWh, EMISSION_TYPES[emissionType]['numDecimals'])}</td>
+             <td class="text-end">${reference}</td>
             </tr>`
     }
 
@@ -386,9 +448,9 @@ function buildEmissionTable(stats, total_kWh) {
     }
   }
 
-  table.append('<tr><td class="text-start"><strong>Emissioner til luften</strong></td><td  class="text-center" colspan="2"><strong>g/kWh</strong></td><td></td></tr>')
+  table.append('<tr><td class="text-start"><strong>Emissioner til luften</strong></td><td  class="text-center" colspan="2"><strong>g/kWh</strong></td></tr>')
   table.append(airRows);
-  table.append('<tr><td class="text-start"><strong>Restprodukter</strong></td><td  class="text-center" colspan="2"><strong>g/kWh</strong></td><td></td></tr>')
+  table.append('<tr><td class="text-start"><strong>Restprodukter</strong></td><td  class="text-center" colspan="2"><strong>g/kWh</strong></td></tr>')
   table.append(residualRows);
 }
 
@@ -464,8 +526,6 @@ function processMeasuringPoints(measuringPoints, fuelStats, emissionStats, dataA
     }).then(function(data) {
       let result = data['result'];
 
-      console.log(result);
-
       for (var j = 0; j < result.length; j++) {
         let period = result[j]['MyEnergyData_MarketDocument']['TimeSeries'][0]['Period'];
         let id = result[j]['id'];
@@ -495,7 +555,7 @@ function clear_data() {
 function buildHomepage(fuelStats, emissionStats) {
   $('#label-status').text('');
 
-  buildEmissionTable(emissionStats, fuelStats['Total_kWh']);
+  buildEmissionTable(emissionStats, fuelStats['Total_kWh'], fuelStats['DK1'], fuelStats['DK2']);
   buildBarChart(fuelStats);
   buildGaugeChart(fuelStats);
   buildFuelTable(fuelStats);
@@ -528,7 +588,6 @@ function computeDeclaration(obj) {
       let emissionStats = initEmissionStats();
       processMeasuringPoints(measuringPoints, fuelStats, emissionStats, dataAccessToken).then(function() {
 
-        console.log(fuelStats)
         buildHomepage(fuelStats, emissionStats);
 
       }).catch(function() {
@@ -628,19 +687,24 @@ function buildFuelTable(fuelStats) {
   let table = $('#table-fuels');
   table.empty();
 
+  let totalkWh = fuelStats['Total_kWh'];
+  let dk1Part = fuelStats['DK1'] / totalkWh;
+  let dk2Part = fuelStats['DK2'] / totalkWh;
+
   for (var fuelType of Object.keys(FUEL_TYPES)) {
     if (fuelType !== 'Total_kWh') {
       let consumed = sumConnectedAreas(fuelStats[fuelType]);
       table.append(`<tr>
                     <td style="background-color:${FUEL_TYPES[fuelType]['color']};"><img src="${FUEL_TYPES[fuelType]['image']}" width="30" height="30"></td>
                     <td>${fuelType}</td>
-                    <td class="text-end">${formatAmount(consumed, fuelStats['Total_kWh'])}</td>
-                    <td class="text-end">${getProcentwiseOfTotal(consumed, fuelStats['Total_kWh'])}%</td>
+                    <td class="text-end">${formatAmount(consumed, totalkWh)}</td>
+                    <td class="text-end">${getProcentwiseOfTotal(consumed, totalkWh)}%</td>
+                    <td class="text-end">${parseFloatAccordingToLocale(dk1Part * FUEL_TYPES[fuelType]['ref_dk1'] + dk2Part * FUEL_TYPES[fuelType]['ref_dk2'], 2)}%</td>
                     </tr>`);
     }
   }
 
-  table.append(`<tr><td></td><td class='h4'>Total forbrug</td><td class='h4'>${formatAmount(fuelStats['Total_kWh'], fuelStats['Total_kWh'])}</td><td></td></tr>`);
+  table.append(`<tr><td></td><td class='h4' colspan="2">Total forbrug</td><td class='h4' colspan="2">${formatAmount(totalkWh, totalkWh)}</td></tr>`);
 }
 
 function sumFuelsAccordingToConnectedArea(fuelStats, connectedArea) {
@@ -656,27 +720,29 @@ function buildConnectedAreaTable(fuelStats) {
   let table = $('#table-from-production');
   table.empty();
 
+  let totalkWh = fuelStats['Total_kWh'];
+
   for (var fuelType of Object.keys(FUEL_TYPES)) {
     if (fuelType !== 'Total_kWh') {
       let consumed = sumConnectedAreas(fuelStats[fuelType]);
 
       var rows = ``;
       for (var connectedArea of CONNECTED_AREAS) {
-        rows += `<td class="text-end">${getProcentwiseOfTotal(fuelStats[fuelType][connectedArea], fuelStats['Total_kWh'])}%</td>`
+        rows += `<td class="text-end">${getProcentwiseOfTotal(fuelStats[fuelType][connectedArea], totalkWh)}%</td>`
       }
 
       table.append(`<tr>
                     <td class="text-center" style="background-color:${FUEL_TYPES[fuelType]['color']};"><img src="${FUEL_TYPES[fuelType]['image']}" width="30" height="30"></td>
                     <td>${fuelType}</td>
                     ${rows}
-                    <td class="text-end"><strong>${getProcentwiseOfTotal(consumed, fuelStats['Total_kWh'])}%</strong></td>
+                    <td class="text-end"><strong>${getProcentwiseOfTotal(consumed, totalkWh)}%</strong></td>
                     </tr>`);
     }
   }
 
   var rows = ``;
   for (var connectedArea of CONNECTED_AREAS) {
-    rows += `<td class="text-end"><strong>${getProcentwiseOfTotal(sumFuelsAccordingToConnectedArea(fuelStats, connectedArea), fuelStats['Total_kWh'])}%</strong></td>`;
+    rows += `<td class="text-end"><strong>${getProcentwiseOfTotal(sumFuelsAccordingToConnectedArea(fuelStats, connectedArea), totalkWh)}%</strong></td>`;
   }
   table.append(`<tr>
                 <td></td>
