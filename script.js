@@ -435,7 +435,7 @@ function buildEmissionTable(stats, totalkWh, DK1kWh, DK2kWh) {
       html = `<tr>
             <td class="text-start">${EMISSION_TYPES[emissionType]['html']}</td>
             <td class="text-center">${parseFloatAccordingToLocale(value / totalkWh, EMISSION_TYPES[emissionType]['numDecimals'])}</td>
-             <td class="text-end">${reference}</td>
+             <td class="text-end"><em>${reference}</em></td>
             </tr>`
     }
 
@@ -572,7 +572,7 @@ function computeDeclaration(obj) {
 
   let refreshToken = $('#input-token').val();
 
-  $('#label-status').text('Fremstiller miljødeklarationen. Vent venligst...');
+  $('#label-status').text('Fremstiller din deklarationen. Vent venligst...');
 
   retrieveDataAccessToken(refreshToken).then(function(data) {
     let dataAccessToken = data['result'];
@@ -699,7 +699,7 @@ function buildFuelTable(fuelStats) {
                     <td>${fuelType}</td>
                     <td class="text-end">${formatAmount(consumed, totalkWh)}</td>
                     <td class="text-end">${getProcentwiseOfTotal(consumed, totalkWh)}%</td>
-                    <td class="text-end">${parseFloatAccordingToLocale(dk1Part * FUEL_TYPES[fuelType]['ref_dk1'] + dk2Part * FUEL_TYPES[fuelType]['ref_dk2'], 2)}%</td>
+                    <td class="text-end"><em>${parseFloatAccordingToLocale(dk1Part * FUEL_TYPES[fuelType]['ref_dk1'] + dk2Part * FUEL_TYPES[fuelType]['ref_dk2'], 2)}%</em></td>
                     </tr>`);
     }
   }
