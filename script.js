@@ -5,7 +5,7 @@ let API_HOST = 'https://api.eloverblik.dk';
 let YEAR = 2019;
 let NUM_DIGITS_MEGA_CONVERT = 6;
 let NUM_DIGITS_TON_CONVERT = 6;
-let CHUNK_SIZE = 20;
+let CHUNK_SIZE = 40;
 
 let CONNECTED_AREAS = [
     'DK1',
@@ -374,7 +374,7 @@ function buildMasterDataTables(data) {
 
     for (var elem of data) {
         cvrs.add(elem['consumerCVR'] + '*' +
-        elem['firstConsumerPartyName']);
+            elem['firstConsumerPartyName']);
 
         let type = (elem['typeOfMP'] !== 'E17' || elem['settlementMethod'] === 'E01') ? 'Nej' : 'Ja'
 
@@ -508,17 +508,17 @@ function processMeasuringPoints(measuringPoints, fuelStats, emissionStats, dataA
     $('#label-emission-data').text('Beregner miljødeklarationen...');
     measuringPointsIDAndArea = getAllMeasuringPointsIDAndArea(measuringPoints);
 
-    let dfd = $.Deferred();
-    var promise = dfd.promise();
+    let apiCallList = [];
 
     for (var i = 0; i < measuringPointsIDAndArea.length; i += CHUNK_SIZE) {
         let slice = measuringPointsIDAndArea.slice(i, i + CHUNK_SIZE);
 
-        promise = promise.then(function() {
-            return retrieveTimeSeries(slice, dataAccessToken);
-        }).then(function(data) {
-            let result = data['result'];
+        apiCallList.push(retrieveTimeSeries(slice, dataAccessToken));
+    }
 
+    Promise.all(apiCallList).then(function(dataList) {
+        for (data of dataList) {
+            let result = data['result'];
             for (var j = 0; j < result.length; j++) {
                 let timeseries = result[j]['MyEnergyData_MarketDocument']['TimeSeries'];
 
@@ -532,16 +532,20 @@ function processMeasuringPoints(measuringPoints, fuelStats, emissionStats, dataA
 
                 let kWhHourly = processTimeSeries(period);
 
-                let area = findAreaFromID(id, slice);
+                let area = findAreaFromID(id, measuringPointsIDAndArea);
                 calculateFuelStats(kWhHourly, fuelStats, area, offsetStartFrom);
                 calculateEmissionStats(kWhHourly, emissionStats, area, offsetStartFrom);
             }
-        });
-    }
+        }
 
-    dfd.resolve();
 
-    return promise;
+        buildHomepage(fuelStats, emissionStats);
+
+        $("#button-calculate").removeAttr("disabled");
+    })
+    /**.catch(function() {
+            $('#label-status').text('Noget gik galt. Kunne ikke beregne miljødeklarationen. Prøv igen eller kontakt administratoren.');
+        });*/
 }
 
 function clear_data() {
@@ -601,15 +605,7 @@ function computeDeclaration(obj) {
 
             let fuelStats = initFuelStats();
             let emissionStats = initEmissionStats();
-            processMeasuringPoints(measuringPoints, fuelStats, emissionStats, dataAccessToken).then(function() {
-
-                buildHomepage(fuelStats, emissionStats);
-
-                $("#button-calculate").removeAttr("disabled");
-
-            }).catch(function() {
-                $('#label-status').text('Noget gik galt. Kunne ikke beregne miljødeklarationen. Prøv igen eller kontakt administratoren.');
-            });
+            processMeasuringPoints(measuringPoints, fuelStats, emissionStats, dataAccessToken);
 
         }).catch(function() {
             $('#label-status').text('Noget gik galt. Kunne ikke hente forbrugsdata. Prøv igen eller kontakt administratoren.');
