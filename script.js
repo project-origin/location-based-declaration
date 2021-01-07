@@ -205,7 +205,7 @@ $(document).ready(function() {
     $('#title-year').text(YEAR);
 
     $("#input-token").keypress(function(event) {
-        if (event.keyCode === 13) { // click on consumedFromConnectedArea
+        if (event.keyCode === 13) { // click on Enter
             $("#button-calculate").click();
         }
     });
@@ -250,7 +250,7 @@ function getAllMeasuringPointsIDAndArea(measuringPoints) {
     return ids;
 }
 
-function processTimeSeries(period) {
+function extractHours(period) {
     let kWhHourly = [];
 
     for (var elem of period) {
@@ -504,10 +504,25 @@ function findOffsetStartFrom(period) {
     throw 'Timeslot was not found';
 }
 
-function processMeasuringPoints(measuringPoints, fuelStats, emissionStats, dataAccessToken) {
+function processTimesSeries(timeseries, id, measuringPointsIDAndArea, fuelStats, emissionStats) {
+    if (timeseries.length == 0)
+        return;
+
+    let period = timeseries[0]['Period'];
+    let offsetStartFrom = findOffsetStartFrom(period);
+    let kWhHourly = extractHours(period);
+    let area = findAreaFromID(id, measuringPointsIDAndArea);
+    
+    calculateFuelStats(kWhHourly, fuelStats, area, offsetStartFrom);
+    calculateEmissionStats(kWhHourly, emissionStats, area, offsetStartFrom);
+}
+
+function processMeasuringPoints(measuringPoints, dataAccessToken) {
     $('#label-emission-data').text('Beregner miljødeklarationen...');
     measuringPointsIDAndArea = getAllMeasuringPointsIDAndArea(measuringPoints);
 
+    let fuelStats = initFuelStats();
+    let emissionStats = initEmissionStats();
     let apiCallList = [];
 
     for (var i = 0; i < measuringPointsIDAndArea.length; i += CHUNK_SIZE) {
@@ -521,31 +536,19 @@ function processMeasuringPoints(measuringPoints, fuelStats, emissionStats, dataA
             let result = data['result'];
             for (var j = 0; j < result.length; j++) {
                 let timeseries = result[j]['MyEnergyData_MarketDocument']['TimeSeries'];
-
-                if (timeseries.length == 0)
-                    continue;
-
-                let period = timeseries[0]['Period'];
                 let id = result[j]['id'];
 
-                let offsetStartFrom = findOffsetStartFrom(period);
-
-                let kWhHourly = processTimeSeries(period);
-
-                let area = findAreaFromID(id, measuringPointsIDAndArea);
-                calculateFuelStats(kWhHourly, fuelStats, area, offsetStartFrom);
-                calculateEmissionStats(kWhHourly, emissionStats, area, offsetStartFrom);
+                processTimesSeries(timeseries, id, measuringPointsIDAndArea, fuelStats, emissionStats);
             }
         }
-
 
         buildHomepage(fuelStats, emissionStats);
 
         $("#button-calculate").removeAttr("disabled");
-    })
-    /**.catch(function() {
-            $('#label-status').text('Noget gik galt. Kunne ikke beregne miljødeklarationen. Prøv igen eller kontakt administratoren.');
-        });*/
+
+    }).catch(function() {
+        $('#label-status').text('Noget gik galt. Kunne ikke beregne miljødeklarationen. Prøv igen eller kontakt administratoren.');
+    });
 }
 
 function clear_data() {
@@ -591,7 +594,7 @@ function computeDeclaration(obj) {
 
     let refreshToken = $('#input-token').val();
 
-    $('#label-status').html('Fremstiller din deklarationen. Vent venligst<img src="images/loading.gif" width="30" height="30">');
+    $('#label-status').html('Fremstiller din deklarationen. Vent venligst<img class="pb-2" src="images/loading.gif" width="30" height="30">');
 
     retrieveDataAccessToken(refreshToken).then(function(data) {
         let dataAccessToken = data['result'];
@@ -603,9 +606,7 @@ function computeDeclaration(obj) {
 
             buildMasterDataTables(measuringPoints);
 
-            let fuelStats = initFuelStats();
-            let emissionStats = initEmissionStats();
-            processMeasuringPoints(measuringPoints, fuelStats, emissionStats, dataAccessToken);
+            processMeasuringPoints(measuringPoints, dataAccessToken);
 
         }).catch(function() {
             $('#label-status').text('Noget gik galt. Kunne ikke hente forbrugsdata. Prøv igen eller kontakt administratoren.');
