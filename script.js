@@ -234,8 +234,6 @@ function loadFuelData() {
 function getAllMeasuringPointsIDAndArea(measuringPoints) {
     let ids = []
 
-    console.log(measuringPoints)
-
     for (var measuringPoint of measuringPoints) {
         if (measuringPoint['typeOfMP'] !== 'E17' || measuringPoint['settlementMethod'] === 'E01')
             continue
@@ -512,7 +510,7 @@ function processTimesSeries(timeseries, id, measuringPointsIDAndArea, fuelStats,
     let offsetStartFrom = findOffsetStartFrom(period);
     let kWhHourly = extractHours(period);
     let area = findAreaFromID(id, measuringPointsIDAndArea);
-    
+
     calculateFuelStats(kWhHourly, fuelStats, area, offsetStartFrom);
     calculateEmissionStats(kWhHourly, emissionStats, area, offsetStartFrom);
 }
@@ -705,10 +703,7 @@ function buildIndicatorGaugeChart(emissionStats, fuelStats) {
 
     let reference = dk1Part * EMISSION_TYPES['CO2']['ref_dk1'] + dk2Part * EMISSION_TYPES['CO2']['ref_dk2'];
 
-
     var value = 100 - (CO2 / reference) * 100;
-
-    console.log(value);
 
     let gaugeOptions = {
         hasNeedle: true,
@@ -718,13 +713,12 @@ function buildIndicatorGaugeChart(emissionStats, fuelStats) {
         arcDelimiters: [45, 55],
         rangeLabel: ['Mere CO\u2082', 'Mindre CO\u2082'],
         needleStartValue: value,
-        centralLabel: parseFloatAccordingToLocale(value) + '%',
+        centralLabel: parseFloatAccordingToLocale(value * -1) + '%',
     };
 
     let multiplied = 5 * value;
     let needleValue = (multiplied > 50) ? 100 : (multiplied < -50) ? 0 : multiplied;
 
-    console.log(needleValue)
     GaugeChart.gaugeChart(element, 300, gaugeOptions).updateNeedle(50 + needleValue);
 
 }
