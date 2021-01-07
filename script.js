@@ -817,7 +817,7 @@ function sustainableEnergyPercentage(fuelStats) {
         sumConnectedAreas(fuelStats['Vind']) +
         sumConnectedAreas(fuelStats['Vandkraft']) +
         sumConnectedAreas(fuelStats['Biomasse']) +
-        sumConnectedAreas(fuelStats['Affald']) * 0.588;
+        sumConnectedAreas(fuelStats['Affald']) * 0.55;
 
     return Math.round(greenEnergy / total * 100);
 }
