@@ -5,7 +5,7 @@ let API_HOST = 'https://api.eloverblik.dk';
 let YEAR = 2019;
 let NUM_DIGITS_MEGA_CONVERT = 6;
 let NUM_DIGITS_TON_CONVERT = 6;
-let CHUNK_SIZE = 1;
+let CHUNK_SIZE = 40;
 
 let CONNECTED_AREAS = [
     'DK1',
