@@ -42,6 +42,10 @@
       .table-responsive {
         max-height: 240px;
       }
+
+      #section-only-print * {
+        display: none;
+      }
     }
   </style>
 
@@ -88,155 +92,181 @@
           <input type="text" class="form-control" id="input-token" placeholder="Token">
           <button class="btn btn-primary" id="button-calculate" type="button" onclick="computeDeclaration(this)" style="background: #4d8a8b; border: none;">Beregn</button>
         </div>
+      </div>
 
-        <div id="master-data-sector" hidden>
+      <div class="master-data-sector" hidden>
 
+        <div class="pt-3">
+          <h3>Stamdata</h3>
+        </div>
 
+        <h5 class="pt-3">Deklarationen gælder:</h5>
+        <div class="pt-3 table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>CVR</th>
+                <th>Navn</th>
+              </tr>
+            </thead>
+            <tbody id="table-cvr-data"></tbody>
+          </table>
+        </div>
 
-          <div class="pt-3">
-            <h3>Stamdata</h3>
-          </div>
+        <div id="section-not-to-print">
 
-          <h5 class="pt-3">Deklarationen gælder:</h5>
+          <h5 class="pt-3">Deklarationen omfatter:</h5>
+
           <div class="pt-3 table-responsive">
             <table class="table table-striped">
               <thead>
                 <tr>
-                  <th>CVR</th>
-                  <th>Navn</th>
+                  <th>Målepunkt ID</th>
+                  <th>Addresse</th>
+                  <th>Postnummer</th>
+                  <th>By</th>
+                  <th>Status</th>
                 </tr>
               </thead>
-              <tbody id="table-cvr-data"></tbody>
+              <tbody class="table-mp-data"></tbody>
             </table>
           </div>
 
-          <div id="section-not-to-print">
-
-            <h5 class="pt-3">Deklarationen omfatter:</h5>
-
-            <div class="pt-3 table-responsive">
-              <table class="table table-striped">
-                <thead>
-                  <tr>
-                    <th>Målepunkt ID</th>
-                    <th>Addresse</th>
-                    <th>Postnummer</th>
-                    <th>By</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody id="table-mp-data"></tbody>
-              </table>
-            </div>
-
-            <div class="pt-3">
-              <h5 id="download-status"></h5>
-            </div>
+          <div class="pt-3">
+            <h5 id="download-status"></h5>
           </div>
 
+        </div>
+
+      </div>
+
+
+      <div class="emission-data-sector" hidden>
+
+
+        <div class="pt-3 group-together">
+          <h3>Din grønne profil</h3>
+
+          <div class="pt-3">
+            <table class="table table-borderless text-center align-middle">
+              <tr>
+                <td class="h5" style="white-space:nowrap">Vedvarende energi</td>
+                <td class="h5" style="white-space:nowrap">Total CO<sub>2</sub> udledning:</td>
+                <td class="h5" style="white-space:nowrap">Din timeprofil:</td>
+              </tr>
+              <tr>
+                <td><span id="gauge-green-meter"></span></td>
+                <td><strong><span class="h3" id="num-co2-total"></span></strong><br /><br /><span class="h5" id="num-co2-relative"></span></td>
+                <td><span id="gauge-indicator-meter"></span></td>
+              </tr>
+            </table>
           </div>
         </div>
 
-        <div id="emission-data-sector" hidden>
+        <div style="page-break-before:always">
 
 
-          <div class="pt-3 group-together">
-            <h3>Din grønne profil</h3>
+          <div class="pt-3">
+            <h3>Brændsler anvendt til elfremstilling</h3>
+          </div>
 
-            <div class="pt-3">
-              <table class="table table-borderless text-center align-middle">
-                <tr>
-                  <td class="h5">Vedvarende energi</td>
-                  <td class="h5">Total CO<sub>2</sub> udledning:</td>
-                  <td class="h5">Din timeprofil:</td>
-                </tr>
-                <tr>
-                  <td><span id="gauge-green-meter"></span></td>
-                  <td><strong><span class="h3" id="num-co2-total"></span></strong><br /><br /><span class="h5" id="num-co2-relative"></span></td>
-                  <td><span id="gauge-indicator-meter"></span></td>
-                </tr>
+          <div class="row pt-3 align-middle">
+            <div class="col-12 col-md-7 align-middle">
+              <canvas id="barChart" width="1000" height="1000"></canvas>
+            </div>
+            <div class="col-12 col-md-5 align-middle" style="page-break-after:always">
+              <table class="table table-striped align-middle">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th class="text-center">Brændselstype</th>
+                    <th class="text-center">Forbrug</th>
+                    <th class="text-center">Procentvis</th>
+                    <th class="text-center">Reference</th>
+                  </tr>
+                </thead>
+                <tbody id="table-fuels"></tbody>
               </table>
             </div>
           </div>
+        </div>
 
-          <div style="page-break-before:always">
+        <div class="pt-3" style="page-break-before:always">
 
-
-            <div class="pt-3">
-              <h3>Brændsler anvendt til elfremstilling</h3>
-            </div>
-
-            <div class="row pt-3 align-middle">
-              <div class="col-12 col-md-7 align-middle">
-                <canvas id="barChart" width="1000" height="1000"></canvas>
-              </div>
-              <div class="col-12 col-md-5 align-middle" style="page-break-after:always">
-                <table class="table table-striped align-middle">
-                  <thead>
-                    <tr>
-                      <th></th>
-                      <th class="text-center">Brændselstype</th>
-                      <th class="text-center">Forbrug</th>
-                      <th class="text-center">Procentvis</th>
-                      <th class="text-center">Reference</th>
-                    </tr>
-                  </thead>
-                  <tbody id="table-fuels"></tbody>
-                </table>
-              </div>
-            </div>
+          <div class="pt-3">
+            <h3>Hvor kommer din strøm fra?</h3>
           </div>
 
-          <div class="pt-3" style="page-break-before:always">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th></th>
+                <th class="text-center">Brændselstype</th>
+                <th class="text-center">Vestdanmark</th>
+                <th class="text-center">Østdanmark</th>
+                <th class="text-center">Tyskland</th>
+                <th class="text-center">Norge</th>
+                <th class="text-center">Sverige</th>
+                <th class="text-center">Holland</th>
+                <th class="text-center">Procentvis</th>
+              </tr>
+            </thead>
+            <tbody id="table-from-production"></tbody>
+          </table>
+        </div>
 
-            <div class="pt-3">
-              <h3>Hvor kommer din strøm fra?</h3>
-            </div>
+        <div class="pt-3" style="page-break-before:always">
 
+          <div class="pt-3">
+            <h3>Miljøforhold for el leveret til forbrug</h3>
+          </div>
+
+          <table class="table table-striped" id="table-emission-data">
+            <thead>
+              <tr>
+                <th>Ved forbrug af 1 kWh fremkommer</th>
+                <th>Individuel deklaration</th>
+                <th>Reference</th>
+              </tr>
+            </thead>
+            <tbody id="table-emissions"></tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <div class="master-data-sector" hidden>
+
+        <div id="section-only-print" style="page-break-before:always">
+
+          <h5 class="pt-3">Deklarationen omfatter:</h5>
+
+          <div class="pt-3 table-responsive">
             <table class="table table-striped">
               <thead>
                 <tr>
-                  <th></th>
-                  <th class="text-center">Brændselstype</th>
-                  <th class="text-center">Vestdanmark</th>
-                  <th class="text-center">Østdanmark</th>
-                  <th class="text-center">Tyskland</th>
-                  <th class="text-center">Norge</th>
-                  <th class="text-center">Sverige</th>
-                  <th class="text-center">Holland</th>
-                  <th class="text-center">Procentvis</th>
+                  <th>Målepunkt ID</th>
+                  <th>Addresse</th>
+                  <th>Postnummer</th>
+                  <th>By</th>
+                  <th>Status</th>
                 </tr>
               </thead>
-              <tbody id="table-from-production"></tbody>
-            </table>
-          </div>
-
-          <div class="pt-3" style="page-break-before:always">
-
-            <div class="pt-3">
-              <h3>Miljøforhold for el leveret til forbrug</h3>
-            </div>
-
-            <table class="table table-striped" id="table-emission-data">
-              <thead>
-                <tr>
-                  <th>Ved forbrug af 1 kWh fremkommer</th>
-                  <th>Individuel deklaration</th>
-                  <th>Reference</th>
-                </tr>
-              </thead>
-              <tbody id="table-emissions"></tbody>
+              <tbody class="table-mp-data"></tbody>
             </table>
           </div>
 
         </div>
 
-        <div class="pt-3">
-          <h4 id="label-status"></h4>
-        </div>
       </div>
 
+
+      <div class="pt-3">
+        <h4 id="label-status"></h4>
+      </div>
     </div>
+
+  </div>
   </div>
 </body>
 

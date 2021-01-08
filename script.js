@@ -347,7 +347,7 @@ function formatAddress(element) {
 }
 
 function buildConsumerTable(cvrs) {
-    var cvrTable = $('#table-cvr-data');
+    let cvrTable = $('#table-cvr-data');
     cvrTable.empty('*');
 
     for (var cvr of cvrs.values()) {
@@ -357,12 +357,13 @@ function buildConsumerTable(cvrs) {
 }
 
 function buildMeteringPointTable(mps) {
-    var mpTable = $('#table-mp-data');
+    let mpTable = $('.table-mp-data');
     mpTable.empty();
 
     for (var mp of mps.values()) {
         let elements = mp.split('*');
-        mpTable.append(`<tr><td>${elements[0]}</td><td>${elements[1]}</td><td>${elements[2]}</td><td>${elements[3]}</td><td id="${elements[0]}-status">${elements[4]}</td></tr>`);
+
+        mpTable.append(`<tr><td>${elements[0]}</td><td>${elements[1]}</td><td>${elements[2]}</td><td>${elements[3]}</td><td class="${elements[0]}-status">${elements[4]}</td></tr>`);
     }
 }
 
@@ -386,7 +387,7 @@ function buildMasterDataTables(data) {
     buildConsumerTable(cvrs);
     buildMeteringPointTable(mps);
 
-    $('#master-data-sector').removeAttr('hidden');
+    $('.master-data-sector').removeAttr('hidden');
 
 }
 
@@ -505,9 +506,14 @@ function findOffsetStartFrom(period) {
     throw 'Timeslot was not found';
 }
 
+function changeMPStatus(id, status) {
+    $(`.${id}-status`).text(status);
+    //$(`#${id}-status-printonly`).text(status);
+}
+
 function processTimesSeries(timeseries, id, measuringPointsIDAndArea, fuelStats, emissionStats) {
     if (timeseries.length == 0 || timeseries[0]['businessType'] !== 'A04') {
-        $(`#${id}-status`).text('Ikke time opgjort')
+        changeMPStatus(id, 'Ikke time opgjort')
         return;
     }
 
@@ -519,7 +525,7 @@ function processTimesSeries(timeseries, id, measuringPointsIDAndArea, fuelStats,
     calculateFuelStats(kWhHourly, fuelStats, area, offsetStartFrom);
     calculateEmissionStats(kWhHourly, emissionStats, area, offsetStartFrom);
 
-    $(`#${id}-status`).text('Inkluderet')
+    changeMPStatus(id, 'Inkluderet');
 }
 
 function processMeasuringPoints(measuringPoints, dataAccessToken) {
@@ -538,10 +544,6 @@ function processMeasuringPoints(measuringPoints, dataAccessToken) {
         let slice = measuringPointsIDAndArea.slice(i, i + CHUNK_SIZE);
 
         apiCallList.push(retrieveTimeSeries(slice, dataAccessToken).then(function (data) {
-          let ids = slice.map(function(A) {
-              $(`#${A.id}-status`).text('Data hentet');
-          })
-
           let result = data['result'];
           for (var j = 0; j < result.length; j++) {
               let timeseries = result[j]['MyEnergyData_MarketDocument']['TimeSeries'];
@@ -571,8 +573,8 @@ function processMeasuringPoints(measuringPoints, dataAccessToken) {
 }
 
 function clear_data() {
-    $('#master-data-sector').attr('hidden', true);
-    $('#emission-data-sector').attr('hidden', true);
+    $('.master-data-sector').attr('hidden', true);
+    $('.emission-data-sector').attr('hidden', true);
 
     $('#label-master-data').text('');
     $('#label-emission-data').text('');
@@ -606,7 +608,7 @@ function buildEmissionFuelPage(fuelStats, emissionStats) {
     $('#num-co2-total').text(formatPolutionAmount(emissionStats['CO2']));
     $('#num-co2-relative').text(parseFloatAccordingToLocale((emissionStats['CO2'] / fuelStats['Total_kWh'])) + ' g/kWh');
 
-    $('#emission-data-sector').removeAttr('hidden');
+    $('.emission-data-sector').removeAttr('hidden');
 }
 
 function computeDeclaration(obj) {
