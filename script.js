@@ -362,7 +362,7 @@ function buildMeteringPointTable(mps) {
 
     for (var mp of mps.values()) {
         let elements = mp.split('*');
-        mpTable.append(`<tr><td>${elements[0]}</td><td>${elements[1]}</td><td>${elements[2]}</td><td>${elements[3]}</td><td>${elements[4]}</td></tr>`);
+        mpTable.append(`<tr><td>${elements[0]}</td><td>${elements[1]}</td><td>${elements[2]}</td><td>${elements[3]}</td><td id="${elements[0]}-status">${elements[4]}<img class="pb-2" src="images/loading.gif" width="30" height="30"></td></tr>`);
     }
 }
 
@@ -376,7 +376,7 @@ function buildMasterDataTables(data) {
         cvrs.add(elem['consumerCVR'] + '*' +
             elem['firstConsumerPartyName']);
 
-        let type = (elem['typeOfMP'] !== 'E17' || elem['settlementMethod'] === 'E01') ? 'Nej' : 'Ja'
+        let type = (elem['typeOfMP'] !== 'E17' || elem['settlementMethod'] === 'E01') ? 'Produktion' : 'Beregner'
 
         mps.add(elem['meteringPointId'] + '*' +
             formatAddress(elem) + '*' +
@@ -508,8 +508,10 @@ function findOffsetStartFrom(period) {
 }
 
 function processTimesSeries(timeseries, id, measuringPointsIDAndArea, fuelStats, emissionStats) {
-    if (timeseries.length == 0 || timeseries[0]['businessType'] !== 'A04')
+    if (timeseries.length == 0 || timeseries[0]['businessType'] !== 'A04') {
+        $(`#${id}-status`).text('Ikke time opgjort')
         return;
+    }
 
     let period = timeseries[0]['Period'];
     let offsetStartFrom = findOffsetStartFrom(period);
@@ -518,10 +520,12 @@ function processTimesSeries(timeseries, id, measuringPointsIDAndArea, fuelStats,
 
     calculateFuelStats(kWhHourly, fuelStats, area, offsetStartFrom);
     calculateEmissionStats(kWhHourly, emissionStats, area, offsetStartFrom);
+
+    $(`#${id}-status`).text('Inkluderet')
 }
 
 function processMeasuringPoints(measuringPoints, dataAccessToken) {
-    $('#label-emission-data').text('Beregner miljødeklarationen...');
+    $('#label-status').html('Fremstiller din deklarationen. Vent venligst<img class="pb-2" src="images/loading.gif" width="30" height="30">');
     measuringPointsIDAndArea = getAllMeasuringPointsIDAndArea(measuringPoints);
 
     let fuelStats = initFuelStats();
@@ -549,13 +553,14 @@ function processMeasuringPoints(measuringPoints, dataAccessToken) {
         if (fuelStats['Total_kWh'] === 0) {
             $('#label-status').text('Der er ikke registreret timeforbrug på dine målere.');
         } else {
-          buildEmissionSector(fuelStats, emissionStats);
+          buildEmissionFuelPage(fuelStats, emissionStats);
         }
 
         $("#button-calculate").removeAttr("disabled");
 
     }).catch(function() {
         $('#label-status').text('Noget gik galt. Kunne ikke beregne miljødeklarationen. Prøv igen eller kontakt administratoren.');
+        $("#button-calculate").removeAttr("disabled");
     });
 }
 
@@ -582,7 +587,7 @@ function formatPolutionAmount(amount) {
     return parseFloatAccordingToLocale(actualAmount, 2) + ' ' + unit;
 }
 
-function buildEmissionSector(fuelStats, emissionStats) {
+function buildEmissionFuelPage(fuelStats, emissionStats) {
     $('#label-status').text('');
 
     buildEmissionTable(emissionStats, fuelStats['Total_kWh'], fuelStats['DK1'], fuelStats['DK2']);
@@ -604,7 +609,7 @@ function computeDeclaration(obj) {
 
     let refreshToken = $('#input-token').val();
 
-    $('#label-status').html('Fremstiller din deklarationen. Vent venligst<img class="pb-2" src="images/loading.gif" width="30" height="30">');
+    $('#label-status').html('Fremsøger din stamdata. Vent venligst<img class="pb-2" src="images/loading.gif" width="30" height="30">');
 
     retrieveDataAccessToken(refreshToken).then(function(data) {
         let dataAccessToken = data['result'];
@@ -620,9 +625,11 @@ function computeDeclaration(obj) {
 
         }).catch(function() {
             $('#label-status').text('Noget gik galt. Kunne ikke hente forbrugsdata. Prøv igen eller kontakt administratoren.');
+            $("#button-calculate").removeAttr("disabled");
         });
     }).catch(function() {
         $('#label-status').text('Noget gik galt. Venligst sikrer dig at din token er valid.');
+        $("#button-calculate").removeAttr("disabled");
     });
 }
 
