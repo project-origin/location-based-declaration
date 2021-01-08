@@ -543,7 +543,7 @@ function processMeasuringPoints(measuringPoints, dataAccessToken) {
         }
 
         if (fuelStats['Total_kWh'] === 0) {
-            $('#label-status').text('Der er ikke registeret noget forbrug på dine målere.');
+            $('#label-status').text('Der er ikke registreret forbrug på dine målere.');
         } else {
           buildHomepage(fuelStats, emissionStats);
         }
