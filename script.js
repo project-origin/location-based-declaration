@@ -525,7 +525,7 @@ function processTimesSeries(timeseries, id, measuringPointsIDAndArea, fuelStats,
 }
 
 function processMeasuringPoints(measuringPoints, dataAccessToken) {
-    $('#label-status').html('Fremstiller din deklarationen. Vent venligst <img class="pb-2" src="https://energinet.dk/resources/images/bx_loader.gif" width="20" height="20">');
+    $('#label-status').html('Fremstiller din deklarationen. Vent venligst <img src="https://energinet.dk/resources/images/bx_loader.gif" width="25" height="25">');
     measuringPointsIDAndArea = getAllMeasuringPointsIDAndArea(measuringPoints);
 
     let fuelStats = initFuelStats();
