@@ -503,7 +503,7 @@ function findOffsetStartFrom(period) {
 }
 
 function processTimesSeries(timeseries, id, measuringPointsIDAndArea, fuelStats, emissionStats) {
-    if (timeseries.length == 0)
+    if (timeseries.length == 0 || timeseries[0]['businessType'] !== 'A04')
         return;
 
     let period = timeseries[0]['Period'];
@@ -530,8 +530,6 @@ function processMeasuringPoints(measuringPoints, dataAccessToken) {
     }
 
     Promise.all(apiCallList).then(function(dataList) {
-      console.log(dataList);
-
         for (data of dataList) {
             let result = data['result'];
             for (var j = 0; j < result.length; j++) {
