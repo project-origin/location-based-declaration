@@ -376,7 +376,7 @@ function buildMasterDataTables(data) {
         cvrs.add(elem['consumerCVR'] + '*' +
             elem['firstConsumerPartyName']);
 
-        let type = (elem['typeOfMP'] !== 'E17' || elem['settlementMethod'] === 'E01') ? 'Produktion' : 'Beregner<img class="pb-2" src="images/loading.gif" width="30" height="30">'
+        let type = (elem['typeOfMP'] !== 'E17' || elem['settlementMethod'] === 'E01') ? 'Ekskluderet (Produktion)' : 'Beregner<img class="pb-2" src="images/loading.gif" width="30" height="30">'
 
         mps.add(elem['meteringPointId'] + '*' +
             formatAddress(elem) + '*' +
