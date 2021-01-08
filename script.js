@@ -370,6 +370,8 @@ function buildMasterDataTables(data) {
     let cvrs = new Set();
     let mps = new Set();
 
+    console.log(data)
+
     for (var elem of data) {
         cvrs.add(elem['consumerCVR'] + '*' +
             elem['firstConsumerPartyName']);
@@ -545,7 +547,7 @@ function processMeasuringPoints(measuringPoints, dataAccessToken) {
         }
 
         if (fuelStats['Total_kWh'] === 0) {
-            $('#label-status').text('Der er ikke registreret forbrug på dine målere.');
+            $('#label-status').text('Der er ikke registreret timeforbrug på dine målere.');
         } else {
           buildEmissionSector(fuelStats, emissionStats);
         }
