@@ -530,6 +530,8 @@ function processMeasuringPoints(measuringPoints, dataAccessToken) {
     }
 
     Promise.all(apiCallList).then(function(dataList) {
+      console.log(dataList);
+
         for (data of dataList) {
             let result = data['result'];
             for (var j = 0; j < result.length; j++) {
@@ -540,7 +542,11 @@ function processMeasuringPoints(measuringPoints, dataAccessToken) {
             }
         }
 
-        buildHomepage(fuelStats, emissionStats);
+        if (fuelStats['Total_kWh'] === 0) {
+            $('#label-status').text('Der er ikke registeret noget forbrug på dine målere.');
+        } else {
+          buildHomepage(fuelStats, emissionStats);
+        }
 
         $("#button-calculate").removeAttr("disabled");
 
