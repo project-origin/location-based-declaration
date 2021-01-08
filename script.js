@@ -376,7 +376,7 @@ function buildMasterDataTables(data) {
         cvrs.add(elem['consumerCVR'] + '*' +
             elem['firstConsumerPartyName']);
 
-        let type = (elem['typeOfMP'] !== 'E17' || elem['settlementMethod'] === 'E01') ? 'Ekskluderet (Produktion)' : 'Henter data <img class="pb-2" src="https://energinet.dk/resources/images/bx_loader.gif" width="25" height="25">'
+        let type = (elem['typeOfMP'] !== 'E17' || elem['settlementMethod'] === 'E01') ? 'Ekskluderet (Produktion)' : 'Henter data <img class="pb-2" src="https://energinet.dk/resources/images/bx_loader.gif" width="20" height="20">'
 
         mps.add(elem['meteringPointId'] + '*' +
             formatAddress(elem) + '*' +
@@ -525,7 +525,7 @@ function processTimesSeries(timeseries, id, measuringPointsIDAndArea, fuelStats,
 }
 
 function processMeasuringPoints(measuringPoints, dataAccessToken) {
-    $('#label-status').html('Fremstiller din deklarationen. Vent venligst <img class="pb-2" src="https://energinet.dk/resources/images/bx_loader.gif" width="25" height="25">');
+    $('#label-status').html('Fremstiller din deklarationen. Vent venligst <img class="pb-2" src="https://energinet.dk/resources/images/bx_loader.gif" width="20" height="20">');
     measuringPointsIDAndArea = getAllMeasuringPointsIDAndArea(measuringPoints);
 
     let fuelStats = initFuelStats();
@@ -615,7 +615,7 @@ function computeDeclaration(obj) {
 
     let refreshToken = $('#input-token').val();
 
-    $('#label-status').html('Fremsøger din stamdata. Vent venligst <img class="pb-2" src="https://energinet.dk/resources/images/bx_loader.gif" width="25" height="25">');
+    $('#label-status').html('Fremsøger din stamdata. Vent venligst <img class="pb-2" src="https://energinet.dk/resources/images/bx_loader.gif" width="20" height="20">');
 
     retrieveDataAccessToken(refreshToken).then(function(data) {
         let dataAccessToken = data['result'];
