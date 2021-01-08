@@ -385,6 +385,9 @@ function buildMasterDataTables(data) {
 
     buildConsumerTable(cvrs);
     buildMeteringPointTable(mps);
+
+    $('#master-data-sector').removeAttr('hidden');
+
 }
 
 function getEmissionValue(emissionType, stats) {
@@ -530,6 +533,7 @@ function processMeasuringPoints(measuringPoints, dataAccessToken) {
     }
 
     Promise.all(apiCallList).then(function(dataList) {
+      console.log(dataList)
         for (data of dataList) {
             let result = data['result'];
             for (var j = 0; j < result.length; j++) {
@@ -543,7 +547,7 @@ function processMeasuringPoints(measuringPoints, dataAccessToken) {
         if (fuelStats['Total_kWh'] === 0) {
             $('#label-status').text('Der er ikke registreret forbrug på dine målere.');
         } else {
-          buildHomepage(fuelStats, emissionStats);
+          buildEmissionSector(fuelStats, emissionStats);
         }
 
         $("#button-calculate").removeAttr("disabled");
@@ -554,7 +558,9 @@ function processMeasuringPoints(measuringPoints, dataAccessToken) {
 }
 
 function clear_data() {
-    $('#data-sector').attr('hidden', true);
+    $('#master-data-sector').attr('hidden', true);
+    $('#emission-data-sector').attr('hidden', true);
+
     $('#label-master-data').text('');
     $('#label-emission-data').text('');
 }
@@ -574,7 +580,7 @@ function formatPolutionAmount(amount) {
     return parseFloatAccordingToLocale(actualAmount, 2) + ' ' + unit;
 }
 
-function buildHomepage(fuelStats, emissionStats) {
+function buildEmissionSector(fuelStats, emissionStats) {
     $('#label-status').text('');
 
     buildEmissionTable(emissionStats, fuelStats['Total_kWh'], fuelStats['DK1'], fuelStats['DK2']);
@@ -587,7 +593,7 @@ function buildHomepage(fuelStats, emissionStats) {
     $('#num-co2-total').text(formatPolutionAmount(emissionStats['CO2']));
     $('#num-co2-relative').text(parseFloatAccordingToLocale((emissionStats['CO2'] / fuelStats['Total_kWh'])) + ' g/kWh');
 
-    $('#data-sector').removeAttr('hidden');
+    $('#emission-data-sector').removeAttr('hidden');
 }
 
 function computeDeclaration(obj) {
