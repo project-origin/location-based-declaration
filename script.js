@@ -376,7 +376,7 @@ function buildMasterDataTables(data) {
         cvrs.add(elem['consumerCVR'] + '*' +
             elem['firstConsumerPartyName']);
 
-        let type = (elem['typeOfMP'] !== 'E17' || elem['settlementMethod'] === 'E01') ? 'Ekskluderet (Produktion)' : 'Beregner<img class="pb-2" src="images/loading.gif" width="30" height="30">'
+        let type = (elem['typeOfMP'] !== 'E17' || elem['settlementMethod'] === 'E01') ? 'Ekskluderet (Produktion)' : 'Henter data <img class="pb-2" src="https://energinet.dk/resources/images/bx_loader.gif" width="25" height="25">'
 
         mps.add(elem['meteringPointId'] + '*' +
             formatAddress(elem) + '*' +
@@ -525,7 +525,7 @@ function processTimesSeries(timeseries, id, measuringPointsIDAndArea, fuelStats,
 }
 
 function processMeasuringPoints(measuringPoints, dataAccessToken) {
-    $('#label-status').html('Fremstiller din deklarationen. Vent venligst<img class="pb-2" src="images/loading.gif" width="30" height="30">');
+    $('#label-status').html('Fremstiller din deklarationen. Vent venligst <img class="pb-2" src="https://energinet.dk/resources/images/bx_loader.gif" width="25" height="25">');
     measuringPointsIDAndArea = getAllMeasuringPointsIDAndArea(measuringPoints);
 
     let fuelStats = initFuelStats();
@@ -535,7 +535,13 @@ function processMeasuringPoints(measuringPoints, dataAccessToken) {
     for (var i = 0; i < measuringPointsIDAndArea.length; i += CHUNK_SIZE) {
         let slice = measuringPointsIDAndArea.slice(i, i + CHUNK_SIZE);
 
-        apiCallList.push(retrieveTimeSeries(slice, dataAccessToken));
+        apiCallList.push(retrieveTimeSeries(slice, dataAccessToken).then(function (data) {
+          let ids = slice.map(function(A) {
+              $(`#${A.id}-status`).text('Data hentet');
+          })
+
+          return data
+        }));
     }
 
     Promise.all(apiCallList).then(function(dataList) {
@@ -609,7 +615,7 @@ function computeDeclaration(obj) {
 
     let refreshToken = $('#input-token').val();
 
-    $('#label-status').html('Fremsøger din stamdata. Vent venligst<img class="pb-2" src="images/loading.gif" width="30" height="30">');
+    $('#label-status').html('Fremsøger din stamdata. Vent venligst <img class="pb-2" src="https://energinet.dk/resources/images/bx_loader.gif" width="25" height="25">');
 
     retrieveDataAccessToken(refreshToken).then(function(data) {
         let dataAccessToken = data['result'];
