@@ -5,7 +5,7 @@ let API_HOST = 'https://api.eloverblik.dk';
 let YEAR = 2019;
 let NUM_DIGITS_MEGA_CONVERT = 6;
 let NUM_DIGITS_TON_CONVERT = 6;
-let CHUNK_SIZE = 3;
+let CHUNK_SIZE = 10;
 
 let CONNECTED_AREAS = [
     'DK1',
@@ -267,7 +267,7 @@ function calculateEmissionStats(kWhHourly, stats, area, offsetStartFrom) {
         if (emissionType === 'CO2Eqv') // this value is computed so we skip it.
             continue;
 
-        for (var i = 0; i < kWhHourly.length, i + offsetStartFrom < areaEmissionData[emissionType].length; i++) {
+        for (var i = 0; i < kWhHourly.length && i + offsetStartFrom < areaEmissionData[emissionType].length; i++) {
             stats[emissionType] += areaEmissionData[emissionType][i + offsetStartFrom]['PerkWh'] * kWhHourly[i]
         }
     }
@@ -279,7 +279,7 @@ function calculateFuelStats(kWhHourly, stats, area, offsetStartFrom) {
     for (var fuelType of Object.keys(FUEL_TYPES)) {
         for (var connectedArea of CONNECTED_AREAS) {
 
-            for (var i = 0; i < kWhHourly.length, i + offsetStartFrom < areaFuelData[fuelType][connectedArea].length; i++) {
+            for (var i = 0; i < kWhHourly.length && i + offsetStartFrom < areaFuelData[fuelType][connectedArea].length; i++) {
                 let kWh = areaFuelData[fuelType][connectedArea][i + offsetStartFrom]['Share'] * kWhHourly[i]
 
                 stats['Total_kWh'] += kWh
@@ -369,8 +369,6 @@ function buildMeteringPointTable(mps) {
 function buildMasterDataTables(data) {
     let cvrs = new Set();
     let mps = new Set();
-
-    console.log(data)
 
     for (var elem of data) {
         cvrs.add(elem['consumerCVR'] + '*' +
@@ -528,11 +526,15 @@ function processMeasuringPoints(measuringPoints, dataAccessToken) {
     $('#label-status').html('Fremstiller din deklarationen. Vent venligst <img src="https://energinet.dk/resources/images/bx_loader.gif" width="25" height="25">');
     measuringPointsIDAndArea = getAllMeasuringPointsIDAndArea(measuringPoints);
 
+    var downloaded = 0;
+    $('#download-status').text(`Hentet ${downloaded}/${measuringPointsIDAndArea.length} målere.`);
+
     let fuelStats = initFuelStats();
     let emissionStats = initEmissionStats();
     let apiCallList = [];
 
     for (var i = 0; i < measuringPointsIDAndArea.length; i += CHUNK_SIZE) {
+
         let slice = measuringPointsIDAndArea.slice(i, i + CHUNK_SIZE);
 
         apiCallList.push(retrieveTimeSeries(slice, dataAccessToken).then(function (data) {
@@ -540,22 +542,20 @@ function processMeasuringPoints(measuringPoints, dataAccessToken) {
               $(`#${A.id}-status`).text('Data hentet');
           })
 
-          return data
+          let result = data['result'];
+          for (var j = 0; j < result.length; j++) {
+              let timeseries = result[j]['MyEnergyData_MarketDocument']['TimeSeries'];
+              let id = result[j]['id'];
+
+              processTimesSeries(timeseries, id, measuringPointsIDAndArea, fuelStats, emissionStats);
+          }
+
+          downloaded += slice.length;
+          $('#download-status').text(`Hentet ${downloaded}/${measuringPointsIDAndArea.length} målere.`);
         }));
     }
 
-    Promise.all(apiCallList).then(function(dataList) {
-      console.log(dataList)
-        for (data of dataList) {
-            let result = data['result'];
-            for (var j = 0; j < result.length; j++) {
-                let timeseries = result[j]['MyEnergyData_MarketDocument']['TimeSeries'];
-                let id = result[j]['id'];
-
-                processTimesSeries(timeseries, id, measuringPointsIDAndArea, fuelStats, emissionStats);
-            }
-        }
-
+    Promise.all(apiCallList).then(function() {
         if (fuelStats['Total_kWh'] === 0) {
             $('#label-status').text('Der er ikke registreret timeforbrug på dine målere.');
         } else {
