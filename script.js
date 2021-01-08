@@ -362,7 +362,7 @@ function buildMeteringPointTable(mps) {
 
     for (var mp of mps.values()) {
         let elements = mp.split('*');
-        mpTable.append(`<tr><td>${elements[0]}</td><td>${elements[1]}</td><td>${elements[2]}</td><td>${elements[3]}</td><td id="${elements[0]}-status">${elements[4]}<img class="pb-2" src="images/loading.gif" width="30" height="30"></td></tr>`);
+        mpTable.append(`<tr><td>${elements[0]}</td><td>${elements[1]}</td><td>${elements[2]}</td><td>${elements[3]}</td><td id="${elements[0]}-status">${elements[4]}</td></tr>`);
     }
 }
 
