@@ -1,8 +1,8 @@
 let EMISSION_DATA;
 let FUEL_DATA;
+let REFERENCES;
 
 let API_HOST = 'https://api.eloverblik.dk';
-let YEAR = 2019;
 let NUM_DIGITS_MEGA_CONVERT = 6;
 let NUM_DIGITS_TON_CONVERT = 6;
 let CHUNK_SIZE = 10;
@@ -19,51 +19,35 @@ let CONNECTED_AREAS = [
 let FUEL_TYPES = {
     'Vind': {
         image: './images/wind.png',
-        color: '#00a98f',
-        ref_dk1: 44.80,
-        ref_dk2: 33.40
+        color: '#00a98f'
     },
     'Sol': {
         image: './images/solar.png',
-        color: '#a0ffc8',
-        ref_dk1: 3.20,
-        ref_dk2: 4.00
+        color: '#a0ffc8'
     },
     'Vandkraft': {
         image: './images/hydro.png',
-        color: '#0a515d',
-        ref_dk1: 15.20,
-        ref_dk2: 12.20
+        color: '#0a515d'
     },
     'Biomasse': {
         image: './images/biomass.png',
-        color: '#ffd424',
-        ref_dk1: 9.00,
-        ref_dk2: 17.20
+        color: '#ffd424'
     },
     'Affald': {
         image: './images/waste.png',
-        color: '#fcba03',
-        ref_dk1: 2.70,
-        ref_dk2: 5.20
+        color: '#fcba03'
     },
     'Naturgas': {
         image: './images/naturalgas.png',
-        color: '#a0c1c2',
-        ref_dk1: 7.40,
-        ref_dk2: 5.50
+        color: '#a0c1c2'
     },
     'Kul og Olie': {
         image: './images/coal.png',
-        color: '#333333',
-        ref_dk1: 12.90,
-        ref_dk2: 11.00
+        color: '#333333'
     },
     'Atomkraft': {
         image: './images/nuclear.png',
-        color: '#ff6600',
-        ref_dk1: 4.80,
-        ref_dk2: 11.50
+        color: '#ff6600'
     }
 };
 
@@ -72,138 +56,101 @@ let EMISSION_TYPES = {
         html: 'CO<sub>2</sub> (Kuldioxid - drivhusgas)',
         unit: 'g',
         numDecimals: 2,
-        type: 'air',
-        ref_dk1: 147.70741,
-        ref_dk2: 136.120351
+        type: 'air'
     },
     'CH4': {
         html: 'CH<sub>4</sub> (Metan - drivhusgas)',
         unit: 'mg',
         numDecimals: 2,
-        type: 'air',
-        ref_dk1: 0.1044816,
-        ref_dk2: 0.07020113
+        type: 'air'
     },
     'N2O': {
         html: 'N<sub>2</sub>O (Lattergas - drivhusgas)',
         unit: 'mg',
         numDecimals: 3,
-        type: 'air',
-        ref_dk1: 0.002279985,
-        ref_dk2: 0.002915154
+        type: 'air'
     },
     'CO2Eqv': {
         html: 'CO<sub>2</sub>-ækvivalenter i alt',
         unit: 'mg',
         numDecimals: 2,
-        type: 'air',
-        ref_dk1: 151.237091,
-        ref_dk2: 138.858498
+        type: 'air'
     },
     'SO2': {
         html: 'SO<sub>2</sub> (Svovldioxid)',
         unit: 'mg',
         numDecimals: 2,
-        type: 'air',
-        ref_dk1: 0.02693083,
-        ref_dk2: 0.03839438
+        type: 'air'
     },
     'NOx': {
         html: 'NO<sub>x</sub> (Kvælstofilte)',
         unit: 'mg',
         numDecimals: 2,
-        type: 'air',
-        ref_dk1: 0.1647971,
-        ref_dk2: 0.2248935
+        type: 'air'
     },
     'CO': {
         html: 'CO (Kulilte)',
         unit: 'mg',
         numDecimals: 2,
-        type: 'air',
-        ref_dk1: 0.1037752,
-        ref_dk2: 0.1515124
+        type: 'air'
     },
     'NMvoc': {
         html: 'NM<sub>VOC</sub> (Uforbrændt kulbrinter)',
         unit: 'mg',
         numDecimals: 2,
-        type: 'air',
-        ref_dk1: 0.01746065,
-        ref_dk2: 0.01563837
+        type: 'air'
     },
     'Particles': {
         html: 'Partikler',
         unit: 'mg',
         numDecimals: 2,
-        type: 'air',
-        ref_dk1: 0.009346569,
-        ref_dk2: 0.01530363
+        type: 'air'
     },
     'CoalFlyAsh': {
         html: 'Kulflyveaske',
         unit: 'g',
         numDecimals: 2,
-        type: 'residual',
-        ref_dk1: 4.638885,
-        ref_dk2: 3.670074
+        type: 'residual'
     },
     'CoalSlag': {
         html: 'Kulslagge',
         unit: 'g',
         numDecimals: 2,
-        type: 'residual',
-        ref_dk1: 0.798421,
-        ref_dk2: 0.631674
+        type: 'residual'
     },
     'Desulp': {
         html: 'Afsvovlingsprodukter (Gips)',
         unit: 'g',
         numDecimals: 2,
-        type: 'residual',
-        ref_dk1: 1.686586,
-        ref_dk2: 1.33435
+        type: 'residual'
     },
     'WasteSlag': {
         html: 'Slagge (affaldsforbrænding)',
         unit: 'g',
         numDecimals: 2,
-        type: 'residual',
-        ref_dk1: 4.649827,
-        ref_dk2: 8.68308
+        type: 'residual'
     },
     'FuelGasWaste': {
         html: 'RGA (røggasaffald)',
         unit: 'g',
         numDecimals: 2,
-        type: 'residual',
-        ref_dk1: 0.704331,
-        ref_dk2: 1.315267
+        type: 'residual'
     },
     'Bioash': {
         html: 'Bioaske',
         unit: 'g',
         numDecimals: 2,
-        type: 'residual',
-        ref_dk1: 0.740667,
-        ref_dk2: 1.620461
+        type: 'residual'
     },
     'RadioactiveWaste': {
         html: 'Radioaktivt affald (mg/kWh)',
         unit: 'g',
         numDecimals: 2,
-        type: 'residual',
-        ref_dk1: 0.109743,
-        ref_dk2: 0.263936
+        type: 'residual'
     }
 };
 
 $(document).ready(function() {
-    loadEmissionData();
-    loadFuelData();
-
-    $('#title-year').text(YEAR);
-
     $("#input-token").keypress(function(event) {
         if (event.keyCode === 13) { // click on Enter
             $("#button-calculate").click();
@@ -211,24 +158,34 @@ $(document).ready(function() {
     });
 });
 
-function loadEmissionData() {
+function loadEmissionData(year) {
     $.ajax({
         type: "GET",
-        url: "emission_data.json",
+        url: `./data/${year}_emission_data.json`,
         dataType: "json"
     }).done(function(data) {
-        EMISSION_DATA = data
+        EMISSION_DATA = data;
     });
 }
 
-function loadFuelData() {
+function loadFuelData(year) {
     $.ajax({
         type: "GET",
-        url: "fuel_data.json",
+        url: `./data/${year}_fuel_data.json`,
         dataType: "json"
     }).done(function(data) {
-        FUEL_DATA = data
+        FUEL_DATA = data;
     });
+}
+
+function loadReferences(year) {
+    $.ajax({
+        type: "GET",
+        url: `./data/${year}_references.json`,
+        dataType: "json",
+    }).done(function(data) {
+        REFERENCES = data;
+    })
 }
 
 function getAllMeasuringPointsIDAndArea(measuringPoints) {
@@ -290,13 +247,13 @@ function calculateFuelStats(kWhHourly, stats, area, offsetStartFrom) {
     }
 }
 
-function retrieveTimeSeries(measuringPointIDsAndArea, dataAccessToken) {
+function retrieveTimeSeries(measuringPointIDsAndArea, year, dataAccessToken) {
     let ids = measuringPointIDsAndArea.map(function(A) {
         return A.id;
     })
 
     return $.ajax({
-        url: `${API_HOST}/CustomerApi/api/MeterData/GetTimeSeries/${YEAR}-01-01/${YEAR + 1}-01-01/Hour`,
+        url: `${API_HOST}/CustomerApi/api/MeterData/GetTimeSeries/${year}-01-01/${year + 1}-01-01/Hour`,
         type: 'POST',
         data: JSON.stringify({
             "meteringPoints": {
@@ -417,20 +374,21 @@ function buildEmissionTable(stats, totalkWh, DK1kWh, DK2kWh) {
 
     for (var emissionType of Object.keys(EMISSION_TYPES)) {
         let value = getEmissionValue(emissionType, stats)
-        let reference = parseFloatAccordingToLocale(dk1Part * EMISSION_TYPES[emissionType]['ref_dk1'] + dk2Part * EMISSION_TYPES[emissionType]['ref_dk2'], (emissionType === 'N2O') ? 3 : 2);
+        let ref_value = parseFloatAccordingToLocale(dk1Part * REFERENCES['emission'][emissionType]['ref_dk1'] +
+            dk2Part * REFERENCES['emission'][emissionType]['ref_dk2'], (emissionType === 'N2O') ? 3 : 2);
 
         var html = ''
         if (emissionType === 'CO2Eqv') {
             html = `<tr>
               <td class="text-start"><em>${EMISSION_TYPES[emissionType]['html']}</em></td>
               <td class="text-center"><em>${parseFloatAccordingToLocale(value / totalkWh, EMISSION_TYPES[emissionType]['numDecimals'])}</em></td>
-              <td class="text-end text-secondary"><em>${reference}</em></td>
+              <td class="text-end text-secondary"><em>${ref_value}</em></td>
               </tr>`
         } else {
             html = `<tr>
             <td class="text-start">${EMISSION_TYPES[emissionType]['html']}</td>
             <td class="text-center">${parseFloatAccordingToLocale(value / totalkWh, EMISSION_TYPES[emissionType]['numDecimals'])}</td>
-             <td class="text-end text-secondary">${reference}</td>
+             <td class="text-end text-secondary">${ref_value}</td>
             </tr>`
         }
 
@@ -506,14 +464,9 @@ function findOffsetStartFrom(period) {
     throw 'Timeslot was not found';
 }
 
-function changeMPStatus(id, status) {
-    $(`.${id}-status`).text(status);
-    //$(`#${id}-status-printonly`).text(status);
-}
-
 function processTimesSeries(timeseries, id, measuringPointsIDAndArea, fuelStats, emissionStats) {
     if (timeseries.length == 0 || timeseries[0]['businessType'] !== 'A04') {
-        changeMPStatus(id, 'Ikke time opgjort')
+        $(`.${id}-status`).text('Ikke time opgjort');
         return;
     }
 
@@ -525,10 +478,10 @@ function processTimesSeries(timeseries, id, measuringPointsIDAndArea, fuelStats,
     calculateFuelStats(kWhHourly, fuelStats, area, offsetStartFrom);
     calculateEmissionStats(kWhHourly, emissionStats, area, offsetStartFrom);
 
-    changeMPStatus(id, 'Inkluderet');
+    $(`.${id}-status`).text('Inkluderet');
 }
 
-function processMeasuringPoints(measuringPoints, dataAccessToken) {
+function processMeasuringPoints(measuringPoints, year, dataAccessToken) {
     $('#label-status').html('Fremstiller din deklarationen. Vent venligst <img src="https://energinet.dk/resources/images/bx_loader.gif" width="25" height="25">');
     measuringPointsIDAndArea = getAllMeasuringPointsIDAndArea(measuringPoints);
 
@@ -543,17 +496,17 @@ function processMeasuringPoints(measuringPoints, dataAccessToken) {
 
         let slice = measuringPointsIDAndArea.slice(i, i + CHUNK_SIZE);
 
-        apiCallList.push(retrieveTimeSeries(slice, dataAccessToken).then(function (data) {
-          let result = data['result'];
-          for (var j = 0; j < result.length; j++) {
-              let timeseries = result[j]['MyEnergyData_MarketDocument']['TimeSeries'];
-              let id = result[j]['id'];
+        apiCallList.push(retrieveTimeSeries(slice, year, dataAccessToken).then(function(data) {
+            let result = data['result'];
+            for (var j = 0; j < result.length; j++) {
+                let timeseries = result[j]['MyEnergyData_MarketDocument']['TimeSeries'];
+                let id = result[j]['id'];
 
-              processTimesSeries(timeseries, id, measuringPointsIDAndArea, fuelStats, emissionStats);
-          }
+                processTimesSeries(timeseries, id, measuringPointsIDAndArea, fuelStats, emissionStats);
+            }
 
-          downloaded += slice.length;
-          $('#download-status').text(`Hentet ${downloaded}/${measuringPointsIDAndArea.length} målere.`);
+            downloaded += slice.length;
+            $('#download-status').text(`Hentet ${downloaded}/${measuringPointsIDAndArea.length} målere.`);
         }));
     }
 
@@ -561,13 +514,14 @@ function processMeasuringPoints(measuringPoints, dataAccessToken) {
         if (fuelStats['Total_kWh'] === 0) {
             $('#label-status').text('Der er ikke registreret timeforbrug på dine målere.');
         } else {
-          buildEmissionFuelPage(fuelStats, emissionStats);
+            buildEmissionFuelPage(fuelStats, emissionStats);
         }
 
         $("#button-calculate").removeAttr("disabled");
 
-    }).catch(function() {
+    }).catch(function(error) {
         $('#label-status').text('Noget gik galt. Kunne ikke beregne miljødeklarationen. Prøv igen eller kontakt administratoren.');
+        console.log(error)
         $("#button-calculate").removeAttr("disabled");
     });
 }
@@ -611,33 +565,46 @@ function buildEmissionFuelPage(fuelStats, emissionStats) {
     $('.emission-data-sector').removeAttr('hidden');
 }
 
-function computeDeclaration(obj) {
+function loadData(year) {
+    return Promise.all([
+        loadEmissionData(year),
+        loadFuelData(year),
+        loadReferences(year),
+    ]);
+}
+
+function computeDeclaration() {
     clear_data();
     $("#button-calculate").attr("disabled", "disabled");
+    let year = parseInt($("#input-year").val());
+
+    $('#title-year').text(year);
 
     let refreshToken = $('#input-token').val();
 
     $('#label-status').html('Fremsøger din stamdata. Vent venligst <img src="https://energinet.dk/resources/images/bx_loader.gif" width="20" height="20">');
 
-    retrieveDataAccessToken(refreshToken).then(function(data) {
-        let dataAccessToken = data['result'];
+    loadData(year).then(function() {
+        retrieveDataAccessToken(refreshToken).then(function(data) {
+            let dataAccessToken = data['result'];
 
-        retrieveMeasuringPoints(dataAccessToken).then(function(data) {
-            let measuringPoints = data['result'];
+            retrieveMeasuringPoints(dataAccessToken).then(function(data) {
+                let measuringPoints = data['result'];
 
-            $('#label-master-data').text('Forbrugsstamdata');
+                $('#label-master-data').text('Forbrugsstamdata');
 
-            buildMasterDataTables(measuringPoints);
+                buildMasterDataTables(measuringPoints);
 
-            processMeasuringPoints(measuringPoints, dataAccessToken);
+                processMeasuringPoints(measuringPoints, year, dataAccessToken);
 
+            }).catch(function() {
+                $('#label-status').text('Noget gik galt. Kunne ikke hente forbrugsdata. Prøv igen eller kontakt administratoren.');
+                $("#button-calculate").removeAttr("disabled");
+            });
         }).catch(function() {
-            $('#label-status').text('Noget gik galt. Kunne ikke hente forbrugsdata. Prøv igen eller kontakt administratoren.');
+            $('#label-status').text('Noget gik galt. Venligst sikrer dig at din token er valid.');
             $("#button-calculate").removeAttr("disabled");
         });
-    }).catch(function() {
-        $('#label-status').text('Noget gik galt. Venligst sikrer dig at din token er valid.');
-        $("#button-calculate").removeAttr("disabled");
     });
 }
 
@@ -728,7 +695,7 @@ function buildIndicatorGaugeChart(emissionStats, fuelStats) {
 
     let CO2 = emissionStats['CO2'] / totalkWh;
 
-    let reference = dk1Part * EMISSION_TYPES['CO2']['ref_dk1'] + dk2Part * EMISSION_TYPES['CO2']['ref_dk2'];
+    let reference = dk1Part * REFERENCES['emission']['CO2']['ref_dk1'] + dk2Part * REFERENCES['emission']['CO2']['ref_dk2'];
 
     var value = 100 - (CO2 / reference) * 100;
 
@@ -765,12 +732,13 @@ function buildFuelTable(fuelStats) {
     for (var fuelType of Object.keys(FUEL_TYPES)) {
         if (fuelType !== 'Total_kWh') {
             let consumed = sumConnectedAreas(fuelStats[fuelType]);
+            let ref_value = dk1Part * REFERENCES['fuel'][fuelType]['ref_dk1'] + dk2Part * REFERENCES['fuel'][fuelType]['ref_dk2'];
             table.append(`<tr>
                     <td style="background-color:${FUEL_TYPES[fuelType]['color']};"><img src="${FUEL_TYPES[fuelType]['image']}" width="30" height="30"></td>
                     <td>${fuelType}</td>
                     <td class="text-end">${formatEnergyAmount(consumed, totalkWh)}</td>
                     <td class="text-end">${getProcentwiseOfTotal(consumed, totalkWh)}%</td>
-                    <td class="text-end text-secondary">${parseFloatAccordingToLocale(dk1Part * FUEL_TYPES[fuelType]['ref_dk1'] + dk2Part * FUEL_TYPES[fuelType]['ref_dk2'], 2)}%</td>
+                    <td class="text-end text-secondary">${parseFloatAccordingToLocale(ref_value, 2)}%</td>
                     </tr>`);
         }
     }

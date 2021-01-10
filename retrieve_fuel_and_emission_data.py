@@ -1,11 +1,11 @@
 import csv
 import json
 import requests
+import argparse
 from requests.utils import requote_uri
 
 VALID_AREAS = ['DK1', 'DK2']
 CONNECTED_AREAS = ['NO', 'NL', 'GE', 'SE', 'DK2', 'DK1']
-YEAR = 2019
 
 GROUP_FUELS = {
     "Offshore": "Vind",
@@ -30,11 +30,11 @@ GROUP_FUELS = {
 FUEL_TYPES = list(set(GROUP_FUELS.values()))
 
 
-def retrieve_fuel_data():
+def retrieve_fuel_data(year):
     url = f'https://www.energidataservice.dk/proxy/api/datastore_search_sql?sql=\
           SELECT "HourUTC", "PriceArea", "ConnectedArea", "ProductionGroup", "Share" \
           FROM "declarationcoveragehour" \
-          WHERE "HourDK" >= \'{YEAR}-01-01\' AND "HourDK" < \'{YEAR + 1}-01-01\' \
+          WHERE "HourDK" >= \'{year}-01-01\' AND "HourDK" < \'{year + 1}-01-01\' \
           ORDER BY "HourUTC" ASC'
 
     response = requests.get(requote_uri(url))
@@ -47,13 +47,13 @@ def retrieve_fuel_data():
     return records
 
 
-def retrieve_emission_data():
+def retrieve_emission_data(year):
     url = f'https://www.energidataservice.dk/proxy/api/datastore_search_sql?sql=\
            SELECT "HourUTC", "PriceArea", "CO2PerkWh", "SO2PerkWh", "NOxPerkWh", "NMvocPerkWh", \
            "CH4PerkWh", "COPerkWh", "N2OPerkWh", "ParticlesPerkWh", "CoalFlyAshPerkWh", "CoalSlagPerkWh", \
            "DesulpPerkWh", "FuelGasWastePerkWh", "BioashPerkWh", "WasteSlagPerkWh", "RadioactiveWastePerkWh" \
            FROM "declarationemissionhour" \
-           WHERE "HourDK" >= \'{YEAR}-01-01\' AND "HourDK" < \'{YEAR + 1}-01-01\' \
+           WHERE "HourDK" >= \'{year}-01-01\' AND "HourDK" < \'{year + 1}-01-01\' \
            ORDER BY "HourUTC" ASC'
 
     response = requests.get(requote_uri(url))
@@ -171,25 +171,34 @@ def convert_emission_data(emission_data):
     return converted_data
 
 
-def write_emission_data_to_file(emission_data, filename='emission_data.json'):
-    with open(filename, 'w') as json_file:
+def write_emission_data_to_file(emission_data, year):
+    with open(f'./data/{year}_emission_data.json', 'w') as json_file:
         json_file.write(json.dumps(emission_data))
 
-def write_fuel_data_to_file(fuel_data, filename='fuel_data.json'):
-    with open(filename, 'w') as json_file:
+
+def write_fuel_data_to_file(fuel_data, year):
+    with open(f'./data/{year}_fuel_data.json', 'w') as json_file:
         json_file.write(json.dumps(fuel_data))
 
 
 def main():
-    fuel_data = retrieve_fuel_data()
-    emission_data = retrieve_emission_data()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("year", type=int, help="the year to generate data for")
+    parser.add_argument("-v", "--verbose", action="store_true", help="increase output verbosity")
+    args = parser.parse_args()
+
+    fuel_data = retrieve_fuel_data(args.year)
+    emission_data = retrieve_emission_data(args.year)
+
+    if len(fuel_data) == 0 or len(emission_data) == 0:
+        print(f'\nNo data found for {args.year}\n')
+        return
 
     converted_fuel_data = convert_fuel_data(fuel_data)
     converted_emission_data = convert_emission_data(emission_data)
 
-    write_emission_data_to_file(converted_emission_data)
-    write_fuel_data_to_file(converted_fuel_data)
-
+    write_emission_data_to_file(converted_emission_data, args.year)
+    write_fuel_data_to_file(converted_fuel_data, args.year)
 
 
 if __name__ == '__main__':

@@ -53,6 +53,8 @@
 
 <body>
 
+
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
@@ -75,23 +77,31 @@
       <h1 class="display-4">Deklaration, leveret el. <span id="title-year"></span></h1>
 
       <div id="section-not-to-print">
-        <p class="lead">De beregnede emissioner er baseret på timeforbruget og lokation for de viste målere, kombineret med Energinets områdeafhængige timedeklaration. De beregnede nøgletal per kWh er gennemsnitsværdier for perioden, og vil være
+        <p class="lead mt-4">De beregnede emissioner er baseret på timeforbruget og lokation for de viste målere, kombineret med Energinets områdeafhængige timedeklaration. De beregnede nøgletal per kWh er gennemsnitsværdier for perioden, og vil være
           individuelle for
           hver enkelt kunde. Jo større del af forbruget, der ligger i perioder med høj andel af VE, jo lavere vil emissionerne være per kWh.
           Bemærk:
         </p>
-        <ul>
-          <li class="lead">El-deklarationerne fra din elhandler er baseret på handel med certifikater, men de påvirker ikke hvad der leveres fra elnettet. Læs mere om de forskellige deklarationer på Energinets hjemmeside.</li>
-          <li class="lead">Producerer du selv strøm, skal du selv indregne den del af forbrug og produktion, der ikke passerer elmåleren (egetforbrug).</li>
-          <li class="lead">VE inkluderer vind, sol, vand, bioenergi og 55% affald. Se Energistyrelsens energistatistik 2019 <a href="https://ens.dk/sites/ens.dk/files/Statistik/energistatistik2019_dk-webtilg.pdf" target="_blank">her</a>.</li>
+        <ul class="lead">
+          <li>El-deklarationerne fra din elhandler er baseret på handel med certifikater, men de påvirker ikke hvad der leveres fra elnettet. Læs mere om de forskellige deklarationer på Energinets hjemmeside.</li>
+          <li>Producerer du selv strøm, skal du selv indregne den del af forbrug og produktion, der ikke passerer elmåleren (egetforbrug).</li>
+          <li>VE inkluderer vind, sol, vand, bioenergi og 55% affald. Se Energistyrelsens energistatistik 2019 <a href="https://ens.dk/sites/ens.dk/files/Statistik/energistatistik2019_dk-webtilg.pdf" target="_blank">her</a>.</li>
         </ul>
         <hr class="my-4">
 
         <p class="lead">Beregn din emission ved at indtaste din token fra eloverblik.dk (anskaffelse af token: <a href="./eloverblik_token_vejledning.pdf" target="_blank">Adgang til egne data via API-kald</a>):</p>
         <div class="input-group mb-3">
           <input type="text" class="form-control" id="input-token" placeholder="Token">
-          <button class="btn btn-primary" id="button-calculate" type="button" onclick="computeDeclaration(this)" style="background: #4d8a8b; border: none;">Beregn</button>
+          <select class="form-control-sm px-3 mx-2" id="input-year">
+            <option value="2019">2019</option>
+          </select>
+          <button class="btn btn-primary px-3" id="button-calculate" type="button" onclick="computeDeclaration(this)" style="background: #4d8a8b; border: none;">Beregn</button>
+
+
+
+
         </div>
+
       </div>
 
       <div class="master-data-sector" hidden>

@@ -1,0 +1,102 @@
+{
+    "fuel": {
+        "Vind": {
+            "ref_dk1": 44.80,
+            "ref_dk2": 33.40
+        },
+        "Sol": {
+            "ref_dk1": 3.20,
+            "ref_dk2": 4.00
+        },
+        "Vandkraft": {
+            "ref_dk1": 15.20,
+            "ref_dk2": 12.20
+        },
+        "Biomasse": {
+            "ref_dk1": 9.00,
+            "ref_dk2": 17.20
+        },
+        "Affald": {
+            "ref_dk1": 2.70,
+            "ref_dk2": 5.20
+        },
+        "Naturgas": {
+            "ref_dk1": 7.40,
+            "ref_dk2": 5.50
+        },
+        "Kul og Olie": {
+            "ref_dk1": 12.90,
+            "ref_dk2": 11.00
+        },
+        "Atomkraft": {
+            "ref_dk1": 4.80,
+            "ref_dk2": 11.50
+        }
+    },
+    "emission": {
+        "CO2": {
+            "ref_dk1": 147.70741,
+            "ref_dk2": 136.120351
+        },
+        "CH4": {
+            "ref_dk1": 0.1044816,
+            "ref_dk2": 0.07020113
+        },
+        "N2O": {
+            "ref_dk1": 0.002279985,
+            "ref_dk2": 0.002915154
+        },
+        "CO2Eqv": {
+            "ref_dk1": 151.237091,
+            "ref_dk2": 138.858498
+        },
+        "SO2": {
+            "ref_dk1": 0.02693083,
+            "ref_dk2": 0.03839438
+        },
+        "NOx": {
+            "ref_dk1": 0.1647971,
+            "ref_dk2": 0.2248935
+        },
+        "CO": {
+            "ref_dk1": 0.1037752,
+            "ref_dk2": 0.1515124
+        },
+        "NMvoc": {
+            "ref_dk1": 0.01746065,
+            "ref_dk2": 0.01563837
+        },
+        "Particles": {
+            "ref_dk1": 0.009346569,
+            "ref_dk2": 0.01530363
+        },
+        "CoalFlyAsh": {
+            "ref_dk1": 4.638885,
+            "ref_dk2": 3.670074
+        },
+        "CoalSlag": {
+            "ref_dk1": 0.798421,
+            "ref_dk2": 0.631674
+        },
+        "Desulp": {
+            "ref_dk1": 1.686586,
+            "ref_dk2": 1.33435
+        },
+        "WasteSlag": {
+            "ref_dk1": 4.649827,
+            "ref_dk2": 8.68308
+        },
+        "FuelGasWaste": {
+            "ref_dk1": 0.704331,
+            "ref_dk2": 1.315267
+        },
+        "Bioash": {
+            "ref_dk1": 0.740667,
+            "ref_dk2": 1.620461
+        },
+        "RadioactiveWaste": {
+            "ref_dk1": 0.109743,
+            "ref_dk2": 0.263936
+        }
+    }
+}
