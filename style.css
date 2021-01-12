@@ -1,0 +1,24 @@
+.table-responsive {
+    max-height: 240px;
+}
+
+.section-only-print {
+    display: none;
+}
+
+.page-break-before {
+    page-break-before: always;
+}
+
+#banner-background {
+    background: #4d8a8b;
+}
+
+#button-calculate {
+    background: #4d8a8b;
+    border: none;
+}
+
+th, td {
+  white-space:nowrap;
+}

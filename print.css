@@ -1,0 +1,27 @@
+@page {
+  size: A4;
+}
+
+body * {
+  -webkit-print-color-adjust: exact;
+}
+
+th, td {
+  font-size: 11px;
+}
+
+.group-together {
+  break-inside: avoid;
+}
+
+.table-responsive {
+  max-height: none;
+}
+
+.section-not-to-print {
+  display: none;
+}
+
+.section-only-print {
+    display: block;
+}
