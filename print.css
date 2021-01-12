@@ -1,9 +1,6 @@
-@page {
-  size: A4;
-}
-
-body * {
+html, body * {
   -webkit-print-color-adjust: exact;
+  margin: 0px;
 }
 
 th, td {
