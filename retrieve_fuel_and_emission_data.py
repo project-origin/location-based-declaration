@@ -118,7 +118,7 @@ def sort_fuel_data(converted_data):
     for area in VALID_AREAS:
         for fuel_type in FUEL_TYPES:
             for connected_area in CONNECTED_AREAS:
-                converted_data[area][fuel_type][connected_area] = sorted(converted_data[area][fuel_type][connected_area], key = lambda i: i['HourUTC'])
+                converted_data[area][fuel_type][connected_area] = sorted(converted_data[area][fuel_type][connected_area], key = lambda i: i['T'])
 
 
 def convert_fuel_data(fuel_data):
@@ -131,8 +131,9 @@ def convert_fuel_data(fuel_data):
             for fuel_type in FUEL_TYPES:
                 for connected_area in CONNECTED_AREAS:
                     share = filled_fuel_data[area][hour][fuel_type][connected_area]
+                    compressed_hour =  hour[2:-6].replace('-','').replace('T', '')
 
-                    converted_data[area][fuel_type][connected_area].append({'HourUTC': hour,'Share': share})
+                    converted_data[area][fuel_type][connected_area].append({'T': compressed_hour, 'S': share})
 
     sort_fuel_data(converted_data)
 
@@ -152,7 +153,7 @@ def init_emission_convert_data(emission_types):
 def sort_emission_data(converted_data, emission_types):
     for area in VALID_AREAS:
         for emission_type in emission_types:
-            converted_data[area][emission_type] = sorted(converted_data[area][emission_type], key = lambda i: i['HourUTC'])
+            converted_data[area][emission_type] = sorted(converted_data[area][emission_type], key = lambda i: i['T'])
 
 
 def convert_emission_data(emission_data):
@@ -164,7 +165,8 @@ def convert_emission_data(emission_data):
         area = row['PriceArea']
 
         for emission_type in emission_types:
-            converted_data[area][emission_type].append({'HourUTC': row['HourUTC'], 'PerkWh': row[emission_type + 'PerkWh']})
+            compressed_hour = row['HourUTC'][2: -6].replace('-','').replace('T', '')
+            converted_data[area][emission_type].append({'T': compressed_hour, 'P': row[emission_type + 'PerkWh']})
 
     sort_emission_data(converted_data, emission_types)
 

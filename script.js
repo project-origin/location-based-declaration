@@ -225,7 +225,7 @@ function calculateEmissionStats(kWhHourly, stats, area, offsetStartFrom) {
             continue;
 
         for (var i = 0; i < kWhHourly.length && i + offsetStartFrom < areaEmissionData[emissionType].length; i++) {
-            stats[emissionType] += areaEmissionData[emissionType][i + offsetStartFrom]['PerkWh'] * kWhHourly[i]
+            stats[emissionType] += areaEmissionData[emissionType][i + offsetStartFrom]['P'] * kWhHourly[i]
         }
     }
 }
@@ -237,7 +237,7 @@ function calculateFuelStats(kWhHourly, stats, area, offsetStartFrom) {
         for (var connectedArea of CONNECTED_AREAS) {
 
             for (var i = 0; i < kWhHourly.length && i + offsetStartFrom < areaFuelData[fuelType][connectedArea].length; i++) {
-                let kWh = areaFuelData[fuelType][connectedArea][i + offsetStartFrom]['Share'] * kWhHourly[i]
+                let kWh = areaFuelData[fuelType][connectedArea][i + offsetStartFrom]['S'] * kWhHourly[i]
 
                 stats['Total_kWh'] += kWh
                 stats[area] += kWh
@@ -453,11 +453,11 @@ function findOffsetStartFrom(period) {
     if (period.length < 1)
         throw 'Period contained no values';
 
-    var start = period[0]['timeInterval']['start'];
-    start = start.substring(0, start.length - 1);
+    let start = period[0]['timeInterval']['start'];
+    let compressedStart = start.substring(2, start.length - 7).replaceAll('-', '').replaceAll('T', '');
 
     for (var i = 0; i < FUEL_DATA['DK1']['Vind']['DK1'].length; i++) {
-        if (start === FUEL_DATA['DK1']['Vind']['DK1'][i]['HourUTC'])
+        if (compressedStart === FUEL_DATA['DK1']['Vind']['DK1'][i]['T'])
             return i;
     }
 
