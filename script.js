@@ -203,10 +203,10 @@ function loadReferences(year) {
 }
 
 /**
-* Returns a list of tuples containing the ID and price area for all measuring points.
-* @param measuringPoints List of measuring point objects retrieved from eloverblik.dk.
-* @return List of tuples containing the ID and price area for all measuring points.
-*/
+ * Returns a list of tuples containing the ID and price area for all measuring points.
+ * @param measuringPoints List of measuring point objects retrieved from eloverblik.dk.
+ * @return List of tuples containing the ID and price area for all measuring points.
+ */
 function getAllMeasuringPointsIDAndArea(measuringPoints) {
     let ids = [];
 
@@ -217,18 +217,21 @@ function getAllMeasuringPointsIDAndArea(measuringPoints) {
         // the postcode decides which price area the measuring point belongs to.
         let area = parseInt(measuringPoint.postcode) >= 5000 ? 'DK1' : 'DK2';
 
-        ids.push({id: measuringPoint.meteringPointId, area: area});
+        ids.push({
+            id: measuringPoint.meteringPointId,
+            area: area
+        });
     }
 
     return ids;
 }
 
 /**
-* Extracts the consumption for every hour and flattens it out in a ordered list with the first element being
-* the consumption for the earlist datetime and the last element being the consumption for the last datetime.
-* @params period List of days.hours.consumption as retrieved from eloverblik.dk.
-* @return List of comsumption.
-*/
+ * Extracts the consumption for every hour and flattens it out in a ordered list with the first element being
+ * the consumption for the earlist datetime and the last element being the consumption for the last datetime.
+ * @params period List of days.hours.consumption as retrieved from eloverblik.dk.
+ * @return List of comsumption.
+ */
 function extractHours(period) {
     let kWhHourly = [];
 
@@ -284,12 +287,12 @@ function calculateFuelStats(kWhHourly, stats, area, offsetStartFrom) {
 }
 
 /**
-* Retrieves timeseries for the given list of measuring points from eloverblik.dk for the given year.
-* @param ids List of ids for the measuring points.
-* @param year The year to retrieve data for.
-* @param dataAccessToken The data access token.
-* @return The timeseries object for the given measuring points.
-*/
+ * Retrieves timeseries for the given list of measuring points from eloverblik.dk for the given year.
+ * @param ids List of ids for the measuring points.
+ * @param year The year to retrieve data for.
+ * @param dataAccessToken The data access token.
+ * @return The timeseries object for the given measuring points.
+ */
 function retrieveTimeSeries(ids, year, dataAccessToken) {
     return $.ajax({
         url: `${API_HOST}/CustomerApi/api/MeterData/GetTimeSeries/${year}-01-01/${year + 1}-01-01/Hour`,
@@ -308,10 +311,10 @@ function retrieveTimeSeries(ids, year, dataAccessToken) {
 }
 
 /**
-* Retrieves measuring points which belongs to the given data access token.
-* @param dataAccessToken The data access token.
-* @return List of measuring points.
-*/
+ * Retrieves measuring points which belongs to the given data access token.
+ * @param dataAccessToken The data access token.
+ * @return List of measuring points.
+ */
 function retrieveMeasuringPoints(dataAccessToken) {
     return $.ajax({
         url: `${API_HOST}/CustomerApi/api/meteringpoints/meteringpoints?includeAll=false`,
@@ -323,10 +326,10 @@ function retrieveMeasuringPoints(dataAccessToken) {
 }
 
 /**
-* Retrieves the session token.
-* @param dataAccessToken The refresh token.
-* @return The data access token.
-*/
+ * Retrieves the session token.
+ * @param dataAccessToken The refresh token.
+ * @return The data access token.
+ */
 function retrieveDataAccessToken(refreshToken) {
     return $.ajax({
         url: `${API_HOST}/CustomerApi/api/Token`,
@@ -338,9 +341,9 @@ function retrieveDataAccessToken(refreshToken) {
 }
 
 /**
-* Initializes the stats object for fuel.
-* @return The fuel stats object.
-*/
+ * Initializes the stats object for fuel.
+ * @return The fuel stats object.
+ */
 function initFuelStats() {
     let stats = {
         Total_kWh: 0,
@@ -359,9 +362,9 @@ function initFuelStats() {
 }
 
 /**
-* Initializes the stats object for emission.
-* @return The emission stats object.
-*/
+ * Initializes the stats object for emission.
+ * @return The emission stats object.
+ */
 function initEmissionStats() {
     let stats = {};
 
@@ -373,11 +376,11 @@ function initEmissionStats() {
 }
 
 /**
-* Finds the price area for the given ID in the given list of tuples (id, area).
-* @param id The id.
-* @param measuringPointsIDAndArea a list of (id, area).
-* @return The price area which corresponds to the given ID.
-*/
+ * Finds the price area for the given ID in the given list of tuples (id, area).
+ * @param id The id.
+ * @param measuringPointsIDAndArea a list of (id, area).
+ * @return The price area which corresponds to the given ID.
+ */
 function findAreaFromID(id, measuringPointsIDAndArea) {
     for (var item of measuringPointsIDAndArea) {
         if (id === item.id) {
@@ -389,12 +392,12 @@ function findAreaFromID(id, measuringPointsIDAndArea) {
 }
 
 /**
-* Finds the offset to merge the hourly consumption from eloverblik.dk with the emission and fuel data.
-* It should be remarked that the hourly consumption data fra eloverblik.dk doesnt always starts at year start
-* or ends at year ends.
-* @param period The period retrieved from eloverblik.dk.
-* @return The offset to start merging from.
-*/
+ * Finds the offset to merge the hourly consumption from eloverblik.dk with the emission and fuel data.
+ * It should be remarked that the hourly consumption data fra eloverblik.dk doesnt always starts at year start
+ * or ends at year ends.
+ * @param period The period retrieved from eloverblik.dk.
+ * @return The offset to start merging from.
+ */
 function findOffsetStartFrom(period) {
     if (period.length === 0)
         throw 'Period contained no values';
@@ -412,13 +415,13 @@ function findOffsetStartFrom(period) {
 }
 
 /**
-* Processes a single timeseries.
-* @param timeseries The timeseries as retrieved from eloverblik.dk.
-* @param id The ID for the measuring points.
-* @param measuringPointsIDAndArea List of (id, area) for the measuringPoints.
-* @param fuelStats The stats object containing the total emission for every emission type.
-* @param emissionStats The stats object containing the total energy for every fuel type.
-*/
+ * Processes a single timeseries.
+ * @param timeseries The timeseries as retrieved from eloverblik.dk.
+ * @param id The ID for the measuring points.
+ * @param measuringPointsIDAndArea List of (id, area) for the measuringPoints.
+ * @param fuelStats The stats object containing the total emission for every emission type.
+ * @param emissionStats The stats object containing the total energy for every fuel type.
+ */
 function processTimesSeries(timeseries, id, measuringPointsIDAndArea, fuelStats, emissionStats) {
     if (timeseries.length == 0 || timeseries[0].businessType !== 'A04') {
         $(`.${id}-status`).text('Ikke time opgjort');
@@ -437,11 +440,11 @@ function processTimesSeries(timeseries, id, measuringPointsIDAndArea, fuelStats,
 }
 
 /**
-* Processes all the given measuring points.
-* @param measuringPoints List of measuring points.
-* @param year The year to base the consumption on.
-* @dataAccessToken The data access token.
-*/
+ * Processes all the given measuring points.
+ * @param measuringPoints List of measuring points.
+ * @param year The year to base the consumption on.
+ * @dataAccessToken The data access token.
+ */
 function processMeasuringPoints(measuringPoints, year, dataAccessToken) {
     $('#label-status').html(`Fremstiller din deklarationen. Vent venligst <img src="${LOADER_GIF_URL}" width="25" height="25">`);
     measuringPointsIDAndArea = getAllMeasuringPointsIDAndArea(measuringPoints);
@@ -491,17 +494,17 @@ function processMeasuringPoints(measuringPoints, year, dataAccessToken) {
 }
 
 /**
-* Loads the emission, fuel and reference data for the given year.
-* @param year The year.
-* @return The promise containing the ajax calls.
-*/
+ * Loads the emission, fuel and reference data for the given year.
+ * @param year The year.
+ * @return The promise containing the ajax calls.
+ */
 function loadData(year) {
     return Promise.all([loadEmissionData(year), loadFuelData(year), loadReferences(year)]);
 }
 
 /**
-* The starting function for computing the declaration.
-*/
+ * The starting function for computing the declaration.
+ */
 function computeDeclaration() {
     hideSections();
     $("#button-calculate").attr("disabled", "disabled");
@@ -538,10 +541,10 @@ function computeDeclaration() {
 /****************************** HTML build functions ******************************/
 
 /**
-* Returns a formatted string representation of address.
-* @param measuringPoint the measuring point object.
-* @return String representation of address.
-*/
+ * Returns a formatted string representation of address.
+ * @param measuringPoint the measuring point object.
+ * @return String representation of address.
+ */
 function formatAddress(measuringPoint) {
     var address = measuringPoint.streetName;
 
@@ -558,9 +561,9 @@ function formatAddress(measuringPoint) {
 }
 
 /**
-* Builds the table containing cvr(s) and name(s) of the user.
-* @param cvrs List of strings containing cvr and name separated by *.
-*/
+ * Builds the table containing cvr(s) and name(s) of the user.
+ * @param cvrs List of strings containing cvr and name separated by *.
+ */
 function buildConsumerTable(cvrs) {
     let cvrTable = $('#table-cvr-data');
     cvrTable.empty('*');
@@ -572,9 +575,9 @@ function buildConsumerTable(cvrs) {
 }
 
 /**
-* Builds the table containing ID and address of all the measuring points.
-* @param mps List of strings containing information about measuring points separated by *.
-*/
+ * Builds the table containing ID and address of all the measuring points.
+ * @param mps List of strings containing information about measuring points separated by *.
+ */
 function buildMeteringPointTable(mps) {
     let mpTable = $('.table-mp-data');
     mpTable.empty();
@@ -587,9 +590,9 @@ function buildMeteringPointTable(mps) {
 }
 
 /**
-* Builds the tables containing master data.
-* @param data List of information about the measuring points.
-*/
+ * Builds the tables containing master data.
+ * @param data List of information about the measuring points.
+ */
 function buildMasterDataTables(data) {
     let cvrs = new Set();
     let mps = new Set();
@@ -614,12 +617,12 @@ function buildMasterDataTables(data) {
 }
 
 /**
-* Builds the table containing emission data.
-* @param stats The stats object containing the total emission for every emission type.
-* @param totalkWh The total kWh consumption.
-* @param DK1kWh The kWh consumption in DK1.
-* @param DK2kWh The kWh consumption in DK2.
-*/
+ * Builds the table containing emission data.
+ * @param stats The stats object containing the total emission for every emission type.
+ * @param totalkWh The total kWh consumption.
+ * @param DK1kWh The kWh consumption in DK1.
+ * @param DK2kWh The kWh consumption in DK2.
+ */
 function buildEmissionTable(stats, totalkWh, DK1kWh, DK2kWh) {
     let table = $('#table-emissions');
     table.empty();
@@ -667,18 +670,18 @@ function buildEmissionTable(stats, totalkWh, DK1kWh, DK2kWh) {
 }
 
 /**
-* Hides master and emission data sections in the HTML page.
-*/
+ * Hides master and emission data sections in the HTML page.
+ */
 function hideSections() {
     $('.master-data-sector').attr('hidden', true);
     $('.emission-data-sector').attr('hidden', true);
 }
 
 /**
-* Formats the amount depending on number of digits and attaches the correct unit.
-* @param amount The amount to be formatted.
-* @return Formatted amount concatenated with the unit.
-*/
+ * Formats the amount depending on number of digits and attaches the correct unit.
+ * @param amount The amount to be formatted.
+ * @return Formatted amount concatenated with the unit.
+ */
 function formatPolutionAmount(amount) {
     let unit;
     let actualAmount;
@@ -695,10 +698,10 @@ function formatPolutionAmount(amount) {
 }
 
 /**
-* Builds the HTML section containing the fuel and emission data.
-* @param fuelStats The stats object containing the total energy for every fuel type.
-* @param emissionStats The stats object containing the total emission for every emission type.
-*/
+ * Builds the HTML section containing the fuel and emission data.
+ * @param fuelStats The stats object containing the total energy for every fuel type.
+ * @param emissionStats The stats object containing the total emission for every emission type.
+ */
 function buildEmissionFuelPage(fuelStats, emissionStats) {
     $('#label-status').text('');
 
@@ -716,9 +719,9 @@ function buildEmissionFuelPage(fuelStats, emissionStats) {
 }
 
 /**
-* Builds a pie chart for fuel types.
-* @param fuelStats The stats object containing the total energy for every fuel type.
-*/
+ * Builds a pie chart for fuel types.
+ * @param fuelStats The stats object containing the total energy for every fuel type.
+ */
 function buildBarChart(fuelStats) {
     var ctx = document.getElementById('barChart').getContext('2d');
     var labels = [];
@@ -768,9 +771,9 @@ function buildBarChart(fuelStats) {
 }
 
 /**
-* Builds a gauge which shows how much of the energy consumption comes from sustainable energy.
-* @param fuelStats The stats object containing the total energy for every fuel type.
-*/
+ * Builds a gauge which shows how much of the energy consumption comes from sustainable energy.
+ * @param fuelStats The stats object containing the total energy for every fuel type.
+ */
 function buildGaugeChart(fuelStats) {
     let element = document.querySelector('#gauge-green-meter');
     $('#gauge-green-meter').empty();
@@ -792,10 +795,10 @@ function buildGaugeChart(fuelStats) {
 }
 
 /**
-* Builds a gauge which shows how much CO2 is derived compared to the reference.
-* @param fuelStats The stats object containing the total energy for every fuel type.
-* @param emissionStats The stats object containing the total emission for every emission type.
-*/
+ * Builds a gauge which shows how much CO2 is derived compared to the reference.
+ * @param fuelStats The stats object containing the total energy for every fuel type.
+ * @param emissionStats The stats object containing the total emission for every emission type.
+ */
 function buildIndicatorGaugeChart(emissionStats, fuelStats) {
     let element = document.querySelector('#gauge-indicator-meter');
     $('#gauge-indicator-meter').empty();
@@ -828,9 +831,9 @@ function buildIndicatorGaugeChart(emissionStats, fuelStats) {
 }
 
 /**
-* Builds the table containing fuel data.
-* @param fuelStats The stats object containing the total energy for every fuel type.
-*/
+ * Builds the table containing fuel data.
+ * @param fuelStats The stats object containing the total energy for every fuel type.
+ */
 function buildFuelTable(fuelStats) {
     let table = $('#table-fuels');
     table.empty();
@@ -857,9 +860,9 @@ function buildFuelTable(fuelStats) {
 }
 
 /**
-* Builds the table containing which country/area the energy is from.
-* @param fuelStats The stats object containing the total energy for every fuel type.
-*/
+ * Builds the table containing which country/area the energy is from.
+ * @param fuelStats The stats object containing the total energy for every fuel type.
+ */
 function buildConnectedAreaTable(fuelStats) {
     let table = $('#table-from-production');
     table.empty();
@@ -897,10 +900,10 @@ function buildConnectedAreaTable(fuelStats) {
 }
 
 /**
-* Sums the energy consumption across connected areas.
-* @param consumedFromConnectedArea Object with energy consumption per connected areas.
-* @return The sum.
-*/
+ * Sums the energy consumption across connected areas.
+ * @param consumedFromConnectedArea Object with energy consumption per connected areas.
+ * @return The sum.
+ */
 function sumConnectedAreas(consumedFromConnectedArea) {
     var sum = 0;
     for (var connectedArea of CONNECTED_AREAS) {
@@ -911,21 +914,21 @@ function sumConnectedAreas(consumedFromConnectedArea) {
 }
 
 /**
-* Returns the procentwise of amount out of the total amount.
-* @param amount The amount.
-* @param totalAmount The total amount.
-* @return Procentwise of amount out of the total amount.
-*/
+ * Returns the procentwise of amount out of the total amount.
+ * @param amount The amount.
+ * @param totalAmount The total amount.
+ * @return Procentwise of amount out of the total amount.
+ */
 function getProcentwiseOfTotal(amount, totalAmount) {
     return parseFloatAccordingToLocale((amount * 100) / totalAmount);
 }
 
 /**
-* Sums the energy consumption according to the given connected area.
-* @param fuelStats The stats object containing the total energy for every fuel type.
-* @param connectedArea The connected area.
-* @return The sum.
-*/
+ * Sums the energy consumption according to the given connected area.
+ * @param fuelStats The stats object containing the total energy for every fuel type.
+ * @param connectedArea The connected area.
+ * @return The sum.
+ */
 function sumFuelsAccordingToConnectedArea(fuelStats, connectedArea) {
     var sum = 0;
     for (var fuelType of Object.keys(FUEL_TYPES)) {
@@ -936,11 +939,11 @@ function sumFuelsAccordingToConnectedArea(fuelStats, connectedArea) {
 }
 
 /**
-* Formats the amount depending on number of digits for the total consumption and attaches the correct unit.
-* @param amountkWh The amount to be formatted.
-* @param totalAmountkWh The total amount.
-* @return Formatted amount concatenated with the unit.
-*/
+ * Formats the amount depending on number of digits for the total consumption and attaches the correct unit.
+ * @param amountkWh The amount to be formatted.
+ * @param totalAmountkWh The total amount.
+ * @return Formatted amount concatenated with the unit.
+ */
 function formatEnergyAmount(amountkWh, totalAmountkWh) {
     let unit;
     let actualAmount;
@@ -957,10 +960,10 @@ function formatEnergyAmount(amountkWh, totalAmountkWh) {
 }
 
 /**
-* Calculate how much of the energy comes from sustainable energy.
-* @param fuelStats The stats object containing the total energy for every fuel type.
-* @return Procentwise which is from sustainable energy.
-*/
+ * Calculate how much of the energy comes from sustainable energy.
+ * @param fuelStats The stats object containing the total energy for every fuel type.
+ * @return Procentwise which is from sustainable energy.
+ */
 function sustainableEnergyPercentage(fuelStats) {
     let total = fuelStats.Total_kWh;
     let greenEnergy = sumConnectedAreas(fuelStats.Sol) +
@@ -973,11 +976,11 @@ function sustainableEnergyPercentage(fuelStats) {
 }
 
 /**
-* Ensures that the number is parsed according to localization with correct use of separators.
-* @param number The number to be parsed.
-* @param numDecimals Number of decimals.
-* @return The parsed number as a localized string.
-*/
+ * Ensures that the number is parsed according to localization with correct use of separators.
+ * @param number The number to be parsed.
+ * @param numDecimals Number of decimals.
+ * @return The parsed number as a localized string.
+ */
 function parseFloatAccordingToLocale(number, numDecimals = 2) {
     return parseFloat(number.toFixed(numDecimals)).toLocaleString('da-DK', {
         minimumFractionDigits: numDecimals
@@ -985,10 +988,10 @@ function parseFloatAccordingToLocale(number, numDecimals = 2) {
 }
 
 /**
-* Returns the value for the emission type.
-* @param emissionType The emission type.
-* @param stats The stats object containing the total emission for every emission type.
-*/
+ * Returns the value for the emission type.
+ * @param emissionType The emission type.
+ * @param stats The stats object containing the total emission for every emission type.
+ */
 function getEmissionValue(emissionType, stats) {
     if (emissionType === 'CO2Eqv') {
         return stats.CO2 + (stats.CH4 * 28) / 1000 + (stats.N2O * 265) / 1000;
