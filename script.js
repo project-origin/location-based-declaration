@@ -632,8 +632,9 @@ function buildEmissionTable(stats, totalkWh, DK1kWh, DK2kWh) {
 
     for (var emissionType of Object.keys(EMISSION_TYPES)) {
         let value = getEmissionValue(emissionType, stats);
-        let ref_value = parseFloatAccordingToLocale(dk1Part * REFERENCES.emission[emissionType].ref_dk1 +
-            dk2Part * REFERENCES.emission[emissionType].ref_dk2, (emissionType === 'N2O') ? 3 : 2);
+
+        let ref_value = parseFloatAccordingToLocale(dk1Part * REFERENCES.emission[emissionType].DK1 +
+            dk2Part * REFERENCES.emission[emissionType].DK2, (emissionType === 'N2O') ? 3 : 2);
 
         var html = '';
         if (emissionType === 'CO2Eqv') {
@@ -805,7 +806,7 @@ function buildIndicatorGaugeChart(emissionStats, fuelStats) {
 
     let CO2 = emissionStats.CO2 / totalkWh;
 
-    let reference = dk1Part * REFERENCES.emission.CO2.ref_dk1 + dk2Part * REFERENCES.emission.CO2.ref_dk2;
+    let reference = dk1Part * REFERENCES.emission.CO2.DK1 + dk2Part * REFERENCES.emission.CO2.DK2;
 
     var value = 100 - (CO2 / reference) * 100;
 
@@ -841,7 +842,7 @@ function buildFuelTable(fuelStats) {
     for (var fuelType of Object.keys(FUEL_TYPES)) {
         if (fuelType !== 'Total_kWh') {
             let consumed = sumConnectedAreas(fuelStats[fuelType]);
-            let ref_value = dk1Part * REFERENCES.fuel[fuelType].ref_dk1 + dk2Part * REFERENCES.fuel[fuelType].ref_dk2;
+            let ref_value = dk1Part * REFERENCES.fuel[fuelType].DK1 + dk2Part * REFERENCES.fuel[fuelType].DK2;
             table.append(`<tr>
                     <td style="background-color:${FUEL_TYPES[fuelType].color};"><img src="${FUEL_TYPES[fuelType].image}" width="30" height="30"></td>
                     <td>${fuelType}</td>
