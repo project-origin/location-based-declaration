@@ -1,3 +1,8 @@
+@page {
+  size: A4;
+  margin: 0;
+}
+
 html, body * {
   -webkit-print-color-adjust: exact;
   margin: 0px;
@@ -21,4 +26,9 @@ th, td {
 
 .section-only-print {
     display: block;
+}
+
+.col-12 {
+    float: none;
+    width: 100%;
 }
