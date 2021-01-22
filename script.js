@@ -578,11 +578,16 @@ function buildConsumerTable(cvrs) {
  * Builds the table containing ID and address of all the measuring points.
  * @param mps List of strings containing information about measuring points separated by *.
  */
-function buildMeteringPointTable(mps) {
+function buildMeteringPointTable(mps_consumption, mps_production) {
     let mpTable = $('.table-mp-data');
     mpTable.empty();
 
-    for (var mp of mps.values()) {
+    for (var mp of mps_consumption.values()) {
+        let elements = mp.split('*');
+
+        mpTable.append(`<tr><td>${elements[0]}</td><td>${elements[1]}</td><td>${elements[2]}</td><td>${elements[3]}</td><td class="${elements[0]}-status">${elements[4]}</td></tr>`);
+    }
+    for (var mp of mps_production.values()) {
         let elements = mp.split('*');
 
         mpTable.append(`<tr><td>${elements[0]}</td><td>${elements[1]}</td><td>${elements[2]}</td><td>${elements[3]}</td><td class="${elements[0]}-status">${elements[4]}</td></tr>`);
@@ -595,23 +600,29 @@ function buildMeteringPointTable(mps) {
  */
 function buildMasterDataTables(data) {
     let cvrs = new Set();
-    let mps = new Set();
+    let mps_consumption = new Set();
+    let mps_production = new Set();
 
     for (var elem of data) {
         cvrs.add(elem.consumerCVR + '*' + elem.firstConsumerPartyName);
 
-        let type = (elem.typeOfMP !== 'E17' || elem.settlementMethod === 'E01') ?
-            'Ekskluderet (Produktion)' : `Henter data <img src="${LOADER_GIF_URL}" width="20" height="20">`;
-
-        mps.add(elem.meteringPointId + '*' +
-            formatAddress(elem) + '*' +
-            elem.postcode + '*' +
-            elem.cityName + '*' +
-            type);
+        if (elem.typeOfMP !== 'E17' || elem.settlementMethod === 'E01') {
+          mps_production.add(elem.meteringPointId + '*' +
+              formatAddress(elem) + '*' +
+              elem.postcode + '*' +
+              elem.cityName + '*' +
+              'Ekskluderet (Produktion)');
+        } else {
+          mps_consumption.add(elem.meteringPointId + '*' +
+              formatAddress(elem) + '*' +
+              elem.postcode + '*' +
+              elem.cityName + '*' +
+              `Henter data <img src="${LOADER_GIF_URL}" width="20" height="20">`);
+        }
     }
 
     buildConsumerTable(cvrs);
-    buildMeteringPointTable(mps);
+    buildMeteringPointTable(mps_consumption, mps_production);
 
     $('.master-data-sector').removeAttr('hidden');
 }
