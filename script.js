@@ -723,12 +723,17 @@ function buildEmissionFuelPage(fuelStats, emissionStats) {
  * @param fuelStats The stats object containing the total energy for every fuel type.
  */
 function buildBarChart(fuelStats) {
-    var ctx = document.getElementById('barChart').getContext('2d');
-    var labels = [];
-    var values = [];
-    var colors = [];
+    // This is necessary to do otherwise there is a problem in Saferi when we redraw a new pie chart.
+    let canvasHtml = '<canvas id="barChart" width="1000" height="1000"></canvas>';
+    $('#bar-chart-container').html(canvasHtml);
 
-    for (var fuelType of Object.keys(FUEL_TYPES)) {
+    let ctx = document.getElementById('barChart').getContext('2d');
+
+    let labels = [];
+    let values = [];
+    let colors = [];
+
+    for (let fuelType of Object.keys(FUEL_TYPES)) {
         if (fuelType !== 'Total_kWh') {
             labels.push(fuelType);
             values.push(sumConnectedAreas(fuelStats[fuelType]));
@@ -736,7 +741,7 @@ function buildBarChart(fuelStats) {
         }
     }
 
-    var chart = new Chart(ctx, {
+    let chart = new Chart(ctx, {
         type: 'outlabeledPie',
         data: {
             labels: labels,
