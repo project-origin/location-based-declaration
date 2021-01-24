@@ -210,7 +210,7 @@ function loadReferences(year) {
 function getAllMeasuringPointsIDAndArea(measuringPoints) {
     let ids = [];
 
-    for (var measuringPoint of measuringPoints) {
+    for (let measuringPoint of measuringPoints) {
         if (measuringPoint.typeOfMP !== 'E17' || measuringPoint.settlementMethod === 'E01')
             continue;
 
@@ -235,8 +235,8 @@ function getAllMeasuringPointsIDAndArea(measuringPoints) {
 function extractHours(period) {
     let kWhHourly = [];
 
-    for (var elem of period) {
-        for (var point of elem.Point) {
+    for (let elem of period) {
+        for (let point of elem.Point) {
             kWhHourly.push(parseFloat(point['out_Quantity.quantity']));
         }
     }
@@ -253,7 +253,7 @@ Merges the data from eloverblik.dk with the actual emission for every hour and s
 function calculateEmissionStats(kWhHourly, stats, area, offsetStartFrom) {
     let areaEmissionData = EMISSION_DATA[area];
 
-    for (var emissionType of Object.keys(EMISSION_TYPES)) {
+    for (let emissionType of Object.keys(EMISSION_TYPES)) {
         if (emissionType === 'CO2Eqv') // this value is computed so we skip it.
             continue;
 
@@ -272,8 +272,8 @@ Merges the data from eloverblik.dk with the actual fuel for every hour and sums 
 function calculateFuelStats(kWhHourly, stats, area, offsetStartFrom) {
     let areaFuelData = FUEL_DATA[area];
 
-    for (var fuelType of Object.keys(FUEL_TYPES)) {
-        for (var connectedArea of CONNECTED_AREAS) {
+    for (let fuelType of Object.keys(FUEL_TYPES)) {
+        for (let connectedArea of CONNECTED_AREAS) {
 
             for (var i = 0; i < kWhHourly.length && i + offsetStartFrom < areaFuelData[fuelType][connectedArea].length; i++) {
                 let kWh = areaFuelData[fuelType][connectedArea][i + offsetStartFrom].S * kWhHourly[i];
@@ -351,9 +351,9 @@ function initFuelStats() {
         DK2: 0
     };
 
-    for (var fuelType of Object.keys(FUEL_TYPES)) {
+    for (let fuelType of Object.keys(FUEL_TYPES)) {
         stats[fuelType] = {};
-        for (var connectedArea of CONNECTED_AREAS) {
+        for (let connectedArea of CONNECTED_AREAS) {
             stats[fuelType][connectedArea] = 0;
         }
     }
@@ -368,7 +368,7 @@ function initFuelStats() {
 function initEmissionStats() {
     let stats = {};
 
-    for (var emissionType of Object.keys(EMISSION_TYPES)) {
+    for (let emissionType of Object.keys(EMISSION_TYPES)) {
         stats[emissionType] = 0;
     }
 
@@ -382,7 +382,7 @@ function initEmissionStats() {
  * @return The price area which corresponds to the given ID.
  */
 function findAreaFromID(id, measuringPointsIDAndArea) {
-    for (var item of measuringPointsIDAndArea) {
+    for (let item of measuringPointsIDAndArea) {
         if (id === item.id) {
             return item.area;
         }
@@ -568,7 +568,7 @@ function buildConsumerTable(cvrs) {
     let cvrTable = $('#table-cvr-data');
     cvrTable.empty('*');
 
-    for (var cvr of cvrs.values()) {
+    for (let cvr of cvrs.values()) {
         let elements = cvr.split('*');
         cvrTable.append(`<tr><td class="h4">${elements[0]}</td><td class="h4">${elements[1]}</td></tr>`);
     }
@@ -582,12 +582,12 @@ function buildMeteringPointTable(mps_consumption, mps_production) {
     let mpTable = $('.table-mp-data');
     mpTable.empty();
 
-    for (var mp of mps_consumption.values()) {
+    for (let mp of mps_consumption.values()) {
         let elements = mp.split('*');
 
         mpTable.append(`<tr><td>${elements[0]}</td><td>${elements[1]}</td><td>${elements[2]}</td><td>${elements[3]}</td><td class="${elements[0]}-status">${elements[4]}</td></tr>`);
     }
-    for (var mp of mps_production.values()) {
+    for (let mp of mps_production.values()) {
         let elements = mp.split('*');
 
         mpTable.append(`<tr><td>${elements[0]}</td><td>${elements[1]}</td><td>${elements[2]}</td><td>${elements[3]}</td><td class="${elements[0]}-status">${elements[4]}</td></tr>`);
@@ -603,7 +603,7 @@ function buildMasterDataTables(data) {
     let mps_consumption = new Set();
     let mps_production = new Set();
 
-    for (var elem of data) {
+    for (let elem of data) {
         cvrs.add(elem.consumerCVR + '*' + elem.firstConsumerPartyName);
 
         if (elem.typeOfMP !== 'E17' || elem.settlementMethod === 'E01') {
@@ -644,7 +644,7 @@ function buildEmissionTable(stats, totalkWh, DK1kWh, DK2kWh) {
     var airRows = '';
     var residualRows = '';
 
-    for (var emissionType of Object.keys(EMISSION_TYPES)) {
+    for (let emissionType of Object.keys(EMISSION_TYPES)) {
         let value = getEmissionValue(emissionType, stats);
 
         let ref_value = parseFloatAccordingToLocale(dk1Part * REFERENCES.emission[emissionType].DK1 +
@@ -858,7 +858,7 @@ function buildFuelTable(fuelStats) {
     let dk1Part = fuelStats.DK1 / totalkWh;
     let dk2Part = fuelStats.DK2 / totalkWh;
 
-    for (var fuelType of Object.keys(FUEL_TYPES)) {
+    for (let fuelType of Object.keys(FUEL_TYPES)) {
         if (fuelType !== 'Total_kWh') {
             let consumed = sumConnectedAreas(fuelStats[fuelType]);
             let ref_value = dk1Part * REFERENCES.fuel[fuelType].DK1 + dk2Part * REFERENCES.fuel[fuelType].DK2;
@@ -885,12 +885,12 @@ function buildConnectedAreaTable(fuelStats) {
 
     let totalkWh = fuelStats.Total_kWh;
 
-    for (var fuelType of Object.keys(FUEL_TYPES)) {
+    for (let fuelType of Object.keys(FUEL_TYPES)) {
         if (fuelType !== 'Total_kWh') {
             let consumed = sumConnectedAreas(fuelStats[fuelType]);
 
             var rows = ``;
-            for (var connectedArea of CONNECTED_AREAS) {
+            for (let connectedArea of CONNECTED_AREAS) {
                 rows += `<td class="text-end">${getProcentwiseOfTotal(fuelStats[fuelType][connectedArea], totalkWh)}%</td>`;
             }
 
@@ -904,7 +904,7 @@ function buildConnectedAreaTable(fuelStats) {
     }
 
     var rows = ``;
-    for (var connectedArea of CONNECTED_AREAS) {
+    for (let connectedArea of CONNECTED_AREAS) {
         rows += `<td class="text-end"><strong>${getProcentwiseOfTotal(sumFuelsAccordingToConnectedArea(fuelStats, connectedArea), totalkWh)}%</strong></td>`;
     }
     table.append(`<tr>
@@ -922,7 +922,7 @@ function buildConnectedAreaTable(fuelStats) {
  */
 function sumConnectedAreas(consumedFromConnectedArea) {
     var sum = 0;
-    for (var connectedArea of CONNECTED_AREAS) {
+    for (let connectedArea of CONNECTED_AREAS) {
         sum += consumedFromConnectedArea[connectedArea];
     }
 
@@ -947,7 +947,7 @@ function getProcentwiseOfTotal(amount, totalAmount) {
  */
 function sumFuelsAccordingToConnectedArea(fuelStats, connectedArea) {
     var sum = 0;
-    for (var fuelType of Object.keys(FUEL_TYPES)) {
+    for (let fuelType of Object.keys(FUEL_TYPES)) {
         sum += fuelStats[fuelType][connectedArea];
     }
 
