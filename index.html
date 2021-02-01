@@ -66,7 +66,7 @@
             <option value="2018">2018</option>
             <option value="2017">2017</option>
           </select>
-          <button class="btn btn-primary px-3" id="button-calculate" type="button" onclick="computeDeclaration(this)">Beregn</button>
+          <button class="btn btn-primary px-3" id="eng-button" type="button" onclick="retrieveMasterdata(this)">Fremsøg</button>
         </div>
       </div> <!-- section-not-to-print ends -->
 
@@ -94,10 +94,11 @@
 
           <h5 class="pt-3">Deklarationen omfatter:</h5>
 
-          <div class="pt-3 table-responsive">
+          <div class="pt-3 table-responsive" id="measuring-points">
             <table class="table table-striped">
               <thead>
                 <tr>
+                  <th></th>
                   <th>Målepunkt ID</th>
                   <th>Addresse</th>
                   <th>Postnummer</th>
@@ -108,10 +109,13 @@
               <tbody class="table-mp-data"></tbody>
             </table>
           </div>
-
-          <div class="pt-3">
+          <div class="mt-3">
             <h5 id="download-status"></h5>
           </div>
+
+          <button class="btn btn-primary px-3 my-3" id="eng-button" type="button" onclick="computeDeclaration(this)">Beregn</button>
+          <button class="btn btn-primary px-3 my-3" id="eng-button" type="button" onclick="toogleCheckedBoxes(this)">Vælg/fravælg alle</button>
+
 
         </div> <!-- section-not-to-print ends -->
 
@@ -119,7 +123,7 @@
 
       <div class="emission-data-sector" hidden>
 
-        <div class="pt-3 group-together">
+        <div class="mt-3 group-together">
           <h3>Din grønne profil</h3>
 
           <div class="pt-3">
@@ -225,6 +229,7 @@
             <table class="table table-striped">
               <thead>
                 <tr>
+                  <th></th>
                   <th>Målepunkt ID</th>
                   <th>Addresse</th>
                   <th>Postnummer</th>

@@ -14,11 +14,15 @@
     background: #4d8a8b;
 }
 
-#button-calculate {
+#eng-button {
     background: #4d8a8b;
     border: none;
 }
 
 th, td {
   white-space:nowrap;
+}
+
+input[type=checkbox] {
+    transform: scale(1.5);
 }

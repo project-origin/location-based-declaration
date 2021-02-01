@@ -151,12 +151,20 @@ let EMISSION_TYPES = {
     }
 };
 
+var year;
+var dataAccessToken;
+var measuringPoints;
+
 $(document).ready(function() {
     // Sets up button click on Enter keypress
     $("#input-token").keypress(function(event) {
         if (event.keyCode === 13) { // Keypress on Enter
-            $("#button-calculate").click();
+            $("#button-retrieve-masterdata").click();
         }
+    });
+
+    $("#input-year").on('change', function() {
+        hideSections();
     });
 });
 
@@ -204,10 +212,9 @@ function loadReferences(year) {
 
 /**
  * Returns a list of tuples containing the ID and price area for all measuring points.
- * @param measuringPoints List of measuring point objects retrieved from eloverblik.dk.
  * @return List of tuples containing the ID and price area for all measuring points.
  */
-function getAllMeasuringPointsIDAndArea(measuringPoints) {
+function getAllMeasuringPointsIDAndArea() {
     let ids = [];
 
     for (let measuringPoint of measuringPoints) {
@@ -289,11 +296,9 @@ function calculateFuelStats(kWhHourly, stats, area, offsetStartFrom) {
 /**
  * Retrieves timeseries for the given list of measuring points from eloverblik.dk for the given year.
  * @param ids List of ids for the measuring points.
- * @param year The year to retrieve data for.
- * @param dataAccessToken The data access token.
  * @return The timeseries object for the given measuring points.
  */
-function retrieveTimeSeries(ids, year, dataAccessToken) {
+function retrieveTimeSeries(ids) {
     return $.ajax({
         url: `${API_HOST}/CustomerApi/api/MeterData/GetTimeSeries/${year}-01-01/${year + 1}-01-01/Hour`,
         type: 'POST',
@@ -312,10 +317,9 @@ function retrieveTimeSeries(ids, year, dataAccessToken) {
 
 /**
  * Retrieves measuring points which belongs to the given data access token.
- * @param dataAccessToken The data access token.
  * @return List of measuring points.
  */
-function retrieveMeasuringPoints(dataAccessToken) {
+function retrieveMeasuringPoints() {
     return $.ajax({
         url: `${API_HOST}/CustomerApi/api/meteringpoints/meteringpoints?includeAll=false`,
         type: 'GET',
@@ -440,29 +444,42 @@ function processTimesSeries(timeseries, id, measuringPointsIDAndArea, fuelStats,
 }
 
 /**
- * Processes all the given measuring points.
- * @param measuringPoints List of measuring points.
- * @param year The year to base the consumption on.
- * @dataAccessToken The data access token.
+ * Returns all selected measuring points.
  */
-function processMeasuringPoints(measuringPoints, year, dataAccessToken) {
+function getAllSelectedMeasurementsPoints() {
+    var selectedMeasuringPoints = [];
+    $('#measuring-points input:checked').each(function() {
+        let id = $(this).attr('name');
+        selectedMeasuringPoints.push(id);
+        $(`.${id}-status`).html(`Henter data <img src="${LOADER_GIF_URL}" width="20" height="20">`);
+    });
+
+    return selectedMeasuringPoints;
+}
+
+/**
+ * Processes all the given measuring points and computes declaration.
+ */
+function computeDeclaration() {
+    $('.emission-data-sector').attr('hidden', true);
+    disableInputs();
     $('#label-status').html(`Fremstiller din deklarationen. Vent venligst <img src="${LOADER_GIF_URL}" width="25" height="25">`);
-    measuringPointsIDAndArea = getAllMeasuringPointsIDAndArea(measuringPoints);
+
+    var selectedMeasuringPoints = getAllSelectedMeasurementsPoints();
+    let measuringPointsIDAndArea = getAllMeasuringPointsIDAndArea();
 
     var downloaded = 0;
-    $('#download-status').text(`Hentet ${downloaded}/${measuringPointsIDAndArea.length} målere.`);
+    $('#download-status').text(`Hentet ${downloaded}/${selectedMeasuringPoints.length} målere.`);
 
     let fuelStats = initFuelStats();
     let emissionStats = initEmissionStats();
     let apiCallList = [];
 
-    for (var i = 0; i < measuringPointsIDAndArea.length; i += CHUNK_SIZE) {
+    for (var i = 0; i < selectedMeasuringPoints.length; i += CHUNK_SIZE) {
 
-        let ids = measuringPointsIDAndArea.slice(i, i + CHUNK_SIZE).map(function(A) {
-            return A.id;
-        });
+        let ids = selectedMeasuringPoints.slice(i, i + CHUNK_SIZE);
 
-        apiCallList.push(retrieveTimeSeries(ids, year, dataAccessToken).then(function(data) {
+        apiCallList.push(retrieveTimeSeries(ids).then(function(data) {
             let result = data.result;
             for (var j = 0; j < result.length; j++) {
                 let timeseries = result[j].MyEnergyData_MarketDocument.TimeSeries;
@@ -472,7 +489,7 @@ function processMeasuringPoints(measuringPoints, year, dataAccessToken) {
             }
 
             downloaded += ids.length;
-            $('#download-status').text(`Hentet ${downloaded}/${measuringPointsIDAndArea.length} målere.`);
+            $('#download-status').text(`Hentet ${downloaded}/${selectedMeasuringPoints.length} målere.`);
         }));
     }
 
@@ -484,12 +501,12 @@ function processMeasuringPoints(measuringPoints, year, dataAccessToken) {
             buildEmissionFuelPage(fuelStats, emissionStats);
         }
 
-        $("#button-calculate").removeAttr("disabled");
+        enableInputs();
 
     }).catch(function(error) {
         $('#label-status').text('Noget gik galt. Kunne ikke beregne miljødeklarationen. Prøv igen eller kontakt administratoren.');
         console.log(error);
-        $("#button-calculate").removeAttr("disabled");
+        enableInputs();
     });
 }
 
@@ -503,12 +520,42 @@ function loadData(year) {
 }
 
 /**
+ * Enable all inputs.
+ */
+function enableInputs() {
+    $("button").removeAttr("disabled");
+    $("#input-year").removeAttr("disabled");
+    $("#input-token").removeAttr("disabled");
+    $("#measuring-points input").removeAttr("disabled");
+}
+
+/**
+ * Disable all inputs.
+ */
+function disableInputs() {
+    $("button").attr("disabled", "disabled");
+    $("#input-year").attr("disabled", "disabled");
+    $("#input-token").attr("disabled", "disabled");
+    $("#measuring-points input").attr("disabled", "disabled");
+}
+
+/**
+ * Toogle measuring points checkboxes.
+ */
+function toogleCheckedBoxes() {
+    $('#measuring-points input').each(function() {
+        $(this).prop("checked", !$(this).prop("checked"));
+    });
+}
+
+/**
  * The starting function for computing the declaration.
  */
-function computeDeclaration() {
+function retrieveMasterdata() {
     hideSections();
-    $("#button-calculate").attr("disabled", "disabled");
-    let year = parseInt($("#input-year").val());
+    disableInputs();
+    $('#download-status').text('');
+    year = parseInt($("#input-year").val());
 
     $('#title-year').text(year);
 
@@ -518,22 +565,24 @@ function computeDeclaration() {
 
     loadData(year).then(function() {
         retrieveDataAccessToken(refreshToken).then(function(data) {
-            let dataAccessToken = data.result;
+            dataAccessToken = data.result;
 
-            retrieveMeasuringPoints(dataAccessToken).then(function(data) {
-                let measuringPoints = data.result;
+            retrieveMeasuringPoints().then(function(data) {
+                measuringPoints = data.result;
 
                 buildMasterDataTables(measuringPoints);
 
-                processMeasuringPoints(measuringPoints, year, dataAccessToken);
+                $('#label-status').html('');
+                $('#download-status').text('Hentet 0/0 målere.');
+                enableInputs();
 
             }).catch(function() {
                 $('#label-status').text('Noget gik galt. Kunne ikke hente forbrugsdata. Prøv igen eller kontakt administratoren.');
-                $("#button-calculate").removeAttr("disabled");
+                enableInputs()
             });
         }).catch(function() {
             $('#label-status').text('Noget gik galt. Venligst sikrer dig at din token er valid.');
-            $("#button-calculate").removeAttr("disabled");
+            enableInputs();
         });
     });
 }
@@ -585,12 +634,30 @@ function buildMeteringPointTable(mps_consumption, mps_production) {
     for (let mp of mps_consumption.values()) {
         let elements = mp.split('*');
 
-        mpTable.append(`<tr><td>${elements[0]}</td><td>${elements[1]}</td><td>${elements[2]}</td><td>${elements[3]}</td><td class="${elements[0]}-status">${elements[4]}</td></tr>`);
+        mpTable.append(`
+                        <tr>
+                            <td class="text-center">${elements[0]}</td>
+                            <td>${elements[1]}</td>
+                            <td>${elements[2]}</td>
+                            <td>${elements[3]}</td>
+                            <td>${elements[4]}</td>
+                            <td class="${elements[1]}-status">${elements[5]}</td>
+                        </tr>
+                     `);
     }
     for (let mp of mps_production.values()) {
         let elements = mp.split('*');
 
-        mpTable.append(`<tr><td>${elements[0]}</td><td>${elements[1]}</td><td>${elements[2]}</td><td>${elements[3]}</td><td class="${elements[0]}-status">${elements[4]}</td></tr>`);
+        mpTable.append(`
+                        <tr>
+                            <td class="text-center">${elements[0]}</td>
+                            <td>${elements[1]}</td>
+                            <td>${elements[2]}</td>
+                            <td>${elements[3]}</td>
+                            <td>${elements[4]}</td>
+                            <td class="${elements[1]}-status">${elements[5]}</td>
+                        </tr>
+                    `);
     }
 }
 
@@ -607,17 +674,22 @@ function buildMasterDataTables(data) {
         cvrs.add(elem.consumerCVR + '*' + elem.firstConsumerPartyName);
 
         if (elem.typeOfMP !== 'E17' || elem.settlementMethod === 'E01') {
-          mps_production.add(elem.meteringPointId + '*' +
-              formatAddress(elem) + '*' +
-              elem.postcode + '*' +
-              elem.cityName + '*' +
-              'Ekskluderet (Produktion)');
+            mps_production.add(
+
+                '' + '*' +
+                elem.meteringPointId + '*' +
+                formatAddress(elem) + '*' +
+                elem.postcode + '*' +
+                elem.cityName + '*' +
+                'Ekskluderet (Produktion)');
         } else {
-          mps_consumption.add(elem.meteringPointId + '*' +
-              formatAddress(elem) + '*' +
-              elem.postcode + '*' +
-              elem.cityName + '*' +
-              `Henter data <img src="${LOADER_GIF_URL}" width="20" height="20">`);
+            mps_consumption.add(
+                `<input type="checkbox" name="${elem.meteringPointId}" checked="checked">` + '*' +
+                elem.meteringPointId + '*' +
+                formatAddress(elem) + '*' +
+                elem.postcode + '*' +
+                elem.cityName + '*' +
+                '');
         }
     }
 
