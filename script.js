@@ -543,8 +543,14 @@ function disableInputs() {
  * Toogle measuring points checkboxes.
  */
 function toogleCheckedBoxes() {
-    $('#measuring-points input').each(function() {
-        $(this).prop("checked", !$(this).prop("checked"));
+    let elements = $('#measuring-points input');
+
+    if (elements.length < 1)
+        return;
+
+    toogleValue = !elements.first().prop("checked");
+    elements.each(function() {
+        $(this).prop("checked", toogleValue);
     });
 }
 
