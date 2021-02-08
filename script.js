@@ -407,7 +407,7 @@ function findOffsetStartFrom(period) {
         throw 'Period contained no values';
 
     let start = period[0].timeInterval.start;
-    let compressedStart = start.substring(2, start.length - 7).replaceAll('-', '').replaceAll('T', '');
+    let compressedStart = start.substring(2, start.length - 7).replace(/-/g, '').replace('T', '');
 
     // Every fuel type and emission type contains hourly data for the whole year so we just pick Vind in Dk1.
     for (var i = 0; i < FUEL_DATA.DK1.Vind.DK1.length; i++) {
