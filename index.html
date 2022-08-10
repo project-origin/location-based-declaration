@@ -1,255 +1,275 @@
 <!DOCTYPE html>
 <html lang="da-DK" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Deklaration, leveret el.</title>
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Deklaration, leveret el.</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <link rel="stylesheet" type="text/css" href="print.css" media="print" />
+  </head>
 
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
-  <link rel="stylesheet" type="text/css" href="style.css">
-  <link rel="stylesheet" type="text/css" href="print.css" media="print">
-</head>
+  <body>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW"
+      crossorigin="anonymous"
+      defer
+    ></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0" defer></script>
+    <script src="https://unpkg.com/browse/gauge-chart@1.0.0/dist/bundle.mjs" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-piechart-outlabels" defer></script>
+    <script src="script.js" defer></script>
 
-<body>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
-  <script src="https://unpkg.com/gauge-chart@latest/dist/bundle.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-piechart-outlabels"></script>
-  <script src="script.js"></script>
-
-  <div id="banner-background">
-    <div class="container">
-      <div class="p-3 rounded-lg">
-        <img src="./images/logo.png" alt="Logo is missing.">
+    <div id="banner-background">
+      <div class="container">
+        <div class="p-3 rounded-lg">
+          <img src="./images/logo.png" alt="Logo is missing." />
+        </div>
       </div>
     </div>
-  </div>
 
-  <div class="container">
-    <div class="bg-light rounded-lg p-5 m-3">
-
-      <h1 class="display-4">Deklaration, leveret el. <span id="title-year"></span></h1>
-
-      <div class="section-not-to-print">
-        <p class="lead mt-4">
-          De beregnede emissioner er baseret på dit timeforbrug og lokation for de viste målere, kombineret med Energinets områdeafhængige timedeklaration.
-          De beregnede nøgletal per kWh er dine gennemsnitsværdier for perioden. Jo større del af dit forbrug, der ligger i perioder med høj andel af VE, jo
-          lavere vil emissionerne være per kWh. Bemærk:
-        </p>
-        <ul class="lead">
-          <li>El-deklarationerne fra din elhandler er baseret på handel med certifikater, men de påvirker ikke hvad der leveres fra elnettet. Læs mere om de
-            forskellige deklarationer på Energinets hjemmeside her: <a href="https://energinet.dk/Deklarationer" target="_blank">Deklarationer</a>.</li>
-          <li>Producerer du selv strøm, skal du selv indregne den del af forbrug og produktion, der ikke passerer elmåleren (egetforbrug).</li>
-          <li>VE inkluderer vind, sol, vand, bioenergi og 55% affald. Se Energistyrelsens energistatistik 2019
-            <a href="https://ens.dk/sites/ens.dk/files/Statistik/energistatistik2019_dk-webtilg.pdf" target="_blank">her</a>.</li>
-          <li>Timedeklaration finder du på Energidataservice i følgende to datasæt:</li>
-          <ul>
-            <li><a href="https://www.energidataservice.dk/tso-electricity/declarationemissionhour" target="_blank">Declaration, Emission per Hour</a></li>
-            <li><a href="https://www.energidataservice.dk/tso-electricity/declarationcoveragehour" target="_blank">Declaration, Consumption coverage per Hour</a></li>
-          </ul>
-          <li>Venligst skriv til <a href="mailto: energidata@energinet.dk">energidata@energinet.dk</a>, hvis du oplever fejl eller har feedback til løsningen.</li>
-        </ul>
-        <hr class="my-4">
-
-        <p class="lead">
-          Beregn din emission ved at indtaste din token fra eloverblik.dk (anskaffelse af token:
-          <a href="./eloverblik_token_vejledning.pdf" target="_blank">Adgang til egne data via API-kald</a>):
-        </p>
-
-        <div class="input-group mb-3">
-          <input type="text" class="form-control" id="input-token" placeholder="Token">
-          <select class="form-control-sm px-3 mx-2" id="input-year">
-            <option value="2021">2021</option>
-            <option value="2020">2020</option>
-            <option value="2019">2019</option>
-            <option value="2018">2018</option>
-            <option value="2017">2017</option>
-          </select>
-          <button class="btn btn-primary px-3" id="eng-button" type="button" onclick="retrieveMasterdata(this)">Fremsøg</button>
-        </div>
-      </div> <!-- section-not-to-print ends -->
-
-      <div class="master-data-sector" hidden>
-
-        <div class="pt-3">
-          <h3>Stamdata</h3>
-        </div>
-
-        <h5 class="pt-3">Deklarationen gælder:</h5>
-
-        <div class="pt-3 table-responsive">
-          <table class="table table-striped">
-            <thead>
-              <tr>
-                <th>CVR</th>
-                <th>Navn</th>
-              </tr>
-            </thead>
-            <tbody id="table-cvr-data"></tbody>
-          </table>
-        </div>
+    <div class="container">
+      <div class="bg-light rounded-lg p-5 m-3">
+        <h1 class="display-4">Deklaration, leveret el. <span id="title-year"></span></h1>
 
         <div class="section-not-to-print">
+          <p class="lead mt-4">
+            De beregnede emissioner er baseret på dit timeforbrug og lokation for de viste målere, kombineret med Energinets områdeafhængige
+            timedeklaration. De beregnede nøgletal per kWh er dine gennemsnitsværdier for perioden. Jo større del af dit forbrug, der ligger
+            i perioder med høj andel af VE, jo lavere vil emissionerne være per kWh. Bemærk:
+          </p>
+          <ul class="lead">
+            <li>
+              El-deklarationerne fra din elhandler er baseret på handel med certifikater, men de påvirker ikke hvad der leveres fra
+              elnettet. Læs mere om de forskellige deklarationer på Energinets hjemmeside her:
+              <a href="https://energinet.dk/Deklarationer" target="_blank">Deklarationer</a>.
+            </li>
+            <li>
+              Producerer du selv strøm, skal du selv indregne den del af forbrug og produktion, der ikke passerer elmåleren (egetforbrug).
+            </li>
+            <li>
+              VE inkluderer vind, sol, vand, bioenergi og 55% affald. Se Energistyrelsens energistatistik 2019
+              <a href="https://ens.dk/sites/ens.dk/files/Statistik/energistatistik2019_dk-webtilg.pdf" target="_blank">her</a>.
+            </li>
+            <li>Timedeklaration finder du på Energidataservice i følgende to datasæt:</li>
+            <ul>
+              <li>
+                <a href="https://www.energidataservice.dk/tso-electricity/declarationemissionhour" target="_blank"
+                  >Declaration, Emission per Hour</a
+                >
+              </li>
+              <li>
+                <a href="https://www.energidataservice.dk/tso-electricity/declarationcoveragehour" target="_blank"
+                  >Declaration, Consumption coverage per Hour</a
+                >
+              </li>
+            </ul>
+            <li>
+              Venligst skriv til
+              <a href="mailto: energidata@energinet.dk">energidata@energinet.dk</a>, hvis du oplever fejl eller har feedback til løsningen.
+            </li>
+          </ul>
+          <hr class="my-4" />
 
-          <h5 class="pt-3">Deklarationen omfatter:</h5>
+          <p class="lead">
+            Beregn din emission ved at indtaste din token fra eloverblik.dk (anskaffelse af token:
+            <a href="./eloverblik_token_vejledning.pdf" target="_blank">Adgang til egne data via API-kald</a>):
+          </p>
 
-          <div class="pt-3 table-responsive" id="measuring-points">
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th></th>
-                  <th>Målepunkt ID</th>
-                  <th>Addresse</th>
-                  <th>Postnummer</th>
-                  <th>By</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody class="table-mp-data"></tbody>
-            </table>
+          <div class="input-group mb-3">
+            <input type="text" class="form-control" id="input-token" placeholder="Token" />
+            <select class="form-control-sm px-3 mx-2" id="input-year">
+              <option value="2021">2021</option>
+              <option value="2020">2020</option>
+              <option value="2019">2019</option>
+              <option value="2018">2018</option>
+              <option value="2017">2017</option>
+            </select>
+            <button class="eng-button btn btn-primary px-3" id="search-button" disabled type="button" onclick="retrieveMasterdata(this)">
+              Fremsøg
+            </button>
           </div>
-          <div class="mt-3">
-            <h5 id="download-status"></h5>
-          </div>
+        </div>
+        <!-- section-not-to-print ends -->
 
-          <button class="btn btn-primary px-3 my-3" id="eng-button" type="button" onclick="computeDeclaration(this)">Beregn</button>
-          <button class="btn btn-primary px-3 my-3" id="eng-button" type="button" onclick="toogleCheckedBoxes(this)">Vælg/fravælg alle</button>
-
-
-        </div> <!-- section-not-to-print ends -->
-
-      </div> <!-- master-data-sector ends -->
-
-      <div class="emission-data-sector" hidden>
-
-        <div class="mt-3 group-together">
-          <h3>Din grønne profil</h3>
-
+        <div class="master-data-sector" hidden>
           <div class="pt-3">
-            <table class="table table-borderless text-center align-middle">
-              <tr>
-                <td class="h5">Vedvarende energi</td>
-                <td class="h5">Total CO<sub>2</sub> udledning:</td>
-                <td class="h5">Din timeprofil:</td>
-              </tr>
-              <tr>
-                <td><span id="gauge-green-meter"></span></td>
-                <td><strong><span class="h3" id="num-co2-total"></span></strong><br /><br /><span class="h5" id="num-co2-relative"></span></td>
-                <td><span id="gauge-indicator-meter"></span></td>
-              </tr>
-            </table>
+            <h3>Stamdata</h3>
           </div>
 
-        </div> <!-- group-together ends -->
-
-        <div class="page-break-before">
-
-          <div class="pt-3">
-            <h3>Brændsler anvendt til elfremstilling</h3>
-          </div>
-
-          <div class="row pt-3 align-middle">
-            <div class="col-12 col-md-7 align-middle" id="bar-chart-container"></div>
-            <div class="col-12 col-md-5 align-middle">
-              <table class="table table-striped align-middle">
-                <thead>
-                  <tr>
-                    <th></th>
-                    <th class="text-center">Brændselstype</th>
-                    <th class="text-center">Forbrug</th>
-                    <th class="text-center">Procentvis</th>
-                    <th class="text-center">Reference</th>
-                  </tr>
-                </thead>
-                <tbody id="table-fuels"></tbody>
-              </table>
-            </div>
-          </div>
-
-        </div> <!-- page-break-before ends -->
-
-        <div class="pt-3 page-break-before">
-
-          <div class="pt-3">
-            <h3>Hvor kommer din strøm fra?</h3>
-          </div>
-
-          <table class="table table-striped">
-            <thead>
-              <tr>
-                <th></th>
-                <th class="text-center">Brændselstype</th>
-                <th class="text-center">Vestdanmark</th>
-                <th class="text-center">Østdanmark</th>
-                <th class="text-center">Tyskland</th>
-                <th class="text-center">Norge</th>
-                <th class="text-center">Sverige</th>
-                <th class="text-center">Holland</th>
-                <th class="text-center">Procentvis</th>
-              </tr>
-            </thead>
-            <tbody id="table-from-production"></tbody>
-          </table>
-
-        </div> <!-- page-break-before ends -->
-
-        <div class="pt-3 page-break-before">
-
-          <div class="pt-3">
-            <h3>Miljøforhold for el leveret til forbrug</h3>
-          </div>
-
-          <table class="table table-striped" id="table-emission-data">
-            <thead>
-              <tr>
-                <th>Ved forbrug af 1 kWh fremkommer</th>
-                <th>Individuel deklaration</th>
-                <th>Reference</th>
-              </tr>
-            </thead>
-            <tbody id="table-emissions"></tbody>
-          </table>
-
-        </div> <!-- page-break-before ends -->
-
-      </div> <!-- emission-data-sector ends -->
-
-      <div class="pt-3">
-        <h4 id="label-status"></h4>
-      </div>
-
-      <div class="master-data-sector" hidden>
-
-        <div class="section-only-print page-break-before">
-
-          <h5 class="pt-3">Deklarationen omfatter:</h5>
+          <h5 class="pt-3">Deklarationen gælder:</h5>
 
           <div class="pt-3 table-responsive">
             <table class="table table-striped">
               <thead>
                 <tr>
-                  <th></th>
-                  <th>Målepunkt ID</th>
-                  <th>Addresse</th>
-                  <th>Postnummer</th>
-                  <th>By</th>
-                  <th>Status</th>
+                  <th>CVR</th>
+                  <th>Navn</th>
                 </tr>
               </thead>
-              <tbody class="table-mp-data"></tbody>
+              <tbody id="table-cvr-data"></tbody>
             </table>
           </div>
 
-        </div> <!-- page-break-before ends -->
+          <div class="section-not-to-print">
+            <h5 class="pt-3">Deklarationen omfatter:</h5>
 
-      </div> <!-- emission-data-sector ends -->
+            <div class="pt-3 table-responsive" id="measuring-points">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>Målepunkt ID</th>
+                    <th>Addresse</th>
+                    <th>Postnummer</th>
+                    <th>By</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody class="table-mp-data"></tbody>
+              </table>
+            </div>
+            <div class="mt-3">
+              <h5 id="download-status"></h5>
+            </div>
 
-    </div> <!-- bg-light p-5 rounded-lg m-3 ends -->
+            <button class="btn btn-primary px-3 my-3 eng-button" type="button" onclick="computeDeclaration(this)">Beregn</button>
+            <button class="btn btn-primary px-3 my-3 eng-button" type="button" onclick="toogleCheckedBoxes(this)">Vælg/fravælg alle</button>
+          </div>
+          <!-- section-not-to-print ends -->
+        </div>
+        <!-- master-data-sector ends -->
 
-  </div> <!-- container ends -->
+        <div class="emission-data-sector" hidden>
+          <div class="mt-3 group-together">
+            <h3>Din grønne profil</h3>
 
-</body>
+            <div class="pt-3">
+              <table class="table table-borderless text-center align-middle">
+                <tr>
+                  <td class="h5">Vedvarende energi</td>
+                  <td class="h5">Total CO<sub>2</sub> udledning:</td>
+                  <td class="h5">Din timeprofil:</td>
+                </tr>
+                <tr>
+                  <td><span id="gauge-green-meter"></span></td>
+                  <td>
+                    <strong><span class="h3" id="num-co2-total"></span></strong><br /><br /><span class="h5" id="num-co2-relative"></span>
+                  </td>
+                  <td><span id="gauge-indicator-meter"></span></td>
+                </tr>
+              </table>
+            </div>
+          </div>
+          <!-- group-together ends -->
 
+          <div class="page-break-before">
+            <div class="pt-3">
+              <h3>Brændsler anvendt til elfremstilling</h3>
+            </div>
+
+            <div class="row pt-3 align-middle">
+              <div class="col-12 col-md-7 align-middle" id="bar-chart-container"></div>
+              <div class="col-12 col-md-5 align-middle">
+                <table class="table table-striped align-middle">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th class="text-center">Brændselstype</th>
+                      <th class="text-center">Forbrug</th>
+                      <th class="text-center">Procentvis</th>
+                      <th class="text-center">Reference</th>
+                    </tr>
+                  </thead>
+                  <tbody id="table-fuels"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <!-- page-break-before ends -->
+
+          <div class="pt-3 page-break-before">
+            <div class="pt-3">
+              <h3>Hvor kommer din strøm fra?</h3>
+            </div>
+
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th class="text-center">Brændselstype</th>
+                  <th class="text-center">Vestdanmark</th>
+                  <th class="text-center">Østdanmark</th>
+                  <th class="text-center">Tyskland</th>
+                  <th class="text-center">Norge</th>
+                  <th class="text-center">Sverige</th>
+                  <th class="text-center">Holland</th>
+                  <th class="text-center">Procentvis</th>
+                </tr>
+              </thead>
+              <tbody id="table-from-production"></tbody>
+            </table>
+          </div>
+          <!-- page-break-before ends -->
+
+          <div class="pt-3 page-break-before">
+            <div class="pt-3">
+              <h3>Miljøforhold for el leveret til forbrug</h3>
+            </div>
+
+            <table class="table table-striped" id="table-emission-data">
+              <thead>
+                <tr>
+                  <th>Ved forbrug af 1 kWh fremkommer</th>
+                  <th>Individuel deklaration</th>
+                  <th>Reference</th>
+                </tr>
+              </thead>
+              <tbody id="table-emissions"></tbody>
+            </table>
+          </div>
+          <!-- page-break-before ends -->
+        </div>
+        <!-- emission-data-sector ends -->
+
+        <div class="pt-3">
+          <h4 id="label-status"></h4>
+        </div>
+
+        <div class="master-data-sector" hidden>
+          <div class="section-only-print page-break-before">
+            <h5 class="pt-3">Deklarationen omfatter:</h5>
+
+            <div class="pt-3 table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>Målepunkt ID</th>
+                    <th>Addresse</th>
+                    <th>Postnummer</th>
+                    <th>By</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody class="table-mp-data"></tbody>
+              </table>
+            </div>
+          </div>
+          <!-- page-break-before ends -->
+        </div>
+        <!-- emission-data-sector ends -->
+      </div>
+      <!-- bg-light p-5 rounded-lg m-3 ends -->
+    </div>
+    <!-- container ends -->
+  </body>
 </html>
