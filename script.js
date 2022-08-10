@@ -2,168 +2,171 @@ let EMISSION_DATA;
 let FUEL_DATA;
 let REFERENCES;
 
-let API_HOST = 'https://api.eloverblik.dk';
-let LOADER_GIF_URL = 'https://energinet.dk/resources/images/bx_loader.gif';
+let API_HOST = "https://api.eloverblik.dk";
+let LOADER_GIF_URL = "https://energinet.dk/resources/images/bx_loader.gif";
 let NUM_DIGITS_MEGA_CONVERT = 6;
 let NUM_DIGITS_TON_CONVERT = 6;
 let CHUNK_SIZE = 10;
 
-let CONNECTED_AREAS = [
-    'DK1',
-    'DK2',
-    'GE',
-    'NO',
-    'SE',
-    'NL'
-];
+let CONNECTED_AREAS = ["DK1", "DK2", "GE", "NO", "SE", "NL"];
 
 let FUEL_TYPES = {
-    'Vind': {
-        image: './images/wind.png',
-        color: '#00a98f'
+    Vind: {
+        image: "./images/wind.png",
+        color: "#00a98f",
     },
-    'Sol': {
-        image: './images/solar.png',
-        color: '#a0ffc8'
+    Sol: {
+        image: "./images/solar.png",
+        color: "#a0ffc8",
     },
-    'Vandkraft': {
-        image: './images/hydro.png',
-        color: '#0a515d'
+    Vandkraft: {
+        image: "./images/hydro.png",
+        color: "#0a515d",
     },
-    'Biomasse': {
-        image: './images/biomass.png',
-        color: '#ffd424'
+    Biomasse: {
+        image: "./images/biomass.png",
+        color: "#ffd424",
     },
-    'Affald': {
-        image: './images/waste.png',
-        color: '#fcba03'
+    Affald: {
+        image: "./images/waste.png",
+        color: "#fcba03",
     },
-    'Naturgas': {
-        image: './images/naturalgas.png',
-        color: '#a0c1c2'
+    Naturgas: {
+        image: "./images/naturalgas.png",
+        color: "#a0c1c2",
     },
-    'Kul og Olie': {
-        image: './images/coal.png',
-        color: '#333333'
+    "Kul og Olie": {
+        image: "./images/coal.png",
+        color: "#333333",
     },
-    'Atomkraft': {
-        image: './images/nuclear.png',
-        color: '#ff6600'
-    }
+    Atomkraft: {
+        image: "./images/nuclear.png",
+        color: "#ff6600",
+    },
 };
 
 let EMISSION_TYPES = {
-    'CO2': {
-        html: 'CO<sub>2</sub> (Kuldioxid - drivhusgas)',
-        unit: 'g',
+    CO2: {
+        html: "CO<sub>2</sub> (Kuldioxid - drivhusgas)",
+        unit: "g",
         numDecimals: 2,
-        type: 'air'
+        type: "air",
     },
-    'CH4': {
-        html: 'CH<sub>4</sub> (Metan - drivhusgas)',
-        unit: 'mg',
+    CH4: {
+        html: "CH<sub>4</sub> (Metan - drivhusgas)",
+        unit: "mg",
         numDecimals: 2,
-        type: 'air'
+        type: "air",
     },
-    'N2O': {
-        html: 'N<sub>2</sub>O (Lattergas - drivhusgas)',
-        unit: 'mg',
+    N2O: {
+        html: "N<sub>2</sub>O (Lattergas - drivhusgas)",
+        unit: "mg",
         numDecimals: 3,
-        type: 'air'
+        type: "air",
     },
-    'CO2Eqv': {
-        html: 'CO<sub>2</sub>-ækvivalenter i alt',
-        unit: 'mg',
+    CO2Eqv: {
+        html: "CO<sub>2</sub>-ækvivalenter i alt",
+        unit: "mg",
         numDecimals: 2,
-        type: 'air'
+        type: "air",
     },
-    'SO2': {
-        html: 'SO<sub>2</sub> (Svovldioxid)',
-        unit: 'mg',
+    SO2: {
+        html: "SO<sub>2</sub> (Svovldioxid)",
+        unit: "mg",
         numDecimals: 2,
-        type: 'air'
+        type: "air",
     },
-    'NOx': {
-        html: 'NO<sub>x</sub> (Kvælstofilte)',
-        unit: 'mg',
+    NOx: {
+        html: "NO<sub>x</sub> (Kvælstofilte)",
+        unit: "mg",
         numDecimals: 2,
-        type: 'air'
+        type: "air",
     },
-    'CO': {
-        html: 'CO (Kulilte)',
-        unit: 'mg',
+    CO: {
+        html: "CO (Kulilte)",
+        unit: "mg",
         numDecimals: 2,
-        type: 'air'
+        type: "air",
     },
-    'NMvoc': {
-        html: 'NM<sub>VOC</sub> (Uforbrændt kulbrinter)',
-        unit: 'mg',
+    NMvoc: {
+        html: "NM<sub>VOC</sub> (Uforbrændt kulbrinter)",
+        unit: "mg",
         numDecimals: 2,
-        type: 'air'
+        type: "air",
     },
-    'Particles': {
-        html: 'Partikler',
-        unit: 'mg',
+    Particles: {
+        html: "Partikler",
+        unit: "mg",
         numDecimals: 2,
-        type: 'air'
+        type: "air",
     },
-    'CoalFlyAsh': {
-        html: 'Kulflyveaske',
-        unit: 'g',
+    CoalFlyAsh: {
+        html: "Kulflyveaske",
+        unit: "g",
         numDecimals: 2,
-        type: 'residual'
+        type: "residual",
     },
-    'CoalSlag': {
-        html: 'Kulslagge',
-        unit: 'g',
+    CoalSlag: {
+        html: "Kulslagge",
+        unit: "g",
         numDecimals: 2,
-        type: 'residual'
+        type: "residual",
     },
-    'Desulp': {
-        html: 'Afsvovlingsprodukter (Gips)',
-        unit: 'g',
+    Desulp: {
+        html: "Afsvovlingsprodukter (Gips)",
+        unit: "g",
         numDecimals: 2,
-        type: 'residual'
+        type: "residual",
     },
-    'WasteSlag': {
-        html: 'Slagge (affaldsforbrænding)',
-        unit: 'g',
+    WasteSlag: {
+        html: "Slagge (affaldsforbrænding)",
+        unit: "g",
         numDecimals: 2,
-        type: 'residual'
+        type: "residual",
     },
-    'FuelGasWaste': {
-        html: 'RGA (røggasaffald)',
-        unit: 'g',
+    FuelGasWaste: {
+        html: "RGA (røggasaffald)",
+        unit: "g",
         numDecimals: 2,
-        type: 'residual'
+        type: "residual",
     },
-    'Bioash': {
-        html: 'Bioaske',
-        unit: 'g',
+    Bioash: {
+        html: "Bioaske",
+        unit: "g",
         numDecimals: 2,
-        type: 'residual'
+        type: "residual",
     },
-    'RadioactiveWaste': {
-        html: 'Radioaktivt affald (mg/kWh)',
-        unit: 'g',
+    RadioactiveWaste: {
+        html: "Radioaktivt affald (mg/kWh)",
+        unit: "g",
         numDecimals: 2,
-        type: 'residual'
-    }
+        type: "residual",
+    },
 };
 
 var year;
 var dataAccessToken;
 var measuringPoints;
 
-$(document).ready(function() {
+$(document).ready(function () {
+    // Sets up button disabled state for input being empty or set
+    $("#input-token").on("input", function () {
+        if ($(this).val().length === 0) {
+            $("#search-button").attr("disabled", "disabled");
+        } else if ($("#search-button").attr("disabled")) {
+            $("#search-button").removeAttr("disabled");
+        }
+    });
+
     // Sets up button click on Enter keypress
-    $("#input-token").keypress(function(event) {
-        if (event.keyCode === 13) { // Keypress on Enter
+    $("#input-token").keypress(function (event) {
+        // Keypress on Enter
+        if (event.keyCode === 13) {
             $("#button-retrieve-masterdata").click();
         }
     });
 
-    $("#input-year").on('change', function() {
+    $("#input-year").on("change", function () {
         hideSections();
     });
 });
@@ -176,8 +179,8 @@ function loadEmissionData(year) {
     $.ajax({
         type: "GET",
         url: `./data/${year}_emission_data.json`,
-        dataType: "json"
-    }).done(function(data) {
+        dataType: "json",
+    }).done(function (data) {
         EMISSION_DATA = data;
     });
 }
@@ -190,8 +193,8 @@ function loadFuelData(year) {
     $.ajax({
         type: "GET",
         url: `./data/${year}_fuel_data.json`,
-        dataType: "json"
-    }).done(function(data) {
+        dataType: "json",
+    }).done(function (data) {
         FUEL_DATA = data;
     });
 }
@@ -205,7 +208,7 @@ function loadReferences(year) {
         type: "GET",
         url: `./data/${year}_references.json`,
         dataType: "json",
-    }).done(function(data) {
+    }).done(function (data) {
         REFERENCES = data;
     });
 }
@@ -218,15 +221,14 @@ function getAllMeasuringPointsIDAndArea() {
     let ids = [];
 
     for (let measuringPoint of measuringPoints) {
-        if (measuringPoint.typeOfMP !== 'E17' || measuringPoint.settlementMethod === 'E01')
-            continue;
+        if (measuringPoint.typeOfMP !== "E17" || measuringPoint.settlementMethod === "E01") continue;
 
         // the postcode decides which price area the measuring point belongs to.
-        let area = parseInt(measuringPoint.postcode) >= 5000 ? 'DK1' : 'DK2';
+        let area = parseInt(measuringPoint.postcode) >= 5000 ? "DK1" : "DK2";
 
         ids.push({
             id: measuringPoint.meteringPointId,
-            area: area
+            area: area,
         });
     }
 
@@ -244,7 +246,7 @@ function extractHours(period) {
 
     for (let elem of period) {
         for (let point of elem.Point) {
-            kWhHourly.push(parseFloat(point['out_Quantity.quantity']));
+            kWhHourly.push(parseFloat(point["out_Quantity.quantity"]));
         }
     }
 
@@ -261,7 +263,8 @@ function calculateEmissionStats(kWhHourly, stats, area, offsetStartFrom) {
     let areaEmissionData = EMISSION_DATA[area];
 
     for (let emissionType of Object.keys(EMISSION_TYPES)) {
-        if (emissionType === 'CO2Eqv') // this value is computed so we skip it.
+        if (emissionType === "CO2Eqv")
+            // this value is computed so we skip it.
             continue;
 
         for (var i = 0; i < kWhHourly.length && i + offsetStartFrom < areaEmissionData[emissionType].length; i++) {
@@ -281,7 +284,6 @@ function calculateFuelStats(kWhHourly, stats, area, offsetStartFrom) {
 
     for (let fuelType of Object.keys(FUEL_TYPES)) {
         for (let connectedArea of CONNECTED_AREAS) {
-
             for (var i = 0; i < kWhHourly.length && i + offsetStartFrom < areaFuelData[fuelType][connectedArea].length; i++) {
                 let kWh = areaFuelData[fuelType][connectedArea][i + offsetStartFrom].S * kWhHourly[i];
 
@@ -301,17 +303,17 @@ function calculateFuelStats(kWhHourly, stats, area, offsetStartFrom) {
 function retrieveTimeSeries(ids) {
     return $.ajax({
         url: `${API_HOST}/CustomerApi/api/MeterData/GetTimeSeries/${year}-01-01/${year + 1}-01-01/Hour`,
-        type: 'POST',
+        type: "POST",
         data: JSON.stringify({
-            "meteringPoints": {
-                "meteringPoint": ids
-            }
+            meteringPoints: {
+                meteringPoint: ids,
+            },
         }),
-        dataType: 'json',
-        contentType: 'application/json',
-        beforeSend: function(xhr) {
-            xhr.setRequestHeader('Authorization', 'Bearer ' + dataAccessToken);
-        }
+        dataType: "json",
+        contentType: "application/json",
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("Authorization", "Bearer " + dataAccessToken);
+        },
     });
 }
 
@@ -322,10 +324,10 @@ function retrieveTimeSeries(ids) {
 function retrieveMeasuringPoints() {
     return $.ajax({
         url: `${API_HOST}/CustomerApi/api/meteringpoints/meteringpoints?includeAll=false`,
-        type: 'GET',
-        beforeSend: function(xhr) {
-            xhr.setRequestHeader('Authorization', 'Bearer ' + dataAccessToken);
-        }
+        type: "GET",
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("Authorization", "Bearer " + dataAccessToken);
+        },
     });
 }
 
@@ -337,10 +339,10 @@ function retrieveMeasuringPoints() {
 function retrieveDataAccessToken(refreshToken) {
     return $.ajax({
         url: `${API_HOST}/CustomerApi/api/Token`,
-        type: 'GET',
-        beforeSend: function(xhr) {
-            xhr.setRequestHeader('Authorization', 'Bearer ' + refreshToken);
-        }
+        type: "GET",
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("Authorization", "Bearer " + refreshToken);
+        },
     });
 }
 
@@ -352,7 +354,7 @@ function initFuelStats() {
     let stats = {
         Total_kWh: 0,
         DK1: 0,
-        DK2: 0
+        DK2: 0,
     };
 
     for (let fuelType of Object.keys(FUEL_TYPES)) {
@@ -392,7 +394,7 @@ function findAreaFromID(id, measuringPointsIDAndArea) {
         }
     }
 
-    throw 'ID not in the given list';
+    throw "ID not in the given list";
 }
 
 /**
@@ -403,19 +405,20 @@ function findAreaFromID(id, measuringPointsIDAndArea) {
  * @return The offset to start merging from.
  */
 function findOffsetStartFrom(period) {
-    if (period.length === 0)
-        throw 'Period contained no values';
+    if (period.length === 0) throw "Period contained no values";
 
     let start = period[0].timeInterval.start;
-    let compressedStart = start.substring(2, start.length - 7).replace(/-/g, '').replace('T', '');
+    let compressedStart = start
+        .substring(2, start.length - 7)
+        .replace(/-/g, "")
+        .replace("T", "");
 
     // Every fuel type and emission type contains hourly data for the whole year so we just pick Vind in Dk1.
     for (var i = 0; i < FUEL_DATA.DK1.Vind.DK1.length; i++) {
-        if (compressedStart === FUEL_DATA.DK1.Vind.DK1[i].T)
-            return i;
+        if (compressedStart === FUEL_DATA.DK1.Vind.DK1[i].T) return i;
     }
 
-    throw 'Timeslot was not found';
+    throw "Timeslot was not found";
 }
 
 /**
@@ -427,8 +430,8 @@ function findOffsetStartFrom(period) {
  * @param emissionStats The stats object containing the total energy for every fuel type.
  */
 function processTimesSeries(timeseries, id, measuringPointsIDAndArea, fuelStats, emissionStats) {
-    if (timeseries.length == 0 || timeseries[0].businessType !== 'A04') {
-        $(`.${id}-status`).text('Ikke time opgjort');
+    if (timeseries.length == 0 || timeseries[0].businessType !== "A04") {
+        $(`.${id}-status`).text("Ikke time opgjort");
         return;
     }
 
@@ -440,7 +443,7 @@ function processTimesSeries(timeseries, id, measuringPointsIDAndArea, fuelStats,
     calculateFuelStats(kWhHourly, fuelStats, area, offsetStartFrom);
     calculateEmissionStats(kWhHourly, emissionStats, area, offsetStartFrom);
 
-    $(`.${id}-status`).text('Inkluderet');
+    $(`.${id}-status`).text("Inkluderet");
 }
 
 /**
@@ -448,8 +451,8 @@ function processTimesSeries(timeseries, id, measuringPointsIDAndArea, fuelStats,
  */
 function getAllSelectedMeasurementsPoints() {
     var selectedMeasuringPoints = [];
-    $('#measuring-points input:checked').each(function() {
-        let id = $(this).attr('name');
+    $("#measuring-points input:checked").each(function () {
+        let id = $(this).attr("name");
         selectedMeasuringPoints.push(id);
         $(`.${id}-status`).html(`Henter data <img src="${LOADER_GIF_URL}" width="20" height="20">`);
     });
@@ -461,53 +464,55 @@ function getAllSelectedMeasurementsPoints() {
  * Processes all the given measuring points and computes declaration.
  */
 function computeDeclaration() {
-    $('.emission-data-sector').attr('hidden', true);
+    $(".emission-data-sector").attr("hidden", true);
     disableInputs();
-    $('#label-status').html(`Fremstiller din deklarationen. Vent venligst <img src="${LOADER_GIF_URL}" width="25" height="25">`);
+    $("#label-status").html(`Fremstiller din deklarationen. Vent venligst <img src="${LOADER_GIF_URL}" width="25" height="25">`);
 
     var selectedMeasuringPoints = getAllSelectedMeasurementsPoints();
     let measuringPointsIDAndArea = getAllMeasuringPointsIDAndArea();
 
     var downloaded = 0;
-    $('#download-status').text(`Hentet ${downloaded}/${selectedMeasuringPoints.length} målere.`);
+    $("#download-status").text(`Hentet ${downloaded}/${selectedMeasuringPoints.length} målere.`);
 
     let fuelStats = initFuelStats();
     let emissionStats = initEmissionStats();
     let apiCallList = [];
 
     for (var i = 0; i < selectedMeasuringPoints.length; i += CHUNK_SIZE) {
-
         let ids = selectedMeasuringPoints.slice(i, i + CHUNK_SIZE);
 
-        apiCallList.push(retrieveTimeSeries(ids).then(function(data) {
-            let result = data.result;
-            for (var j = 0; j < result.length; j++) {
-                let timeseries = result[j].MyEnergyData_MarketDocument.TimeSeries;
-                let id = result[j].id;
+        apiCallList.push(
+            retrieveTimeSeries(ids).then(function (data) {
+                let result = data.result;
+                for (var j = 0; j < result.length; j++) {
+                    let timeseries = result[j].MyEnergyData_MarketDocument.TimeSeries;
+                    let id = result[j].id;
 
-                processTimesSeries(timeseries, id, measuringPointsIDAndArea, fuelStats, emissionStats);
-            }
+                    processTimesSeries(timeseries, id, measuringPointsIDAndArea, fuelStats, emissionStats);
+                }
 
-            downloaded += ids.length;
-            $('#download-status').text(`Hentet ${downloaded}/${selectedMeasuringPoints.length} målere.`);
-        }));
+                downloaded += ids.length;
+                $("#download-status").text(`Hentet ${downloaded}/${selectedMeasuringPoints.length} målere.`);
+            })
+        );
     }
 
     // Initiate all the ajax requests at the same time and wait until they all return and is processed.
-    Promise.all(apiCallList).then(function() {
-        if (fuelStats.Total_kWh === 0) {
-            $('#label-status').text('Der er ikke registreret timeforbrug på dine målere.');
-        } else {
-            buildEmissionFuelPage(fuelStats, emissionStats);
-        }
+    Promise.all(apiCallList)
+        .then(function () {
+            if (fuelStats.Total_kWh === 0) {
+                $("#label-status").text("Der er ikke registreret timeforbrug på dine målere.");
+            } else {
+                buildEmissionFuelPage(fuelStats, emissionStats);
+            }
 
-        enableInputs();
-
-    }).catch(function(error) {
-        $('#label-status').text('Noget gik galt. Kunne ikke beregne miljødeklarationen. Prøv igen eller kontakt administratoren.');
-        console.log(error);
-        enableInputs();
-    });
+            enableInputs();
+        })
+        .catch(function (error) {
+            $("#label-status").text("Noget gik galt. Kunne ikke beregne miljødeklarationen. Prøv igen eller kontakt administratoren.");
+            console.log(error);
+            enableInputs();
+        });
 }
 
 /**
@@ -543,13 +548,12 @@ function disableInputs() {
  * Toogle measuring points checkboxes.
  */
 function toogleCheckedBoxes() {
-    let elements = $('#measuring-points input');
+    let elements = $("#measuring-points input");
 
-    if (elements.length < 1)
-        return;
+    if (elements.length < 1) return;
 
     toogleValue = !elements.first().prop("checked");
-    elements.each(function() {
+    elements.each(function () {
         $(this).prop("checked", toogleValue);
     });
 }
@@ -560,36 +564,39 @@ function toogleCheckedBoxes() {
 function retrieveMasterdata() {
     hideSections();
     disableInputs();
-    $('#download-status').text('');
+    $("#download-status").text("");
     year = parseInt($("#input-year").val());
 
-    $('#title-year').text(year);
+    $("#title-year").text(year);
 
-    let refreshToken = $('#input-token').val();
+    let refreshToken = $("#input-token").val();
 
-    $('#label-status').html(`Fremsøger din stamdata. Vent venligst <img src="${LOADER_GIF_URL}" width="20" height="20">`);
+    $("#label-status").html(`Fremsøger din stamdata. Vent venligst <img src="${LOADER_GIF_URL}" width="20" height="20">`);
 
-    loadData(year).then(function() {
-        retrieveDataAccessToken(refreshToken).then(function(data) {
-            dataAccessToken = data.result;
+    loadData(year).then(function () {
+        retrieveDataAccessToken(refreshToken)
+            .then(function (data) {
+                dataAccessToken = data.result;
 
-            retrieveMeasuringPoints().then(function(data) {
-                measuringPoints = data.result;
+                retrieveMeasuringPoints()
+                    .then(function (data) {
+                        measuringPoints = data.result;
 
-                buildMasterDataTables(measuringPoints);
+                        buildMasterDataTables(measuringPoints);
 
-                $('#label-status').html('');
-                $('#download-status').text('Hentet 0/0 målere.');
+                        $("#label-status").html("");
+                        $("#download-status").text("Hentet 0/0 målere.");
+                        enableInputs();
+                    })
+                    .catch(function () {
+                        $("#label-status").text("Noget gik galt. Kunne ikke hente forbrugsdata. Prøv igen eller kontakt administratoren.");
+                        enableInputs();
+                    });
+            })
+            .catch(function () {
+                $("#label-status").text("Noget gik galt. Venligst sikrer dig at din token er valid.");
                 enableInputs();
-
-            }).catch(function() {
-                $('#label-status').text('Noget gik galt. Kunne ikke hente forbrugsdata. Prøv igen eller kontakt administratoren.');
-                enableInputs()
             });
-        }).catch(function() {
-            $('#label-status').text('Noget gik galt. Venligst sikrer dig at din token er valid.');
-            enableInputs();
-        });
     });
 }
 
@@ -603,14 +610,10 @@ function retrieveMasterdata() {
 function formatAddress(measuringPoint) {
     var address = measuringPoint.streetName;
 
-    if (measuringPoint.buildingNumber)
-        address += " " + measuringPoint.buildingNumber;
-    if (measuringPoint.floorId)
-        address += ", " + measuringPoint.floorId;
-    if (measuringPoint.roomId && measuringPoint.floorId)
-        address += " " + measuringPoint.roomId;
-    else if (measuringPoint.roomId)
-        address += ", " + measuringPoint.roomId;
+    if (measuringPoint.buildingNumber) address += " " + measuringPoint.buildingNumber;
+    if (measuringPoint.floorId) address += ", " + measuringPoint.floorId;
+    if (measuringPoint.roomId && measuringPoint.floorId) address += " " + measuringPoint.roomId;
+    else if (measuringPoint.roomId) address += ", " + measuringPoint.roomId;
 
     return address;
 }
@@ -620,11 +623,11 @@ function formatAddress(measuringPoint) {
  * @param cvrs List of strings containing cvr and name separated by *.
  */
 function buildConsumerTable(cvrs) {
-    let cvrTable = $('#table-cvr-data');
-    cvrTable.empty('*');
+    let cvrTable = $("#table-cvr-data");
+    cvrTable.empty("*");
 
     for (let cvr of cvrs.values()) {
-        let elements = cvr.split('*');
+        let elements = cvr.split("*");
         cvrTable.append(`<tr><td class="h4">${elements[0]}</td><td class="h4">${elements[1]}</td></tr>`);
     }
 }
@@ -634,11 +637,11 @@ function buildConsumerTable(cvrs) {
  * @param mps List of strings containing information about measuring points separated by *.
  */
 function buildMeteringPointTable(mps_consumption, mps_production) {
-    let mpTable = $('.table-mp-data');
+    let mpTable = $(".table-mp-data");
     mpTable.empty();
 
     for (let mp of mps_consumption.values()) {
-        let elements = mp.split('*');
+        let elements = mp.split("*");
 
         mpTable.append(`
                         <tr>
@@ -652,7 +655,7 @@ function buildMeteringPointTable(mps_consumption, mps_production) {
                      `);
     }
     for (let mp of mps_production.values()) {
-        let elements = mp.split('*');
+        let elements = mp.split("*");
 
         mpTable.append(`
                         <tr>
@@ -677,32 +680,43 @@ function buildMasterDataTables(data) {
     let mps_production = new Set();
 
     for (let elem of data) {
-        cvrs.add(elem.consumerCVR + '*' + elem.firstConsumerPartyName);
+        cvrs.add(elem.consumerCVR + "*" + elem.firstConsumerPartyName);
 
-        if (elem.typeOfMP !== 'E17' || elem.settlementMethod === 'E01') {
+        if (elem.typeOfMP !== "E17" || elem.settlementMethod === "E01") {
             mps_production.add(
-
-                '' + '*' +
-                elem.meteringPointId + '*' +
-                formatAddress(elem) + '*' +
-                elem.postcode + '*' +
-                elem.cityName + '*' +
-                'Ekskluderet (Produktion)');
+                "" +
+                    "*" +
+                    elem.meteringPointId +
+                    "*" +
+                    formatAddress(elem) +
+                    "*" +
+                    elem.postcode +
+                    "*" +
+                    elem.cityName +
+                    "*" +
+                    "Ekskluderet (Produktion)"
+            );
         } else {
             mps_consumption.add(
-                `<input type="checkbox" name="${elem.meteringPointId}" checked="checked">` + '*' +
-                elem.meteringPointId + '*' +
-                formatAddress(elem) + '*' +
-                elem.postcode + '*' +
-                elem.cityName + '*' +
-                '');
+                `<input type="checkbox" name="${elem.meteringPointId}" checked="checked">` +
+                    "*" +
+                    elem.meteringPointId +
+                    "*" +
+                    formatAddress(elem) +
+                    "*" +
+                    elem.postcode +
+                    "*" +
+                    elem.cityName +
+                    "*" +
+                    ""
+            );
         }
     }
 
     buildConsumerTable(cvrs);
     buildMeteringPointTable(mps_consumption, mps_production);
 
-    $('.master-data-sector').removeAttr('hidden');
+    $(".master-data-sector").removeAttr("hidden");
 }
 
 /**
@@ -713,26 +727,31 @@ function buildMasterDataTables(data) {
  * @param DK2kWh The kWh consumption in DK2.
  */
 function buildEmissionTable(stats, totalkWh, DK1kWh, DK2kWh) {
-    let table = $('#table-emissions');
+    let table = $("#table-emissions");
     table.empty();
 
     let dk1Part = DK1kWh / totalkWh;
     let dk2Part = DK2kWh / totalkWh;
 
-    var airRows = '';
-    var residualRows = '';
+    var airRows = "";
+    var residualRows = "";
 
     for (let emissionType of Object.keys(EMISSION_TYPES)) {
         let value = getEmissionValue(emissionType, stats);
 
-        let ref_value = parseFloatAccordingToLocale(dk1Part * REFERENCES.emission[emissionType].DK1 +
-            dk2Part * REFERENCES.emission[emissionType].DK2, (emissionType === 'N2O') ? 3 : 2);
+        let ref_value = parseFloatAccordingToLocale(
+            dk1Part * REFERENCES.emission[emissionType].DK1 + dk2Part * REFERENCES.emission[emissionType].DK2,
+            emissionType === "N2O" ? 3 : 2
+        );
 
-        var html = '';
-        if (emissionType === 'CO2Eqv') {
+        var html = "";
+        if (emissionType === "CO2Eqv") {
             html = `<tr>
               <td class="text-start"><em>${EMISSION_TYPES[emissionType].html}</em></td>
-              <td class="text-center"><em>${parseFloatAccordingToLocale(value / totalkWh, EMISSION_TYPES[emissionType].numDecimals)}</em></td>
+              <td class="text-center"><em>${parseFloatAccordingToLocale(
+                  value / totalkWh,
+                  EMISSION_TYPES[emissionType].numDecimals
+              )}</em></td>
               <td class="text-end text-secondary"><em>${ref_value}</em></td>
               </tr>`;
         } else {
@@ -743,18 +762,22 @@ function buildEmissionTable(stats, totalkWh, DK1kWh, DK2kWh) {
             </tr>`;
         }
 
-        if (EMISSION_TYPES[emissionType].type === 'air') {
+        if (EMISSION_TYPES[emissionType].type === "air") {
             airRows += html;
-        } else if (EMISSION_TYPES[emissionType].type === 'residual') {
+        } else if (EMISSION_TYPES[emissionType].type === "residual") {
             residualRows += html;
         } else {
-            throw 'Unknown type. Must be air or residual';
+            throw "Unknown type. Must be air or residual";
         }
     }
 
-    table.append('<tr><td class="text-start"><strong>Emissioner til luften</strong></td><td  class="text-center" colspan="2"><strong>g/kWh</strong></td></tr>');
+    table.append(
+        '<tr><td class="text-start"><strong>Emissioner til luften</strong></td><td  class="text-center" colspan="2"><strong>g/kWh</strong></td></tr>'
+    );
     table.append(airRows);
-    table.append('<tr><td class="text-start"><strong>Restprodukter</strong></td><td  class="text-center" colspan="2"><strong>g/kWh</strong></td></tr>');
+    table.append(
+        '<tr><td class="text-start"><strong>Restprodukter</strong></td><td  class="text-center" colspan="2"><strong>g/kWh</strong></td></tr>'
+    );
     table.append(residualRows);
 }
 
@@ -762,8 +785,8 @@ function buildEmissionTable(stats, totalkWh, DK1kWh, DK2kWh) {
  * Hides master and emission data sections in the HTML page.
  */
 function hideSections() {
-    $('.master-data-sector').attr('hidden', true);
-    $('.emission-data-sector').attr('hidden', true);
+    $(".master-data-sector").attr("hidden", true);
+    $(".emission-data-sector").attr("hidden", true);
 }
 
 /**
@@ -776,14 +799,14 @@ function formatPolutionAmount(amount) {
     let actualAmount;
 
     if (amount >= Math.pow(10, NUM_DIGITS_TON_CONVERT)) {
-        unit = 't';
-        actualAmount = (amount / Math.pow(10, 6));
+        unit = "t";
+        actualAmount = amount / Math.pow(10, 6);
     } else {
-        unit = 'kg';
-        actualAmount = (amount / Math.pow(10, 3));
+        unit = "kg";
+        actualAmount = amount / Math.pow(10, 3);
     }
 
-    return parseFloatAccordingToLocale(actualAmount, 2) + ' ' + unit;
+    return parseFloatAccordingToLocale(actualAmount, 2) + " " + unit;
 }
 
 /**
@@ -792,7 +815,7 @@ function formatPolutionAmount(amount) {
  * @param emissionStats The stats object containing the total emission for every emission type.
  */
 function buildEmissionFuelPage(fuelStats, emissionStats) {
-    $('#label-status').text('');
+    $("#label-status").text("");
 
     buildEmissionTable(emissionStats, fuelStats.Total_kWh, fuelStats.DK1, fuelStats.DK2);
     buildBarChart(fuelStats);
@@ -801,10 +824,10 @@ function buildEmissionFuelPage(fuelStats, emissionStats) {
     buildFuelTable(fuelStats);
     buildConnectedAreaTable(fuelStats);
 
-    $('#num-co2-total').text(formatPolutionAmount(emissionStats.CO2));
-    $('#num-co2-relative').text(parseFloatAccordingToLocale((emissionStats.CO2 / fuelStats.Total_kWh)) + ' g/kWh');
+    $("#num-co2-total").text(formatPolutionAmount(emissionStats.CO2));
+    $("#num-co2-relative").text(parseFloatAccordingToLocale(emissionStats.CO2 / fuelStats.Total_kWh) + " g/kWh");
 
-    $('.emission-data-sector').removeAttr('hidden');
+    $(".emission-data-sector").removeAttr("hidden");
 }
 
 /**
@@ -814,16 +837,16 @@ function buildEmissionFuelPage(fuelStats, emissionStats) {
 function buildBarChart(fuelStats) {
     // This is necessary to do otherwise there is a problem in Saferi when we redraw a new pie chart.
     let canvasHtml = '<canvas id="barChart" width="1000" height="1000"></canvas>';
-    $('#bar-chart-container').html(canvasHtml);
+    $("#bar-chart-container").html(canvasHtml);
 
-    let ctx = document.getElementById('barChart').getContext('2d');
+    let ctx = document.getElementById("barChart").getContext("2d");
 
     let labels = [];
     let values = [];
     let colors = [];
 
     for (let fuelType of Object.keys(FUEL_TYPES)) {
-        if (fuelType !== 'Total_kWh') {
+        if (fuelType !== "Total_kWh") {
             labels.push(fuelType);
             values.push(sumConnectedAreas(fuelStats[fuelType]));
             colors.push(FUEL_TYPES[fuelType].color);
@@ -831,36 +854,40 @@ function buildBarChart(fuelStats) {
     }
 
     let chart = new Chart(ctx, {
-        type: 'outlabeledPie',
+        type: "outlabeledPie",
         data: {
             labels: labels,
-            datasets: [{
-                label: '',
-                data: values,
-                backgroundColor: colors
-            }]
+            datasets: [
+                {
+                    label: "",
+                    data: values,
+                    backgroundColor: colors,
+                },
+            ],
         },
         options: {
             maintainAspectRatio: false,
             legend: {
                 display: false,
-                align: 'center',
-                position: 'bottom'
+                align: "center",
+                position: "bottom",
             },
             animation: {
-                duration: 200
+                duration: 200,
             },
             tooltips: {
                 enabled: true,
                 callbacks: {
-                    label: function(tooltipItem, data) {
-                        return data.labels[tooltipItem.index].toString() +
-                            ': ' +
-                            formatEnergyAmount(data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index], fuelStats.Total_kWh);
-                    }
-                }
-            }
-        }
+                    label: function (tooltipItem, data) {
+                        return (
+                            data.labels[tooltipItem.index].toString() +
+                            ": " +
+                            formatEnergyAmount(data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index], fuelStats.Total_kWh)
+                        );
+                    },
+                },
+            },
+        },
     });
 }
 
@@ -869,20 +896,20 @@ function buildBarChart(fuelStats) {
  * @param fuelStats The stats object containing the total energy for every fuel type.
  */
 function buildGaugeChart(fuelStats) {
-    let element = document.querySelector('#gauge-green-meter');
-    $('#gauge-green-meter').empty();
+    let element = document.querySelector("#gauge-green-meter");
+    $("#gauge-green-meter").empty();
 
     let sustainablePercentage = sustainableEnergyPercentage(fuelStats);
 
     let gaugeOptions = {
         hasNeedle: true,
-        needleColor: 'gray',
+        needleColor: "gray",
         needleUpdateSpeed: 0,
-        arcColors: ['green', 'black'],
+        arcColors: ["green", "black"],
         arcDelimiters: [sustainablePercentage],
-        rangeLabel: ['0%', '100%'],
+        rangeLabel: ["0%", "100%"],
         needleStartValue: sustainableEnergyPercentage(fuelStats),
-        centralLabel: sustainablePercentage + '%',
+        centralLabel: sustainablePercentage + "%",
     };
 
     GaugeChart.gaugeChart(element, 300, gaugeOptions).updateNeedle(sustainablePercentage);
@@ -894,8 +921,8 @@ function buildGaugeChart(fuelStats) {
  * @param emissionStats The stats object containing the total emission for every emission type.
  */
 function buildIndicatorGaugeChart(emissionStats, fuelStats) {
-    let element = document.querySelector('#gauge-indicator-meter');
-    $('#gauge-indicator-meter').empty();
+    let element = document.querySelector("#gauge-indicator-meter");
+    $("#gauge-indicator-meter").empty();
 
     let totalkWh = fuelStats.Total_kWh;
     let dk1Part = fuelStats.DK1 / totalkWh;
@@ -909,17 +936,17 @@ function buildIndicatorGaugeChart(emissionStats, fuelStats) {
 
     let gaugeOptions = {
         hasNeedle: true,
-        needleColor: 'gray',
+        needleColor: "gray",
         needleUpdateSpeed: 0,
-        arcColors: ['black', '#ADD8E6', 'green'],
+        arcColors: ["black", "#ADD8E6", "green"],
         arcDelimiters: [45, 55],
-        rangeLabel: ['Mere CO\u2082', 'Mindre CO\u2082'],
+        rangeLabel: ["Mere CO\u2082", "Mindre CO\u2082"],
         needleStartValue: value,
-        centralLabel: parseFloatAccordingToLocale(value * -1) + '%',
+        centralLabel: parseFloatAccordingToLocale(value * -1) + "%",
     };
 
     let multiplied = 5 * value;
-    let needleValue = (multiplied > 50) ? 100 : (multiplied < -50) ? -50 : multiplied;
+    let needleValue = multiplied > 50 ? 100 : multiplied < -50 ? -50 : multiplied;
 
     GaugeChart.gaugeChart(element, 300, gaugeOptions).updateNeedle(50 + needleValue);
 }
@@ -929,7 +956,7 @@ function buildIndicatorGaugeChart(emissionStats, fuelStats) {
  * @param fuelStats The stats object containing the total energy for every fuel type.
  */
 function buildFuelTable(fuelStats) {
-    let table = $('#table-fuels');
+    let table = $("#table-fuels");
     table.empty();
 
     let totalkWh = fuelStats.Total_kWh;
@@ -937,11 +964,13 @@ function buildFuelTable(fuelStats) {
     let dk2Part = fuelStats.DK2 / totalkWh;
 
     for (let fuelType of Object.keys(FUEL_TYPES)) {
-        if (fuelType !== 'Total_kWh') {
+        if (fuelType !== "Total_kWh") {
             let consumed = sumConnectedAreas(fuelStats[fuelType]);
             let ref_value = dk1Part * REFERENCES.fuel[fuelType].DK1 + dk2Part * REFERENCES.fuel[fuelType].DK2;
             table.append(`<tr>
-                    <td style="background-color:${FUEL_TYPES[fuelType].color};"><img src="${FUEL_TYPES[fuelType].image}" width="30" height="30"></td>
+                    <td style="background-color:${FUEL_TYPES[fuelType].color};"><img src="${
+                FUEL_TYPES[fuelType].image
+            }" width="30" height="30"></td>
                     <td>${fuelType}</td>
                     <td class="text-end">${formatEnergyAmount(consumed, totalkWh)}</td>
                     <td class="text-end">${getProcentwiseOfTotal(consumed, totalkWh)}%</td>
@@ -950,7 +979,12 @@ function buildFuelTable(fuelStats) {
         }
     }
 
-    table.append(`<tr><td></td><td class='h4' colspan="2">Total forbrug</td><td class='h4' colspan="2">${formatEnergyAmount(totalkWh, totalkWh)}</td></tr>`);
+    table.append(
+        `<tr><td></td><td class='h4' colspan="2">Total forbrug</td><td class='h4' colspan="2">${formatEnergyAmount(
+            totalkWh,
+            totalkWh
+        )}</td></tr>`
+    );
 }
 
 /**
@@ -958,13 +992,13 @@ function buildFuelTable(fuelStats) {
  * @param fuelStats The stats object containing the total energy for every fuel type.
  */
 function buildConnectedAreaTable(fuelStats) {
-    let table = $('#table-from-production');
+    let table = $("#table-from-production");
     table.empty();
 
     let totalkWh = fuelStats.Total_kWh;
 
     for (let fuelType of Object.keys(FUEL_TYPES)) {
-        if (fuelType !== 'Total_kWh') {
+        if (fuelType !== "Total_kWh") {
             let consumed = sumConnectedAreas(fuelStats[fuelType]);
 
             var rows = ``;
@@ -973,7 +1007,9 @@ function buildConnectedAreaTable(fuelStats) {
             }
 
             table.append(`<tr>
-                    <td class="text-center" style="background-color:${FUEL_TYPES[fuelType].color};"><img src="${FUEL_TYPES[fuelType].image}" width="30" height="30"></td>
+                    <td class="text-center" style="background-color:${FUEL_TYPES[fuelType].color};"><img src="${
+                FUEL_TYPES[fuelType].image
+            }" width="30" height="30"></td>
                     <td>${fuelType}</td>
                     ${rows}
                     <td class="text-end"><strong>${getProcentwiseOfTotal(consumed, totalkWh)}%</strong></td>
@@ -983,7 +1019,10 @@ function buildConnectedAreaTable(fuelStats) {
 
     var rows = ``;
     for (let connectedArea of CONNECTED_AREAS) {
-        rows += `<td class="text-end"><strong>${getProcentwiseOfTotal(sumFuelsAccordingToConnectedArea(fuelStats, connectedArea), totalkWh)}%</strong></td>`;
+        rows += `<td class="text-end"><strong>${getProcentwiseOfTotal(
+            sumFuelsAccordingToConnectedArea(fuelStats, connectedArea),
+            totalkWh
+        )}%</strong></td>`;
     }
     table.append(`<tr>
                 <td></td>
@@ -1043,14 +1082,14 @@ function formatEnergyAmount(amountkWh, totalAmountkWh) {
     let actualAmount;
 
     if (totalAmountkWh >= Math.pow(10, NUM_DIGITS_MEGA_CONVERT)) {
-        unit = 'MWh';
-        actualAmount = (amountkWh / Math.pow(10, 3));
+        unit = "MWh";
+        actualAmount = amountkWh / Math.pow(10, 3);
     } else {
-        unit = 'kWh';
+        unit = "kWh";
         actualAmount = amountkWh;
     }
 
-    return parseFloatAccordingToLocale(actualAmount, 0) + ' ' + unit;
+    return parseFloatAccordingToLocale(actualAmount, 0) + " " + unit;
 }
 
 /**
@@ -1060,13 +1099,14 @@ function formatEnergyAmount(amountkWh, totalAmountkWh) {
  */
 function sustainableEnergyPercentage(fuelStats) {
     let total = fuelStats.Total_kWh;
-    let greenEnergy = sumConnectedAreas(fuelStats.Sol) +
+    let greenEnergy =
+        sumConnectedAreas(fuelStats.Sol) +
         sumConnectedAreas(fuelStats.Vind) +
         sumConnectedAreas(fuelStats.Vandkraft) +
         sumConnectedAreas(fuelStats.Biomasse) +
         sumConnectedAreas(fuelStats.Affald) * 0.55;
 
-    return Math.round(greenEnergy / total * 100);
+    return Math.round((greenEnergy / total) * 100);
 }
 
 /**
@@ -1076,8 +1116,8 @@ function sustainableEnergyPercentage(fuelStats) {
  * @return The parsed number as a localized string.
  */
 function parseFloatAccordingToLocale(number, numDecimals = 2) {
-    return parseFloat(number.toFixed(numDecimals)).toLocaleString('da-DK', {
-        minimumFractionDigits: numDecimals
+    return parseFloat(number.toFixed(numDecimals)).toLocaleString("da-DK", {
+        minimumFractionDigits: numDecimals,
     });
 }
 
@@ -1087,15 +1127,15 @@ function parseFloatAccordingToLocale(number, numDecimals = 2) {
  * @param stats The stats object containing the total emission for every emission type.
  */
 function getEmissionValue(emissionType, stats) {
-    if (emissionType === 'CO2Eqv') {
+    if (emissionType === "CO2Eqv") {
         return stats.CO2 + (stats.CH4 * 28) / 1000 + (stats.N2O * 265) / 1000;
     }
 
-    if (EMISSION_TYPES[emissionType].unit === 'g') {
+    if (EMISSION_TYPES[emissionType].unit === "g") {
         return stats[emissionType];
-    } else if (EMISSION_TYPES[emissionType].unit === 'mg') {
+    } else if (EMISSION_TYPES[emissionType].unit === "mg") {
         return stats[emissionType] / 1000;
     } else {
-        throw 'Unknown unit type';
+        throw "Unknown unit type";
     }
 }
