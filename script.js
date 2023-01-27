@@ -408,10 +408,12 @@ function findOffsetStartFrom(period) {
     if (period.length === 0) throw "Period contained no values";
 
     let start = period[0].timeInterval.start;
-    let compressedStart = start
-        .substring(2, start.length - 7)
-        .replace(/-/g, "")
-        .replace("T", "");
+    let compressedStart = Number(
+        start
+            .substring(2, start.length - 7)
+            .replace(/-/g, "")
+            .replace("T", "")
+    );
 
     // Every fuel type and emission type contains hourly data for the whole year so we just pick Vind in Dk1.
     for (var i = 0; i < FUEL_DATA.DK1.Vind.DK1.length; i++) {
@@ -745,6 +747,7 @@ function buildEmissionTable(stats, totalkWh, DK1kWh, DK2kWh) {
         );
 
         var html = "";
+        if (emissionType === "CO2") $("#num-co2-average").text(ref_value + " g/kWh");
         if (emissionType === "CO2Eqv") {
             html = `<tr>
               <td class="text-start"><em>${EMISSION_TYPES[emissionType].html}</em></td>
@@ -978,7 +981,7 @@ function buildFuelTable(fuelStats) {
                     </tr>`);
         }
     }
-
+    $("#num-consumption-total").text(parseFloatAccordingToLocale(Number(totalkWh)) + " kWh");
     table.append(
         `<tr><td></td><td class='h4' colspan="2">Total forbrug</td><td class='h4' colspan="2">${formatEnergyAmount(
             totalkWh,

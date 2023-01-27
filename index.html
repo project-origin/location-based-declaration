@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Deklaration, leveret el.</title>
+    <title>Din deklaration | Energinet</title>
 
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"
@@ -31,43 +31,48 @@
     <div id="banner-background">
       <div class="container">
         <div class="p-3 rounded-lg">
-          <img src="./images/logo.png" alt="Logo is missing." />
+          <img src="./images/logo.png" alt="Energinet" />
         </div>
       </div>
     </div>
 
     <div class="container">
       <div class="bg-light rounded-lg p-5 m-3">
-        <h1 class="display-4">Deklaration, leveret el. <span id="title-year"></span></h1>
+        <h1 class="display-4">Din deklaration <span id="title-year"></span></h1>
 
         <div class="section-not-to-print">
           <p class="lead mt-4">
             De beregnede emissioner er baseret på dit timeforbrug og lokation for de viste målere, kombineret med Energinets områdeafhængige
             timedeklaration. De beregnede nøgletal per kWh er dine gennemsnitsværdier for perioden. Jo større del af dit forbrug, der ligger
-            i perioder med høj andel af VE, jo lavere vil emissionerne være per kWh. Bemærk:
+            i perioder med høj andel af vedvarende energi (VE), jo lavere vil emissionerne være per kWh. Bemærk:
           </p>
           <ul class="lead">
             <li>
               El-deklarationerne fra din elhandler er baseret på handel med certifikater, men de påvirker ikke hvad der leveres fra
               elnettet. Læs mere om de forskellige deklarationer på Energinets hjemmeside her:
-              <a href="https://energinet.dk/Deklarationer" target="_blank">Deklarationer</a>.
+              <a href="https://energinet.dk/Deklarationer" target="_blank" rel="noopener noreferrer">Deklarationer</a>.
             </li>
             <li>
               Producerer du selv strøm, skal du selv indregne den del af forbrug og produktion, der ikke passerer elmåleren (egetforbrug).
             </li>
             <li>
-              VE inkluderer vind, sol, vand, bioenergi og 55% affald. Se Energistyrelsens energistatistik 2019
-              <a href="https://ens.dk/sites/ens.dk/files/Statistik/energistatistik2019_dk-webtilg.pdf" target="_blank">her</a>.
+              VE inkluderer vind, sol, vand, bioenergi og 55% affald. Se Energistyrelsens energistatistik
+              <a
+                href="https://ens.dk/service/statistik-data-noegletal-og-kort/maanedlig-og-aarlig-energistatistik"
+                target="_blank"
+                rel="noopener noreferrer"
+                >her</a
+              >.
             </li>
             <li>Timedeklaration finder du på Energidataservice i følgende to datasæt:</li>
             <ul>
               <li>
-                <a href="https://www.energidataservice.dk/tso-electricity/declarationemissionhour" target="_blank"
+                <a href="https://www.energidataservice.dk/tso-electricity/declarationemissionhour" target="_blank" rel="noopener noreferrer"
                   >Declaration, Emission per Hour</a
                 >
               </li>
               <li>
-                <a href="https://www.energidataservice.dk/tso-electricity/declarationcoveragehour" target="_blank"
+                <a href="https://www.energidataservice.dk/tso-electricity/declarationcoveragehour" target="_blank" rel="noopener noreferrer"
                   >Declaration, Consumption coverage per Hour</a
                 >
               </li>
@@ -155,14 +160,23 @@
             <div class="pt-3">
               <table class="table table-borderless text-center align-middle">
                 <tr>
-                  <td class="h5">Vedvarende energi</td>
-                  <td class="h5">Total CO<sub>2</sub> udledning:</td>
-                  <td class="h5">Din timeprofil:</td>
+                  <td class="h5">Andel af vedvarende energi i dit elforbrug</td>
+                  <td class="h5">Din emissions profil</td>
+                  <td class="h5">Din udledning i forhold til gennemsnittet</td>
                 </tr>
                 <tr>
                   <td><span id="gauge-green-meter"></span></td>
                   <td>
-                    <strong><span class="h3" id="num-co2-total"></span></strong><br /><br /><span class="h5" id="num-co2-relative"></span>
+                    <div class="emission-numbers">
+                      <div>Dit totale forbrug</div>
+                      <div id="num-consumption-total"></div>
+                      <div>Din totale CO<sub>2</sub>-udledning</div>
+                      <div id="num-co2-total"></div>
+                      <div>Din gennemsnitlige CO<sub>2</sub>-udledning</div>
+                      <div id="num-co2-relative"></div>
+                      <div>Gennemsnitlig CO<sub>2</sub>-udledning</div>
+                      <div id="num-co2-average"></div>
+                    </div>
                   </td>
                   <td><span id="gauge-indicator-meter"></span></td>
                 </tr>
@@ -173,7 +187,7 @@
 
           <div class="page-break-before">
             <div class="pt-3">
-              <h3>Brændsler anvendt til elfremstilling</h3>
+              <h3>Energikilder anvendt til fremstilling af din el</h3>
             </div>
 
             <div class="row pt-3 align-middle">
@@ -222,7 +236,7 @@
 
           <div class="pt-3 page-break-before">
             <div class="pt-3">
-              <h3>Miljøforhold for el leveret til forbrug</h3>
+              <h3>Emissioner som følge af dit forbrug</h3>
             </div>
 
             <table class="table table-striped" id="table-emission-data">

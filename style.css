@@ -27,3 +27,17 @@ td {
 input[type="checkbox"] {
     transform: scale(1.5);
 }
+
+.emission-numbers {
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 1rem;
+    text-align: left;
+
+
+}
+
+.emission-numbers :nth-child(2n-1) {
+    text-align: right;
+    font-weight: bold;
+}
