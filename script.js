@@ -3,7 +3,7 @@ let FUEL_DATA;
 let REFERENCES;
 
 let API_HOST = "https://api.eloverblik.dk";
-let LOADER_GIF_URL = "https://energinet.dk/resources/images/bx_loader.gif";
+let LOADER_GIF_URL = "https://cdnjs.cloudflare.com/ajax/libs/bxslider/4.2.15/images/bx_loader.gif";
 let NUM_DIGITS_MEGA_CONVERT = 6;
 let NUM_DIGITS_TON_CONVERT = 6;
 let CHUNK_SIZE = 10;
